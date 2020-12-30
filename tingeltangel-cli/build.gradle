@@ -1,5 +1,6 @@
 plugins {
     id 'application'
+    id 'kotlin'
     id "org.beryx.runtime" version "1.12.1"
 }
 
@@ -8,11 +9,13 @@ sourceCompatibility = "1.8"
 group "$GROUP"
 version "$VERSION_NAME"
 
-mainClassName = "tingeltangel.Tingeltangel"
+mainClassName = "tingeltangel.TingeltangelCli"
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     implementation project(":core")
 }
+
 apply plugin: "org.beryx.runtime"
 apply from: rootProject.file('installer.gradle')
 runtime {

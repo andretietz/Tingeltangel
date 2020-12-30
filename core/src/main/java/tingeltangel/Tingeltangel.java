@@ -28,7 +28,6 @@ package tingeltangel;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import tingeltangel.cli.CLI;
 import tingeltangel.core.Codes;
 import tingeltangel.core.Properties;
 import tingeltangel.core.Repository;
@@ -128,20 +127,6 @@ public class Tingeltangel {
                     }
                 }
             });
-        } else if ((args.length > 0) && (args[0].toLowerCase().equals("cli"))) {
-            tingeltangel.cli_ng.CLI.init();
-            String clicmd = "";
-            if (args.length > 1) {
-                clicmd = args[1];
-            }
-            tingeltangel.cli_ng.CLI.run(clicmd);
-        } else {
-            if (args.length == 0) {
-                tingeltangel.cli_ng.CLI.init();
-                tingeltangel.cli_ng.CLI.run("");
-            } else if (!CLI.cli(args)) {
-                log.warn("starting cli failed");
-            }
         }
     }
 
