@@ -28,7 +28,6 @@ package tingeltangel;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import tingeltangel.andersicht.gui.AndersichtMainFrame;
 import tingeltangel.cli.CLI;
 import tingeltangel.core.Codes;
 import tingeltangel.core.Properties;
@@ -61,18 +60,21 @@ public class Tingeltangel {
 
     private final static Logger log = LogManager.getLogger(Tingeltangel.class);
 
-    public static void main(String[] args) throws Exception {
-
+    public static void printVersion() {
         log.info("Starting Tingeltangel" + MAIN_FRAME_VERSION);
         log.info("\tos.name     : " + System.getProperty("os.name"));
         log.info("\tos.version  : " + System.getProperty("os.version"));
         log.info("\tos.arch     : " + System.getProperty("os.arch"));
         log.info("\tjava.version: " + System.getProperty("java.version"));
         log.info("\tjava.vendor : " + System.getProperty("java.vendor"));
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        printVersion();
 
         boolean startEditor = false;
         boolean startManager = false;
-        boolean startAndersicht = false;
 
 
         if ((args.length > 0) && (args[0].toLowerCase().equals("gui-editor"))) {
@@ -81,12 +83,9 @@ public class Tingeltangel {
         if ((args.length > 0) && (args[0].toLowerCase().equals("gui-manager"))) {
             startManager = true;
         }
-        if ((args.length > 0) && (args[0].toLowerCase().equals("andersicht"))) {
-            startAndersicht = true;
-        }
 
         boolean doInitialUpdate = true;
-        if (((args.length > 1) && (args[1].toLowerCase().equals("disable-official-books"))) || startAndersicht) {
+        if (((args.length > 1) && (args[1].toLowerCase().equals("disable-official-books")))) {
             doInitialUpdate = false;
         }
 
@@ -136,13 +135,6 @@ public class Tingeltangel {
                 clicmd = args[1];
             }
             tingeltangel.cli_ng.CLI.run(clicmd);
-        } else if (startAndersicht) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    new AndersichtMainFrame();
-                }
-            });
         } else {
             if (args.length == 0) {
                 tingeltangel.cli_ng.CLI.init();

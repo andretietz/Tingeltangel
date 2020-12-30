@@ -8,14 +8,11 @@ sourceCompatibility = "1.8"
 group "$GROUP"
 version "$VERSION_NAME"
 
-mainClassName = "tingeltangel.Tingeltangel"
+mainClassName = "tingeltangel.andersicht.Andersicht"
 
 dependencies {
     implementation project(":core")
 }
 
-run {
-    args = ["andersicht"]
-}
 apply plugin: "org.beryx.runtime"
 apply from: rootProject.file('installer.gradle')
