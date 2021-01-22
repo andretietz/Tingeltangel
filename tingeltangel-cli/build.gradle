@@ -1,6 +1,5 @@
 plugins {
     id 'application'
-    id 'kotlin'
     id "org.beryx.runtime" version "1.12.1"
 }
 
@@ -12,7 +11,6 @@ version "$VERSION_NAME"
 mainClassName = "tingeltangel.TingeltangelCli"
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
     implementation project(":core")
 }
 
