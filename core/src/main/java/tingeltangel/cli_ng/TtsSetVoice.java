@@ -16,8 +16,9 @@
 package tingeltangel.cli_ng;
 
 import tingeltangel.core.Properties;
-import static tingeltangel.gui.TTSPreferences.PROPERTY_DEFAULT_VOICE;
 import tingeltangel.tools.TTS;
+
+import static tingeltangel.tools.TTS.PROPERTY_DEFAULT_VOICE;
 
 /**
  *

@@ -22,8 +22,7 @@ runtime {
                     '--win-shortcut'
             ]
             imageOptions += [
-                    '--icon', "icon/icon.ico",
-                    '--win-console'
+                    '--icon', "icon/icon.ico"
             ]
         } else if (os.macOsX) {
             installerType = "dmg"

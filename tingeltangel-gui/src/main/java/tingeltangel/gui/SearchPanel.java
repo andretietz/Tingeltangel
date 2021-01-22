@@ -1,6 +1,8 @@
 package tingeltangel.gui;
 
 import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import tingeltangel.core.Entry;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -10,11 +12,9 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import tingeltangel.core.Entry;
-
 public class SearchPanel extends JPanel {
 
+    // TODO: Localization
     private static final String SEARCH_LABEL = "Suche";
     private static final String CLEAR_LABEL = "Löschen";
     private static final String MP3_TYPE = "MP3";

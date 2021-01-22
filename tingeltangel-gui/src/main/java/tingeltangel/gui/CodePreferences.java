@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2015   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 package tingeltangel.gui;
 
@@ -22,48 +22,42 @@ import tingeltangel.core.Codes;
 import tingeltangel.core.Properties;
 import tingeltangel.tools.Preferences;
 
+import static tingeltangel.core.constants.CodePreferenceConstants.*;
+
 /**
  *
  * @author mdames
  */
 public class CodePreferences extends javax.swing.JDialog {
 
-    public final static String PROPERTY_RESOLUTION = "resolution";
-    public final static String PROPERTY_DOT_SIZE_600 = "dot_size_600";
-    public final static String PROPERTY_PATTERN_SIZE_600 = "pattern_size_600";
-    public final static String PROPERTY_DELTA_SIZE_600 = "delta_size_600";
-    public final static String PROPERTY_DOT_SIZE_1200 = "dot_size_1200";
-    public final static String PROPERTY_PATTERN_SIZE_1200 = "pattern_size_1200";
-    public final static String PROPERTY_DELTA_SIZE_1200 = "delta_size_1200";
-    
     /**
      * Creates new form TTSPreferences
      */
     public CodePreferences() {
         initComponents();
-        
+
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        
+
         if(Codes.getResolution() == Codes.DPI600) {
             resolution.setSelectedIndex(0);
         } else {
             resolution.setSelectedIndex(1);
         }
-        
+
         patternSize600Slider.setValue(Codes.getPatternSize600());
         patternSize600Label.setText(Integer.toString(Codes.getPatternSize600()));
         dotSize600Slider.setValue(Codes.getDotSize600());
         dotSize600Label.setText(Integer.toString(Codes.getDotSize600()));
         deltaSize600Slider.setValue(Codes.getDeltaSize600());
         deltaSize600Label.setText(Integer.toString(Codes.getDeltaSize600()));
-        
+
         patternSize1200Slider.setValue(Codes.getPatternSize1200());
         patternSize1200Label.setText(Integer.toString(Codes.getPatternSize1200()));
         dotSize1200Slider.setValue(Codes.getDotSize1200());
         dotSize1200Label.setText(Integer.toString(Codes.getDotSize1200()));
         deltaSize1200Slider.setValue(Codes.getDeltaSize1200());
         deltaSize1200Label.setText(Integer.toString(Codes.getDeltaSize1200()));
-        
+
     }
 
     /**
@@ -340,7 +334,7 @@ public class CodePreferences extends javax.swing.JDialog {
         Codes.setDotSize1200(dotSize1200Slider.getValue());
         Codes.setDeltaSize1200(deltaSize1200Slider.getValue());
         Codes.saveProperties();
-        
+
     }//GEN-LAST:event_okButtonActionPerformed
 
     private void resolutionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resolutionActionPerformed

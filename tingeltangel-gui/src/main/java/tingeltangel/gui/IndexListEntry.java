@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2016   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,46 +14,10 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 package tingeltangel.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import tingeltangel.core.Codes;
@@ -64,12 +28,26 @@ import tingeltangel.core.scripting.SyntaxError;
 import tingeltangel.tools.Callback;
 import tingeltangel.tools.Lang;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.*;
+
 /**
  *
  * @author martin
  */
 public class IndexListEntry extends JPanel {
-    
+
     private final int ICON_MP3 = 0;
     private final int ICON_SCRIPT = 1;
     private final int ICON_SUB_SCRIPT = 2;
@@ -81,7 +59,7 @@ public class IndexListEntry extends JPanel {
     private final int ICON_SAVE_PATTERN = 8;
     private final int ICON_COPY_PATTERN = 9;
     private final int ICON_SAVE_MP3 = 10;
-    
+
     private final String[] ICONS = {
         "mp3.png",
         "code.png",
@@ -95,13 +73,13 @@ public class IndexListEntry extends JPanel {
         "copy-code.png",
         "save-mp3.png"
     };
-    
+
     private final static String MP3 = "mp3";
     private final static String SCRIPT = "script";
     private final static String SUB = "sub";
     private final static String TTS = "tts";
-    
-    
+
+
     private static String lastChooseMp3DialogPath = null;
     private JLabel trackInfo = new JLabel(" ");
     private final Entry entry;
@@ -109,9 +87,9 @@ public class IndexListEntry extends JPanel {
     private final JCheckBox codeCheckBox = new JCheckBox();
     private final JTextField name = new JTextField();
 
-    
+
     private final static Logger log = LogManager.getLogger(IndexListEntry.class);
-    
+
     private ImageIcon getIcon(int res) {
         try {
             return(new ImageIcon(ImageIO.read(getClass().getResource("/icons/" + ICONS[res]))));
@@ -119,28 +97,28 @@ public class IndexListEntry extends JPanel {
         }
         return(null);
     }
-    
-    
+
+
     public IndexListEntry(final Entry entry, final EditorPanel frame) {
         super();
         this.entry = entry;
-        
-        
+
+
         boolean unknownID = Translator.ting2code(entry.getTingID()) < 0;
-        
-        
+
+
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.black));
-        
+
         JPanel header = new JPanel();
         header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
-        
+
         JPanel row = new JPanel();
-        
+
         if(unknownID) {
             row.setBackground(Color.red);
         }
-        
+
         final JButton sizeButton = new JButton("<");
         sizeButton.setMargin(new Insets(0, 0, 0, 0));
         sizeButton.addActionListener(new ActionListener() {
@@ -156,27 +134,27 @@ public class IndexListEntry extends JPanel {
             }
         });
         row.add(sizeButton);
-        
-        
+
+
         JPanel space2 = new JPanel();
         Dimension spaceDim = new Dimension(20, 1);
         space2.setMinimumSize(spaceDim);
         space2.setMaximumSize(spaceDim);
         row.add(space2);
-        
+
         JButton jboid = new JButton(Integer.toString(entry.getTingID()));
         jboid.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                
-                
+
+
             }
         });
         row.add(jboid);
-        
-        
-        
-        
+
+
+
+
         int iconRes = -1;
         if(entry.isMP3()) {
             iconRes = ICON_MP3;
@@ -193,12 +171,12 @@ public class IndexListEntry extends JPanel {
         icon.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                
+
                 JComponent source = (JComponent)ae.getSource();
-                
+
                 int px = source.getX() + getX() + frame.getMainFrame().getX() - frame.getScrollX();
                 int py = source.getY() + getY() + frame.getMainFrame().getY() - frame.getScrollY();
-                
+
                 String[] options = {
                     Lang.get("indexFrame.dialog.mp3"),
                     Lang.get("indexFrame.dialog.script"),
@@ -209,7 +187,7 @@ public class IndexListEntry extends JPanel {
                 Callback<String> callback = new Callback<String>() {
                     @Override
                     public void callback(String s) {
-                        
+
                         String oldVal = "";
                         if(entry.isCode() || entry.isSub()) {
                             oldVal = entry.getScript().toString();
@@ -218,7 +196,7 @@ public class IndexListEntry extends JPanel {
                         } else if(entry.isTTS()) {
                             oldVal = entry.getTTS().text;
                         }
-                        
+
                         if(s.equals(MP3)) {
                             entry.setMP3();
                             entry.setHint(oldVal);
@@ -257,7 +235,7 @@ public class IndexListEntry extends JPanel {
                             }
                         }.start();
                     }
-                };      
+                };
                 int preselection = -1;
                 if(entry.isMP3()) {
                     preselection = 0;
@@ -274,12 +252,12 @@ public class IndexListEntry extends JPanel {
             }
         });
         row.add(icon);
-        
+
         JPanel space = new JPanel();
         space.setMinimumSize(spaceDim);
         space.setMaximumSize(spaceDim);
         row.add(space);
-        
+
         JButton delete = new JButton(getIcon(ICON_DELETE));
         delete.setToolTipText("löschen");
         delete.setMargin(new Insets(0, 0, 0, 0));
@@ -301,9 +279,9 @@ public class IndexListEntry extends JPanel {
                 }.start();
             }
         });
-        row.add(delete);   
+        row.add(delete);
 
-        
+
         JButton play = new JButton(getIcon(ICON_PLAY));
         play.setToolTipText("abspielen");
         play.setMargin(new Insets(0, 0, 0, 0));
@@ -349,12 +327,12 @@ public class IndexListEntry extends JPanel {
                         frame.setCurrentTrack(null);
                     }
                 }.start();
-                
+
             }
         });
         row.add(play);
-        
-        
+
+
         // add eject icon
         JButton eject = new JButton(getIcon(ICON_EJECT));
         eject.setToolTipText("mp3 ändern");
@@ -374,8 +352,8 @@ public class IndexListEntry extends JPanel {
                             }
                             entry.setMP3(file);
                             trackInfo.setText(getTrackInfo(entry));
-                            
-                            
+
+
                         } catch(FileNotFoundException ex) {
                             JOptionPane.showMessageDialog(frame, "Die Datei '" + fc.getSelectedFile() + "' konnte nicht gefunden werden.");
                             log.error("unable to find mp3", ex);
@@ -390,9 +368,9 @@ public class IndexListEntry extends JPanel {
             eject.setEnabled(false);
         }
         row.add(eject);
-        
-        
-        
+
+
+
         // add compile icon
         JButton compile = new JButton(getIcon(ICON_TEST));
         compile.setToolTipText("compilieren");
@@ -413,7 +391,7 @@ public class IndexListEntry extends JPanel {
             compile.setEnabled(false);
         }
         row.add(compile);
-        
+
         // save pattern icon
         JButton savePattern = new JButton(getIcon(ICON_SAVE_PATTERN));
         savePattern.setToolTipText("Code in Datei speichern");
@@ -422,7 +400,7 @@ public class IndexListEntry extends JPanel {
             savePattern.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
-                    
+
                     JFileChooser fc = new JFileChooser();
                     fc.setFileFilter(new FileNameExtensionFilter("Ting Pattern (*.png)", "png"));
                     if(fc.showSaveDialog(frame) == JFileChooser.APPROVE_OPTION) {
@@ -441,14 +419,14 @@ public class IndexListEntry extends JPanel {
                             log.error("unable to save code", e);
                         }
                     }
-                    
+
                 }
             });
         } else {
             savePattern.setEnabled(false);
         }
         row.add(savePattern);
-        
+
         // copy pattern
         JButton copyPattern = new JButton(getIcon(ICON_COPY_PATTERN));
         copyPattern.setToolTipText("Code in die Zwischenablage kopieren");
@@ -465,7 +443,7 @@ public class IndexListEntry extends JPanel {
             copyPattern.setEnabled(false);
         }
         row.add(copyPattern);
-        
+
         // save mp3
         JButton saveMP3 = new JButton(getIcon(ICON_SAVE_MP3));
         saveMP3.setToolTipText("MP3 speichern");
@@ -488,7 +466,7 @@ public class IndexListEntry extends JPanel {
                             if(!file.toLowerCase().endsWith(".mp3")) {
                                 file = file + ".mp3";
                             }
-                            
+
                             is = new FileInputStream(entry.getMP3());
                             os = new FileOutputStream(file);
                             byte[] buffer = new byte[1024];
@@ -496,7 +474,7 @@ public class IndexListEntry extends JPanel {
                             while ((length = is.read(buffer)) > 0) {
                                 os.write(buffer, 0, length);
                             }
-                            
+
                         } catch(Exception e) {
                             JOptionPane.showMessageDialog(frame, "MP3 konnte nicht gespeichert werden");
                             log.error("unable to save mp3", e);
@@ -523,7 +501,7 @@ public class IndexListEntry extends JPanel {
             saveMP3.setEnabled(false);
         }
         row.add(saveMP3);
-        
+
         row.add(new JLabel("Code:"));
         row.add(codeCheckBox);
         codeCheckBox.addActionListener(new ActionListener() {
@@ -538,7 +516,7 @@ public class IndexListEntry extends JPanel {
         if(entry.hasCode()) {
             codeCheckBox.setSelected(true);
         }
-        
+
         row.add(new JLabel("Name:"));
         name.setPreferredSize(new Dimension(100, 20));
         row.add(name);
@@ -560,24 +538,24 @@ public class IndexListEntry extends JPanel {
                 entry.setName(name.getText());
             }
         });
-        
+
         // track info
         trackInfo.setText(getTrackInfo(entry));
         row.add(trackInfo);
-        
+
         JPanel p = new JPanel();
         p.setLayout(new BorderLayout());
         p.add(row, BorderLayout.WEST);
-        
+
         header.add(p);
-        
+
         header.setBorder(BorderFactory.createLineBorder(Color.gray));
-        
+
         add(header, BorderLayout.NORTH);
-        
+
         hint.setRows(1);
-        
-        
+
+
         if(entry.isCode() || entry.isSub()) {
             hint.setText(entry.getScript().toString());
         } else if(entry.isTTS()) {
@@ -585,7 +563,7 @@ public class IndexListEntry extends JPanel {
         } else if(entry.isMP3()) {
             hint.setText(entry.getHint());
         }
-        
+
         hint.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent de) {
@@ -607,38 +585,38 @@ public class IndexListEntry extends JPanel {
                 }
             }
         });
-        
+
         add(hint, BorderLayout.CENTER);
-        
+
     }
 
     public int getOID() {
         return(entry.getTingID());
     }
-    
+
     private String getTrackInfo(Entry entry) {
         if(entry.isMP3()) {
             int min = ((int)entry.getLength()) / 60;
             int sec = ((int)entry.getLength()) - min;
-            
+
             String formatedTime = Integer.toString(sec);
             if(sec < 10) {
                 formatedTime = "0" + formatedTime;
             }
             formatedTime = Integer.toString(min) + ":" + formatedTime;
-            
+
             String trackName = "null";
             if(entry.getMP3() != null) {
                 trackName = entry.getMP3().getName();
             } else {
                 formatedTime = "-";
             }
-            
+
             return(trackName + " (" + formatedTime + ")");
         }
         return(" ");
     }
-    
+
     // This class is used to hold an image while on the clipboard.
     static class ImageSelection implements Transferable {
         private final Image image;

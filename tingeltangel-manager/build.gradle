@@ -8,13 +8,10 @@ sourceCompatibility = "1.8"
 group "$GROUP"
 version "$VERSION_NAME"
 
-mainClassName = "tingeltangel.Tingeltangel"
+mainClassName = "tingeltangel.Manager"
 
 dependencies {
     implementation project(":core")
 }
 
-run {
-    args = ["gui-manager"]
-}
 apply from: rootProject.file('installer.gradle')

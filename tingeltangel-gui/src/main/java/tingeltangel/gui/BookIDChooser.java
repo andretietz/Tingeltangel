@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2015   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,20 +14,21 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 
 package tingeltangel.gui;
 
+import tingeltangel.core.Repository;
+import tingeltangel.core.Tupel;
 import tingeltangel.tools.Callback;
-import java.awt.Dialog;
+
+import javax.swing.*;
+import javax.swing.event.ListDataListener;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import javax.swing.ListModel;
-import javax.swing.event.ListDataListener;
-import tingeltangel.core.Repository;
-import tingeltangel.core.Tupel;
 
 /**
  *
@@ -38,7 +39,7 @@ public class BookIDChooser extends javax.swing.JDialog {
     private final LinkedList<Tupel<Integer, String>> idList = new LinkedList<Tupel<Integer, String>>();
     private final MyListModel model = new MyListModel();
     private final Callback<Integer> callback;
-    
+
     /**
      * Creates new form IDChooser
      * @param parent
@@ -52,7 +53,7 @@ public class BookIDChooser extends javax.swing.JDialog {
         list.setModel(model);
         setVisible(true);
     }
-    
+
     public BookIDChooser(Dialog parent, Callback<Integer> callback) {
         super(parent, false);
         initComponents();
@@ -124,7 +125,7 @@ public class BookIDChooser extends javax.swing.JDialog {
             idList.add(new Tupel(ids[i], renderName(ids[i])));
         }
     }
-    
+
     private String renderName(int id) {
         String name = Integer.toString(id);
         while(name.length() < 5) {
@@ -136,7 +137,7 @@ public class BookIDChooser extends javax.swing.JDialog {
         }
         return(name);
     }
-    
+
     private void buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonActionPerformed
         int index = list.getSelectedIndex();
         if(index != -1) {
@@ -178,12 +179,12 @@ public class BookIDChooser extends javax.swing.JDialog {
         public void removeListDataListener(ListDataListener l) {
             listeners.remove(l);
         }
-        
+
         public void refresh() {
             Iterator<ListDataListener> i = listeners.iterator();
             while(i.hasNext()) {
                 i.next().contentsChanged(null);
-            }   
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2015   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,88 +14,55 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 
 package tingeltangel.gui;
 
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import tingeltangel.Tingeltangel;
+import tingeltangel.cli_ng.CLI;
+import tingeltangel.core.*;
+import tingeltangel.core.scripting.SyntaxError;
+import tingeltangel.tools.*;
+import tingeltangel.wimmelbuch.Wimmelbuch;
+import tiptoi_reveng.lexer.LexerException;
+import tiptoi_reveng.parser.ParserException;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JRootPane;
-import javax.swing.KeyStroke;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import tingeltangel.Tingeltangel;
-import tingeltangel.cli_ng.CLI;
-import tingeltangel.core.Book;
-import tingeltangel.core.Codes;
-import tingeltangel.core.Entry;
-import tingeltangel.core.Importer;
-import tingeltangel.core.ReadYamlFile;
-import tingeltangel.core.Repository;
-import tingeltangel.core.Translator;
-import tingeltangel.core.scripting.SyntaxError;
-import tingeltangel.tools.Callback;
-import tingeltangel.tools.FileEnvironment;
-import tingeltangel.tools.Progress;
-import tingeltangel.tools.ProgressDialog;
-import tingeltangel.tools.ZipHelper;
-import tingeltangel.wimmelbuch.Wimmelbuch;
-import tiptoi_reveng.lexer.LexerException;
-import tiptoi_reveng.parser.ParserException;
 
 public class EditorFrame extends JFrame implements Callback<String> {
 
     private Book book = new Book(15000);
-    
+
     private final EditorPanel indexPanel;
     private final InfoFrame contactFrame = new InfoFrame("Kontakt", "html/contact.html");
     private final InfoFrame licenseFrame = new InfoFrame("Lizenz", "html/license.html");
     private final InfoFrame manualFrame = new InfoFrame("Handbuch", "html/manual.html");
-    
+
     private final LinkedList<EntryListener> listeners = new LinkedList<EntryListener>();
-    
+
     private final static Logger log = LogManager.getLogger(EditorFrame.class);
-    
+
     public EditorFrame() {
         super(Tingeltangel.MAIN_FRAME_TITLE + Tingeltangel.MAIN_FRAME_VERSION);
-        
-        
+
+
         indexPanel = new EditorPanel(this);
-        
-        
+
+
         JFrame.setDefaultLookAndFeelDecorated(true);
 
         setBounds(
@@ -107,9 +74,9 @@ public class EditorFrame extends JFrame implements Callback<String> {
 
         MasterFrameMenu.setMenuCallback(this);
         setJMenuBar(MasterFrameMenu.getMenuBar());
-        
-        
-        
+
+
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -117,12 +84,12 @@ public class EditorFrame extends JFrame implements Callback<String> {
             }
         });
         setVisible(true);
-        
-        
+
+
         setContentPane(indexPanel);
-        
+
         // use alt to enter menu
-        
+
         Action menuAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -134,12 +101,12 @@ public class EditorFrame extends JFrame implements Callback<String> {
         rPane.getActionMap().put(MENU_ACTION_KEY, menuAction);
         InputMap inputMap = rPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ALT, 0, true), MENU_ACTION_KEY);
-        
-        
+
+
         book.resetChangeMade();
         indexPanel.setVisible(false);
     }
-    
+
     public void setBookOpened() {
         indexPanel.setVisible(true);
         JMenuBar bar = getJMenuBar();
@@ -149,7 +116,7 @@ public class EditorFrame extends JFrame implements Callback<String> {
             }
         }
     }
-    
+
     private void enableMenu(JMenu menu) {
         menu.setEnabled(true);
         for(int i = 0; i < menu.getItemCount(); i++) {
@@ -161,16 +128,16 @@ public class EditorFrame extends JFrame implements Callback<String> {
             }
         }
     }
-    
+
     public Book getBook() {
         return(book);
     }
-    
-    
+
+
     void addEntryListener(EntryListener listener) {
         listeners.add(listener);
     }
-    
+
     void entrySelected(int i) {
         Entry entry = book.getEntry(i);
         Iterator<EntryListener> it = listeners.iterator();
@@ -178,7 +145,7 @@ public class EditorFrame extends JFrame implements Callback<String> {
             it.next().entrySelected(entry);
         }
     }
-    
+
     private void closeMasterFrame() {
         if(book.unsaved()) {
             int value =  JOptionPane.showConfirmDialog(this, "Das aktuelle Buch ist nicht gespeichert. wollen sie das aktuelle buch speichern?", "Frage...", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -209,7 +176,7 @@ public class EditorFrame extends JFrame implements Callback<String> {
                 newBook = true;
             }
             if(newBook) {
-                
+
                 IDChooser ic = new IDChooser(this, new Callback<Integer>() {
 
                     @Override
@@ -218,13 +185,13 @@ public class EditorFrame extends JFrame implements Callback<String> {
                         while(_id.length() < 5) {
                             _id = "0" + _id;
                         }
-                        
+
                         // check if there is already a book with this id
                         if(new File(FileEnvironment.getBooksDirectory(), _id).exists()) {
                             JOptionPane.showMessageDialog(EditorFrame.this, "Dieses Buch existiert schon");
                             return;
                         }
-                        
+
                         book.clear();
                         book.setID(id);
                         indexPanel.updateList(null);
@@ -232,9 +199,9 @@ public class EditorFrame extends JFrame implements Callback<String> {
                         setBookOpened();
                     }
                 });
-                
+
             }
-                
+
         } else if(id.equals("buch.import.repo")) {
             boolean loadBook = false;
             if(book.unsaved()) {
@@ -329,7 +296,7 @@ public class EditorFrame extends JFrame implements Callback<String> {
                 final JFileChooser fc = new JFileChooser();
                 fc.setFileFilter(new FileNameExtensionFilter("tiptoi Buch (*.yaml)", "yaml"));
                 if(fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                    
+
                     Progress pr = new Progress(EditorFrame.this, "importiere Buch") {
                         @Override
                         public void action(ProgressDialog progressDialog) {
@@ -364,8 +331,8 @@ public class EditorFrame extends JFrame implements Callback<String> {
                 loadBook = true;
             }
             if(loadBook) {
-                
-                
+
+
                 final Callback<Map> callback = new Callback<Map>() {
                     @Override
                     public void callback(final Map data) {
@@ -386,18 +353,18 @@ public class EditorFrame extends JFrame implements Callback<String> {
                                 return;
                             }
                         }
-                        
+
                         final int _id = id;
                         EditorFrame.this.setEnabled(false);
-                        
-                        
+
+
                         Progress pr = new Progress(EditorFrame.this, "importiere Buch") {
                             @Override
                             public void action(ProgressDialog progressDialog) {
                                 try {
                                     book = new Book(_id);
                                     Importer.importBook((File)data.get("ouf"), Repository.getBook((File)data.get("txt")), (File)data.get("src"), (File)data.get("png"), book, progressDialog);
-                                    
+
                                     setBookOpened();
                                 } catch(IOException e) {
                                     JOptionPane.showMessageDialog(EditorFrame.this, "Import ist fehlgeschlagen");
@@ -411,12 +378,12 @@ public class EditorFrame extends JFrame implements Callback<String> {
                                 indexPanel.refresh();
                             }
                         };
-                        
+
                     }
                 };
                 new ImportDialog(EditorFrame.this, true, callback).setVisible(true);
-                
-                
+
+
             }
         } else if(id.equals("buch.load")) {
             boolean loadBook = false;
@@ -429,7 +396,7 @@ public class EditorFrame extends JFrame implements Callback<String> {
                 loadBook = true;
             }
             if(loadBook) {
-                
+
                 ChooseBook cb = new ChooseBook(this, new Callback<Integer>() {
                     @Override
                     public void callback(final Integer _id) {
@@ -454,18 +421,18 @@ public class EditorFrame extends JFrame implements Callback<String> {
                 });
             }
         } else if(id.equals("buch.save")) {
-            
-            
+
+
             try {
                 book.save();
             } catch(Exception e) {
                 JOptionPane.showMessageDialog(this, "Das Buch konnte nicht gespeichert werden");
                 log.error("unable to save book", e);
             }
-          
+
         } else if(id.equals("buch.generate")) {
-            
-            
+
+
             JFileChooser fc = new JFileChooser();
             fc.setFileFilter(new FileNameExtensionFilter("Ting Archiv (*.zip)", "zip"));
             if(fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
@@ -480,13 +447,13 @@ public class EditorFrame extends JFrame implements Callback<String> {
                         public void action(ProgressDialog progressDialog) {
                             try {
                                 book.generateTTS(progressDialog);
-                                
+
                                 new Progress(EditorFrame.this, "erzeuge Buch") {
                                     @Override
                                     public void action(ProgressDialog progressDialog) {
                                         try {
                                             book.export(FileEnvironment.getDistDirectory(book.getID()), progressDialog);
-                                            
+
                                             // create zip to output
                                             final FileOutputStream fos = new FileOutputStream(output);
                                             final ZipOutputStream out = new ZipOutputStream(fos);
@@ -570,7 +537,7 @@ public class EditorFrame extends JFrame implements Callback<String> {
                         public void action(ProgressDialog progressDialog) {
                             try {
                                 book.generateTTS(progressDialog);
-                    
+
                                 final FileOutputStream fos = new FileOutputStream(_file);
                                 final ZipOutputStream out = new ZipOutputStream(fos);
 
@@ -624,9 +591,9 @@ public class EditorFrame extends JFrame implements Callback<String> {
         } else if(id.equals("actions.cliscript")) {
             JFileChooser fc = new JFileChooser();
             fc.setFileFilter(new FileNameExtensionFilter("CLI Skript (*.ttcli)", "ttcli"));
-            
+
             if(fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                
+
                 try {
                     BufferedReader in = new BufferedReader(new FileReader(fc.getSelectedFile()));
                     String row;
@@ -640,9 +607,9 @@ public class EditorFrame extends JFrame implements Callback<String> {
                     JOptionPane.showMessageDialog(EditorFrame.this, "CLI Skript konnte nicht geladen werden");
                     log.error("unable to load cli script", e);
                 }
-                
+
             }
-            
+
         } else if(id.equals("buch.import.wimmelbuch")) {
             JFileChooser fc2 = new JFileChooser();
             fc2.setFileFilter(new FileNameExtensionFilter("Wimmelbuch (*.wb)", "wb"));
@@ -661,7 +628,7 @@ public class EditorFrame extends JFrame implements Callback<String> {
         } else if(id.equals("buch.generatePngCodes")) {
             JFileChooser fc = new JFileChooser();
             fc.setFileFilter(new FileNameExtensionFilter("PNG Codes (*.zip)", "zip"));
-            
+
             if(fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
                 try {
                     String file = fc.getSelectedFile().getCanonicalPath();
@@ -676,7 +643,7 @@ public class EditorFrame extends JFrame implements Callback<String> {
                         public void action(ProgressDialog progressDialog) {
                             try {
                                 book.pngExport(FileEnvironment.getCodesDirectory(book.getID()), progressDialog);
-                                
+
                                 File[] input = FileEnvironment.getCodesDirectory(book.getID()).listFiles(new FilenameFilter() {
                                     @Override
                                     public boolean accept(File dir, String name) {
@@ -784,7 +751,7 @@ public class EditorFrame extends JFrame implements Callback<String> {
             licenseFrame.setVisible(true);
         }
     }
-    
+
     private void generateTabular(boolean ting2code) {
         JFileChooser fc = new JFileChooser();
         fc.setFileFilter(new FileNameExtensionFilter("Tabelle (*.txt)", "txt"));
@@ -811,7 +778,7 @@ public class EditorFrame extends JFrame implements Callback<String> {
             }
         }
     }
-    
+
     private boolean genTingCodes(int start) {
         boolean found = false;
         for(int i = start; i < start + 1000; i++) {
@@ -832,11 +799,11 @@ public class EditorFrame extends JFrame implements Callback<String> {
                 if(!file.toLowerCase().endsWith(".png")) {
                     file = file + ".png";
                 }
-                
+
                 /*
                 int[] idx = new int[1000];
-                
-                
+
+
                 String[] lbs = new String[idx.length];
                 for(int i = start; i < start + 1000; i++) {
                     int code = Translator.ting2code(i);
@@ -855,5 +822,5 @@ public class EditorFrame extends JFrame implements Callback<String> {
         }
         return(true);
     }
-    
+
 }

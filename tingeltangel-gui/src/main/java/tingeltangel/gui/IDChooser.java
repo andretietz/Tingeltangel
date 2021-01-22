@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2015   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,24 +14,25 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 
 package tingeltangel.gui;
 
+import tingeltangel.core.Repository;
+import tingeltangel.core.Translator;
+import tingeltangel.core.Tupel;
 import tingeltangel.tools.Callback;
-import java.awt.Dialog;
+import tingeltangel.tools.FileEnvironment;
+
+import javax.swing.*;
+import javax.swing.event.ListDataListener;
+import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import javax.swing.ListModel;
-import javax.swing.event.ListDataListener;
-import tingeltangel.core.Repository;
-import tingeltangel.core.Translator;
-import tingeltangel.core.Tupel;
-import tingeltangel.tools.FileEnvironment;
 
 /**
  *
@@ -42,7 +43,7 @@ public class IDChooser extends javax.swing.JDialog {
     private final LinkedList<Tupel<Integer, String>> idList = new LinkedList<Tupel<Integer, String>>();
     private MyListModel model = new MyListModel();
     private Callback<Integer> callback;
-    
+
     /**
      * Creates new form IDChooser
      */
@@ -54,7 +55,7 @@ public class IDChooser extends javax.swing.JDialog {
         niceIDActionPerformed(null);
         setVisible(true);
     }
-    
+
     public IDChooser(Dialog parent, Callback<Integer> callback) {
         super(parent, false);
         initComponents();
@@ -176,7 +177,7 @@ public class IDChooser extends javax.swing.JDialog {
     private boolean isNiceID(int id) {
         return((id >= 8000) && (id <= 8500)) || ((id >= 9500) && (id <= Translator.MAX_MID));
     }
-    
+
     private String renderName(int id) {
         String name = Integer.toString(id);
         while(name.length() < 5) {
@@ -188,10 +189,10 @@ public class IDChooser extends javax.swing.JDialog {
         }
         return(name);
     }
-    
+
     private void niceIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_niceIDActionPerformed
         idList.clear();
-        
+
         File[] books = FileEnvironment.getBooksDirectory().listFiles();
         HashSet<Integer> _books = new HashSet<Integer>();
         for(int i = 0; i < books.length; i++) {
@@ -201,7 +202,7 @@ public class IDChooser extends javax.swing.JDialog {
                 ;
             }
         }
-        
+
         for(int i = 0; i <= Translator.MAX_MID; i++) {
             if((Translator.ting2code(i) >= 0) && isNiceID(i)) {
                 // check if book with mid i already exists
@@ -276,12 +277,12 @@ public class IDChooser extends javax.swing.JDialog {
         public void removeListDataListener(ListDataListener l) {
             listeners.remove(l);
         }
-        
+
         public void refresh() {
             Iterator<ListDataListener> i = listeners.iterator();
             while(i.hasNext()) {
                 i.next().contentsChanged(null);
-            }   
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2016   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,10 +14,20 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 package tingeltangel.gui;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import tingeltangel.core.Book;
+import tingeltangel.core.Stick;
+import tingeltangel.core.scripting.SyntaxError;
+import tingeltangel.tools.FileEnvironment;
+import tingeltangel.tools.Progress;
+import tingeltangel.tools.ProgressDialog;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -27,49 +37,36 @@ import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import tingeltangel.core.Book;
-import tingeltangel.core.Stick;
-import tingeltangel.core.TingStick;
-import tingeltangel.core.scripting.SyntaxError;
-import tingeltangel.tools.FileEnvironment;
-import tingeltangel.tools.Progress;
-import tingeltangel.tools.ProgressDialog;
 
 /**
  *
  * @author mdames
  */
 public class StickPanel extends JPanel {
-    
+
     private JLabel label;
     private JButton button;
     private boolean online = false;
-    
+
     private final static Logger log = LogManager.getLogger(StickPanel.class);
-    
+
     public StickPanel(final EditorFrame frame) {
         super();
-    
-        
+
+
         label = new JLabel("keinen Stift gefunden");
         add(label);
-        
+
         button = new JButton("deployen");
         button.setEnabled(false);
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+
                 final Book book = frame.getBook();
                 try {
                     book.save();
-                    
+
                     new Progress(frame, "erzeuge Buch (TTS)") {
                         @Override
                         public void action(ProgressDialog progressDialog) {
@@ -130,7 +127,7 @@ public class StickPanel extends JPanel {
             }
         });
         add(button);
-        
+
         Runnable task = new TimerTask() {
             @Override
             public void run() {
@@ -155,6 +152,6 @@ public class StickPanel extends JPanel {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(task, 3, 3, TimeUnit.SECONDS);
     }
-    
-    
+
+
 }

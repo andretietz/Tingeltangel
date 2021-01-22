@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2015   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,27 +14,28 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 package tingeltangel.gui;
 
+import tingeltangel.core.TTSEntry;
+import tingeltangel.tools.TTS;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.SortedSet;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import tingeltangel.core.TTSEntry;
-import tingeltangel.tools.TTS;
 
 public class TTSDialog extends javax.swing.JDialog {
 
     private final TTSEntry entry;
     private final Runnable callback;
-    
+
     private String[] voiceIDTable;
     private String[] variantIDTable;
-    
+
     /**
      * Creates new form TTSDialog
      */
@@ -43,7 +44,7 @@ public class TTSDialog extends javax.swing.JDialog {
         initComponents();
         this.entry = entry;
         this.callback = callback;
-        
+
         amplitudeSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -62,7 +63,7 @@ public class TTSDialog extends javax.swing.JDialog {
                 speedLabel.setText(Integer.toString(speedSlider.getValue()));
             }
         });
-        
+
         DefaultComboBoxModel voiceModel = (DefaultComboBoxModel)voiceComboBox.getModel();
         SortedSet<String> voiceIDs = TTS.getVoiceIDs();
         voiceIDTable = new String[voiceIDs.size()];
@@ -86,7 +87,7 @@ public class TTSDialog extends javax.swing.JDialog {
         if(currentVoice < 0) {
             currentVoice = currentVoiceDef;
         }
-        
+
         DefaultComboBoxModel variantModel = (DefaultComboBoxModel)variantComboBox.getModel();
         SortedSet<String> variantIDs = TTS.getVariantIDs();
         variantIDTable = new String[variantIDs.size() + 1];
@@ -121,7 +122,7 @@ public class TTSDialog extends javax.swing.JDialog {
         if(currentVariant < 0) {
             currentVariant = currentVariantDef;
         }
-        
+
         // preselection
         amplitudeSlider.setValue(entry.amplitude);
         speedSlider.setValue(entry.speed);
@@ -306,7 +307,7 @@ public class TTSDialog extends javax.swing.JDialog {
         entry.text = textArea.getText();
         entry.voice = voiceIDTable[voiceComboBox.getSelectedIndex()];
         entry.variant = variantIDTable[variantComboBox.getSelectedIndex()];
-        
+
         callback.run();
         setVisible(false);
     }//GEN-LAST:event_okButtonActionPerformed

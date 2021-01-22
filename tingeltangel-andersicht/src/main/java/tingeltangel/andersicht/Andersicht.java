@@ -5,7 +5,7 @@ import tingeltangel.andersicht.gui.AndersichtMainFrame;
 
 public class Andersicht {
     public static void main(String[] args) {
-        Tingeltangel.printVersion();
+        Tingeltangel.initialize();
         new AndersichtMainFrame();
     }
 }

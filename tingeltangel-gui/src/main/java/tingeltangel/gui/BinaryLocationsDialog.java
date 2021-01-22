@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2016   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,15 +14,16 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 package tingeltangel.gui;
 
-import java.awt.Color;
+import tingeltangel.tools.Binary;
+
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import javax.swing.JFileChooser;
-import tingeltangel.tools.Binary;
 
 /**
  *
@@ -40,7 +41,7 @@ public class BinaryLocationsDialog extends javax.swing.JDialog {
         initComponents();
         init();
     }
-    
+
     private void init() {
         try {
             File espeak = Binary.getBinary(Binary.ESPEAK);

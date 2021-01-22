@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2015   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,43 +14,11 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 
 package tingeltangel.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import javax.imageio.ImageIO;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import tingeltangel.core.Book;
@@ -61,11 +29,22 @@ import tingeltangel.tools.FileEnvironment;
 import tingeltangel.tools.Progress;
 import tingeltangel.tools.ProgressDialog;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 public final class EditorPanel extends JPanel {
-    
-    
-     
+
+
+
     private JTextField id = new JTextField();
     private JTextField name = new JTextField();
     private JTextField publisher = new JTextField();
@@ -76,37 +55,37 @@ public final class EditorPanel extends JPanel {
     private JTextField date = new JTextField();
     private final JScrollPane jScrollPane;
     private JLabel cover = null;
-        
+
     private final int ICON_SKIP = 0;
     private final int ICON_STOP = 1;
-    
+
     private final String[] ICONS = {
         "skip.png",
         "stop.png"
     };
-    
+
     JTextField[] TEXT_FIELDS = {
         id, name, publisher, author, version, url, magicValue, date
     };
     String[] TEXT_FIELD_LABELS = {
         "ID", "Name", "Verleger", "Autor", "Version", "URL", "?", "Datum"
     };
-    
+
     private final static Logger log = LogManager.getLogger(EditorPanel.class);
-    
+
     private final JTextField addEntriesCount;
     private final JTextField addEntriesStart;
     private final EditorFrame mainFrame;
-    
+
     private final JLabel currentTrack = new JLabel();
-    
+
     private final JPanel list = new JPanel();
     private DocumentListener dl;
-    
+
     public Book getBook() {
         return(mainFrame.getBook());
     }
-    
+
     public JFrame getMainFrame() {
         return(mainFrame);
     }
@@ -114,34 +93,34 @@ public final class EditorPanel extends JPanel {
     public JPanel getList() {
         return list;
     }
-    
+
     public EditorPanel(final EditorFrame mainFrame) {
         super();
-        
+
         this.mainFrame = mainFrame;
-        
+
         Book book = mainFrame.getBook();
- 
+
         JPanel right = new JPanel();
         right.setLayout(new PushBorderLayout());
-        
+
         JPanel row = new JPanel();
         row.setLayout(new PushBorderLayout());
-        
-        
+
+
         addEntriesCount = new JTextField(3);
         addEntriesCount.setText("1");
         addEntriesCount.getAccessibleContext().setAccessibleDescription("Anzahl der hinzuzufügenden Einträge");
-        
+
         addEntriesStart = new JTextField(5);
         addEntriesStart.setText("15001");
         addEntriesStart.getAccessibleContext().setAccessibleDescription("OID des ersten hinzuzufügenden Eintrags");
-        
+
         row.add(addEntriesCount, PushBorderLayout.LINE_START);
         row.add(new JLabel("Einträge ab OID"), PushBorderLayout.LINE_START);
         row.add(addEntriesStart, PushBorderLayout.LINE_START);
-        
-        JButton addEntriesButton = new JButton("hinzufügen");        
+
+        JButton addEntriesButton = new JButton("hinzufügen");
         addEntriesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -192,18 +171,18 @@ public final class EditorPanel extends JPanel {
                         list.repaint();
                     }
                 }.start();
-                
+
             }
         });
         row.add(addEntriesButton, PushBorderLayout.LINE_START);
         right.add(row, PushBorderLayout.PAGE_START);
-        
-        
+
+
         right.add(PushBorderLayout.pad(10), PushBorderLayout.PAGE_START);
-        
+
         row = new JPanel();
         row.setLayout(new PushBorderLayout());
-        
+
         JButton skip = new JButton(getIcon(ICON_SKIP));
         skip.setToolTipText("MP3 überspringen");
         skip.setMargin(new Insets(0, 0, 0, 0));
@@ -214,10 +193,10 @@ public final class EditorPanel extends JPanel {
             }
         });
         row.add(skip, PushBorderLayout.LINE_START);
-        
-        
+
+
         row.add(PushBorderLayout.pad(5), PushBorderLayout.LINE_START);
-        
+
         JButton stop = new JButton(getIcon(ICON_STOP));
         stop.setToolTipText("Ausgabe abbrechen");
         stop.setMargin(new Insets(0, 0, 0, 0));
@@ -228,18 +207,18 @@ public final class EditorPanel extends JPanel {
                 }
             });
         row.add(stop, PushBorderLayout.LINE_START);
-        
+
         row.add(PushBorderLayout.pad(5), PushBorderLayout.LINE_START);
         row.add(new JLabel("Track:"), PushBorderLayout.LINE_START);
         row.add(PushBorderLayout.pad(5), PushBorderLayout.LINE_START);
         row.add(currentTrack, PushBorderLayout.LINE_START);
-        
-        
+
+
         right.add(row, PushBorderLayout.PAGE_START);
-        
+
         right.add(PushBorderLayout.pad(10), PushBorderLayout.PAGE_START);
-        
-        
+
+
         // book properties
         row = new JPanel();
         JPanel labels = new JPanel();
@@ -258,11 +237,11 @@ public final class EditorPanel extends JPanel {
         row.add(fields, BorderLayout.CENTER);
         row.add(new JLabel("Bucheigenschaften"), BorderLayout.NORTH);
         right.add(row, PushBorderLayout.PAGE_START);
-        
+
         // cover
         right.add(PushBorderLayout.pad(10), PushBorderLayout.PAGE_START);
         cover = new JLabel("Cover kann nicht geladen werden");
-        
+
         try {
             File coverImage = book.getCover();
             if(coverImage.exists()) {
@@ -292,30 +271,30 @@ public final class EditorPanel extends JPanel {
             public void mouseExited(MouseEvent e) {}
         });
         right.add(cover, PushBorderLayout.PAGE_START);
-        
-        
+
+
         // add stick panel
         right.add(PushBorderLayout.pad(10), PushBorderLayout.PAGE_START);
         right.add(new JLabel("Stift"), PushBorderLayout.PAGE_START);
         right.add(new StickPanel(mainFrame), PushBorderLayout.PAGE_START);
-        
-        
-                
+
+
+
         /*
         // add constants panel
         right.add(PushBorderLayout.pad(10), PushBorderLayout.PAGE_START);
         right.add(new JLabel("Konstanten"), PushBorderLayout.PAGE_START);
         right.add(new ConstantsPanel(mainFrame), PushBorderLayout.PAGE_START);
         */
-        
+
         // add register panel
         right.add(PushBorderLayout.pad(10), PushBorderLayout.PAGE_START);
         right.add(new JLabel("Register"), PushBorderLayout.PAGE_START);
         RegisterPanel registerPanel = new RegisterPanel(mainFrame);
         getBook().addRegisterListener(registerPanel);
         right.add(registerPanel, PushBorderLayout.CENTER);
-        
-        
+
+
         list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
 
         setLayout(new BorderLayout());
@@ -330,27 +309,27 @@ public final class EditorPanel extends JPanel {
         add(right, BorderLayout.EAST);
 
         updateList(null);
-        
-        
-        
+
+
+
         id.setText(Integer.toString(book.getID()));
         name.setText(book.getName());
         publisher.setText(book.getPublisher());
         author.setText(book.getAuthor());
         version.setText(Integer.toString(book.getVersion()));
         url.setText(book.getUrl());
-        
+
         magicValue.setText(Long.toString(book.getMagicValue()));
         date.setText(new SimpleDateFormat("dd.MM.yyyy").format(new Date(book.getDate() * 1000)));
-        
+
         id.setEditable(false);
         date.setEditable(false);
-        
+
         id.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 // change mid
-                
+
                 IDChooser ic = new IDChooser(mainFrame, new Callback<Integer>() {
 
                     @Override
@@ -359,24 +338,24 @@ public final class EditorPanel extends JPanel {
                         while(_id.length() < 5) {
                             _id = "0" + _id;
                         }
-                        
+
                         // check if there is already a book with this id
                         if(new File(FileEnvironment.getBooksDirectory(), _id).exists()) {
                             JOptionPane.showMessageDialog(mainFrame, "Dieses Buch existiert schon");
                             return;
                         }
-                        
-                        
+
+
                         Progress pr = new Progress(mainFrame, "ändere mid") {
                             @Override
                             public void action(ProgressDialog progressDialog) {
-                        
+
                                 try {
                                     Book book = mainFrame.getBook();
                                     int oldID = book.getID();
                                     book.setID(id);
                                     book.save();
-                                    
+
                                     // copy audio
                                     progressDialog.restart("kopiere mp3s");
                                     File[] audios = FileEnvironment.getAudioDirectory(oldID).listFiles(new FilenameFilter() {
@@ -391,11 +370,11 @@ public final class EditorPanel extends JPanel {
                                         progressDialog.setVal(i);
                                         FileEnvironment.copy(audios[i], new File(destAudioDir, audios[i].getName()));
                                     }
-                                    
+
                                     book.clear();
                                     book.setID(id);
                                     Book.loadXML(FileEnvironment.getXML(id), book, progressDialog);
-                                    
+
                                     progressDialog.restart("aktualisiere Liste");
                                     refresh();
                                     updateList(progressDialog);
@@ -408,17 +387,17 @@ public final class EditorPanel extends JPanel {
                                 }
                             }
                         };
-                        
+
                     }
                 });
-                
-                
-                
-                
-                
+
+
+
+
+
             }
         });
-        
+
         dl = new DocumentListener() {
 
             @Override
@@ -437,8 +416,8 @@ public final class EditorPanel extends JPanel {
             }
 
         };
-        
-        
+
+
         enableListeners(true);
     }
 
@@ -455,15 +434,15 @@ public final class EditorPanel extends JPanel {
 
         }
     }
-    
+
     public int getScrollX() {
         return(jScrollPane.getViewport().getViewPosition().x);
     }
-    
+
     public int getScrollY() {
         return(jScrollPane.getViewport().getViewPosition().y);
     }
-    
+
     private ImageIcon getIcon(int res) {
         try {
             return(new ImageIcon(ImageIO.read(getClass().getResource("/icons/" + ICONS[res]))));
@@ -471,7 +450,7 @@ public final class EditorPanel extends JPanel {
         }
         return(null);
     }
-    
+
     public int getPositionInIndex(int oid) {
         int rowNr = -1;
         for(int i = 0; i < list.getComponentCount(); i++) {
@@ -486,7 +465,7 @@ public final class EditorPanel extends JPanel {
         }
         return(rowNr);
     }
-    
+
     public int getPositionInIndex(IndexListEntry entry) {
 
         int rowNr = -1;
@@ -501,11 +480,11 @@ public final class EditorPanel extends JPanel {
         }
         return(rowNr);
     }
-    
+
     JPanel getListPanel() {
         return(list);
     }
-    
+
     private void enableListeners(boolean enable) {
         for(int i = 0; i < TEXT_FIELDS.length; i++) {
             if(enable) {
@@ -515,7 +494,7 @@ public final class EditorPanel extends JPanel {
             }
         }
     }
-    
+
     public void refresh() {
         enableListeners(false);
         Book book = mainFrame.getBook();
@@ -527,7 +506,7 @@ public final class EditorPanel extends JPanel {
         url.setText(book.getUrl());
         magicValue.setText(Long.toString(book.getMagicValue()));
         date.setText(new SimpleDateFormat("dd.MM.yyyy").format(new Date(book.getDate() * 1000)));
-        
+
         try {
             File coverImage = book.getCover();
             if(coverImage.exists()) {
@@ -538,11 +517,11 @@ public final class EditorPanel extends JPanel {
         } catch(IOException ioe) {
             cover.setText("Cover kann nicht geladen werden");
         }
-        
+
         enableListeners(true);
     }
-    
-    
+
+
     public void update() {
         Book book = mainFrame.getBook();
         book.setName(name.getText());
@@ -559,29 +538,29 @@ public final class EditorPanel extends JPanel {
         }
     }
     protected void updateList(ProgressDialog progress) {
-        
-        
+
+
         Book book = mainFrame.getBook();
-                
+
         list.removeAll();
-        
+
         if(progress != null) {
             progress.setMax(book.getSize());
         }
-        
+
         for(int i = 0; i < book.getSize(); i++) {
             if(progress != null) {
                 progress.setVal(i);
             }
             list.add(new IndexListEntry(book.getEntry(i), this));
         }
-        
+
         if(progress != null) {
             progress.done();
         }
-        
+
         Dimension size = mainFrame.getSize();
-        
+
         mainFrame.pack();
         mainFrame.setSize(size);
     }
@@ -593,16 +572,16 @@ public final class EditorPanel extends JPanel {
             currentTrack.setText(Integer.toString(entry.getTingID()));
         }
     }
-    
+
     void loadCover() {
-        
+
         JFileChooser fc = new JFileChooser();
         fc.setFileFilter(new FileNameExtensionFilter("PNG Coverbild (140px × 193px) (*.png)", "png"));
         if(fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
                 File file = fc.getSelectedFile();
                 if(file.exists()) {
-                    
+
                     InputStream input = null;
                     OutputStream output = null;
                     try {
@@ -621,7 +600,7 @@ public final class EditorPanel extends JPanel {
                             output.close();
                         }
                     }
-                    
+
                 } else {
                     JOptionPane.showMessageDialog(this, "Das Cover konnte nicht gefunden werden");
                 }
@@ -630,7 +609,7 @@ public final class EditorPanel extends JPanel {
                 log.error("unable to load cover", e);
             }
         }
-        
+
         refresh();
     }
 }

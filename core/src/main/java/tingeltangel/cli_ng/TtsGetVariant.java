@@ -16,28 +16,29 @@
 package tingeltangel.cli_ng;
 
 import tingeltangel.core.Properties;
-import static tingeltangel.gui.TTSPreferences.PROPERTY_DEFAULT_VARIANT;
+
+import static tingeltangel.tools.TTS.PROPERTY_DEFAULT_VARIANT;
+
 
 /**
- *
  * @author martin
  */
 class TtsGetVariant extends CliCmd {
 
     @Override
     String getName() {
-        return("tts-get-variant");
+        return ("tts-get-variant");
     }
 
     @Override
     String getDescription() {
-        return("tts-get-variant");
+        return ("tts-get-variant");
     }
 
     @Override
     int execute(String[] args) {
         System.out.println(Properties.getStringProperty(PROPERTY_DEFAULT_VARIANT));
-        return(ok());
+        return (ok());
     }
 
 }

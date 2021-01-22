@@ -16,29 +16,30 @@
 package tingeltangel.cli_ng;
 
 import tingeltangel.core.Properties;
-import static tingeltangel.gui.TTSPreferences.PROPERTY_DEFAULT_VOICE;
+
+import static tingeltangel.tools.TTS.PROPERTY_DEFAULT_VOICE;
+
 
 /**
- *
  * @author martin
  */
 class TtsGetVoice extends CliCmd {
 
     @Override
     String getName() {
-        return("tts-get-voice");
+        return ("tts-get-voice");
     }
 
     @Override
     String getDescription() {
-        return("tts-get-voice");
+        return ("tts-get-voice");
     }
 
     @Override
     int execute(String[] args) {
         System.out.println(Properties.getStringProperty(PROPERTY_DEFAULT_VOICE));
-        return(ok());
+        return (ok());
     }
 
-    
+
 }

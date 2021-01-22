@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2015   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,19 +14,20 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 package tingeltangel.gui;
 
-import java.awt.Component;
-import java.util.Iterator;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
 import tingeltangel.core.Properties;
 import tingeltangel.core.Tupel;
 import tingeltangel.tools.TTS;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.Iterator;
+
+import static tingeltangel.tools.TTS.PROPERTY_DEFAULT_VARIANT;
+import static tingeltangel.tools.TTS.PROPERTY_DEFAULT_VOICE;
 
 /**
  *
@@ -34,17 +35,14 @@ import tingeltangel.tools.TTS;
  */
 public class TTSPreferences extends javax.swing.JDialog {
 
-    public final static String PROPERTY_DEFAULT_VOICE = "default_voice";
-    public final static String PROPERTY_DEFAULT_VARIANT = "default_variant";
-    
     /**
      * Creates new form TTSPreferences
      */
     public TTSPreferences() {
         initComponents();
-        
+
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        
+
         String voiceID = Properties.getStringProperty(PROPERTY_DEFAULT_VOICE);
         Iterator<String> voices = TTS.getVoiceIDs().iterator();
         DefaultComboBoxModel voiceModel = (DefaultComboBoxModel)defaultLanguage.getModel();
@@ -57,7 +55,7 @@ public class TTSPreferences extends javax.swing.JDialog {
             }
         }
         defaultLanguage.setRenderer(new MyRenderer());
-        
+
         String variantID = Properties.getStringProperty(PROPERTY_DEFAULT_VARIANT);
         Iterator<String> variants = TTS.getVariantIDs().iterator();
         DefaultComboBoxModel variantModel = (DefaultComboBoxModel)defaultVariant.getModel();
@@ -75,17 +73,17 @@ public class TTSPreferences extends javax.swing.JDialog {
             }
         }
         defaultVariant.setRenderer(new MyRenderer());
-        
+
     }
 
     public static String getDefaultVoice() {
         return(Properties.getStringProperty(PROPERTY_DEFAULT_VOICE));
     }
-    
+
     public static String getDefaultVariant() {
         return(Properties.getStringProperty(PROPERTY_DEFAULT_VARIANT));
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -96,9 +94,9 @@ public class TTSPreferences extends javax.swing.JDialog {
     private void initComponents() {
 
         defaultLanguage = new javax.swing.JComboBox();
-        jLabel1 = new javax.swing.JLabel();
+        jLabel1 = new JLabel();
         okButton = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
+        jLabel2 = new JLabel();
         defaultVariant = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -168,8 +166,8 @@ public class TTSPreferences extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox defaultLanguage;
     private javax.swing.JComboBox defaultVariant;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private JLabel jLabel1;
+    private JLabel jLabel2;
     private javax.swing.JButton okButton;
     // End of variables declaration//GEN-END:variables
 
@@ -181,6 +179,6 @@ public class TTSPreferences extends javax.swing.JDialog {
             Tupel<String, String> tupel = (Tupel<String, String>)value;
             return(new JLabel(tupel.b));
         }
-        
+
     }
 }

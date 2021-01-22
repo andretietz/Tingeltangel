@@ -1,10 +1,10 @@
 /*
     Copyright (C) 2015   Martin Dames <martin@bastionbytes.de>
-<<<<<<< HEAD:tingeltangel/src/main/java/tingeltangel/gui/InfoFrame.java
+<<<<<<< HEAD:tingeltangel/src/main/java/tingeltangel/tingeltangel.gui/InfoFrame.java
 
 =======
 
->>>>>>> feature/update:core/src/main/java/tingeltangel/gui/InfoFrame.java
+>>>>>>> feature/update:core/src/main/java/tingeltangel/tingeltangel.gui/InfoFrame.java
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -18,22 +18,19 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-<<<<<<< HEAD:tingeltangel/src/main/java/tingeltangel/gui/InfoFrame.java
+<<<<<<< HEAD:tingeltangel/src/main/java/tingeltangel/tingeltangel.gui/InfoFrame.java
 
 =======
 
->>>>>>> feature/update:core/src/main/java/tingeltangel/gui/InfoFrame.java
+>>>>>>> feature/update:core/src/main/java/tingeltangel/tingeltangel.gui/InfoFrame.java
 */
 
 package tingeltangel.gui;
 
+import javax.swing.*;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import javax.swing.JEditorPane;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
 
 public class InfoFrame extends JFrame {
 

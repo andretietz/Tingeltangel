@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2015   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,18 +14,19 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 
 package tingeltangel.gui;
 
 import tingeltangel.tools.Callback;
+import tingeltangel.tools.FileEnvironment;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import tingeltangel.tools.FileEnvironment;
 
 /**
  *
@@ -39,7 +40,7 @@ public class ImportDialog extends javax.swing.JDialog {
     private File src = null;
     private int id = -1;
     private final Callback<Map> callback;
-    
+
     /**
      * Creates new form ImportDialog
      */
@@ -83,7 +84,7 @@ public class ImportDialog extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Import");
         setAlwaysOnTop(true);
-        setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
+        setModalityType(ModalityType.APPLICATION_MODAL);
 
         jLabel1.setText("ouf-Datei");
 
@@ -228,7 +229,7 @@ public class ImportDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    
+
     private void buttonPngActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPngActionPerformed
         JFileChooser fc = new JFileChooser();
         fc.setCurrentDirectory(FileEnvironment.getHomeDirectory());

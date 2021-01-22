@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2015   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,24 +14,25 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 
 package tingeltangel.gui;
 
-import java.awt.Frame;
-import tingeltangel.tools.Callback;
-import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import javax.swing.ListModel;
-import javax.swing.event.ListDataListener;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import tingeltangel.core.Book;
 import tingeltangel.core.Tupel;
+import tingeltangel.tools.Callback;
 import tingeltangel.tools.FileEnvironment;
+
+import javax.swing.*;
+import javax.swing.event.ListDataListener;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  *
@@ -42,14 +43,14 @@ public class ChooseBook extends javax.swing.JDialog {
     private final LinkedList<Tupel<Integer, String>> idList = new LinkedList<Tupel<Integer, String>>();
     private MyListModel model = new MyListModel();
     private final Callback<Integer> callback;
-    
+
     private final static Logger log = LogManager.getLogger(ChooseBook.class);
-    
-    
+
+
     private String getLabel(int id) throws IOException {
         return(Book.getLabel(FileEnvironment.getXML(id)));
     }
-    
+
     /**
      * Creates new form ChooseBook
      * @param parent
@@ -60,8 +61,8 @@ public class ChooseBook extends javax.swing.JDialog {
         initComponents();
         this.callback = callback;
         bookList.setModel(model);
-        
-        
+
+
         File[] books = FileEnvironment.getBooksDirectory().listFiles();
         for(int i = 0; i < books.length; i++) {
             if(books[i].isDirectory()) {
@@ -77,12 +78,12 @@ public class ChooseBook extends javax.swing.JDialog {
                 }
             }
         }
-        
+
         model.refresh();
         setVisible(true);
     }
-    
-    
+
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -139,7 +140,7 @@ public class ChooseBook extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    
+
     private void buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonActionPerformed
          int index = bookList.getSelectedIndex();
         if(index != -1) {
@@ -156,7 +157,7 @@ public class ChooseBook extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
 
 
-    
+
     class MyListModel implements ListModel {
 
         private LinkedList<ListDataListener> listeners = new LinkedList<ListDataListener>();
@@ -180,12 +181,12 @@ public class ChooseBook extends javax.swing.JDialog {
         public void removeListDataListener(ListDataListener l) {
             listeners.remove(l);
         }
-        
+
         public void refresh() {
             Iterator<ListDataListener> i = listeners.iterator();
             while(i.hasNext()) {
                 i.next().contentsChanged(null);
-            }   
+            }
         }
     }
 

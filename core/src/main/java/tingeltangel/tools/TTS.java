@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2015   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 
 package tingeltangel.tools;
@@ -43,46 +43,49 @@ import org.apache.log4j.Logger;
  * @author mdames
  */
 public class TTS {
-    
+
     public final static int UNKNOWN = 0;
     public final static int FEMALE = 1;
     public final static int MALE = 2;
-    
+
     private final static File ESPEAK;
     private final static File LAME;
     private final static boolean ENABLED;
-    
+
     private final static Map<String, Language> voices = new HashMap<String, Language>();
     private final static Map<String, Language> variants = new HashMap<String, Language>();
     private final static SortedSet<String> voiceIDs = new TreeSet<String>();
     private final static SortedSet<String> variantIDs = new TreeSet<String>();
-    
+
+    public final static String PROPERTY_DEFAULT_VOICE = "default_voice";
+    public final static String PROPERTY_DEFAULT_VARIANT = "default_variant";
+
     private final static Logger log = LogManager.getLogger(TTS.class);
-    
+
     public static SortedSet<String> getVoiceIDs() {
         return(voiceIDs);
     }
-    
+
     public static SortedSet<String> getVariantIDs() {
         return(variantIDs);
     }
-    
+
     public static String getVoiceName(String id) {
         return(voices.get(id).name + " (" + id + ")");
     }
-    
+
     public static String getVariantName(String id) {
         return(variants.get(id).name);
     }
-    
+
     public static int getVoiceGender(String id) {
         return(voices.get(id).gender);
     }
-    
+
     public static int getVariantGender(String id) {
         return(variants.get(id).gender);
     }
-    
+
     private static void getLanguages(String eSpeakArgument) throws IOException {
         String[] cmd1 = {ESPEAK.getCanonicalPath(), eSpeakArgument};
         Process process = new ProcessBuilder(cmd1).start();
@@ -115,10 +118,10 @@ public class TTS {
             voices.put(lang.id, lang);
         }
     }
-    
+
     static {
         try {
-            
+
             ESPEAK = Binary.getBinary(Binary.ESPEAK);
             LAME = Binary.getBinary(Binary.LAME);
             ENABLED = (ESPEAK != null) && (LAME != null);
@@ -132,14 +135,14 @@ public class TTS {
                 while(langIt.hasNext()) {
                     langs.add(langIt.next().lang);
                 }
-                
+
                 // collect mbrola voices (some espeak versions don't show embrola voices with '--voices' !?)
                 Iterator<String> langSIt = langs.iterator();
                 while(langSIt.hasNext()) {
                     getLanguages("--voice=" + langSIt.next());
                 }
-                
-                
+
+
                 // collect variants
                 String[] cmd2 = {ESPEAK.getCanonicalPath(), "--voices=variant"};
                 Process process = new ProcessBuilder(cmd2).start();
@@ -149,7 +152,7 @@ public class TTS {
                 while((row = in.readLine()) != null) {
                     String[] r = row.trim().split("[ ]+");
                     Language lang = new Language();
-                    
+
                     if(r[2].endsWith("F") || r[2].endsWith("M") || r[2].endsWith("-")) {
                         lang.id = r[4].substring(3);
                         lang.name = r[3];
@@ -165,13 +168,13 @@ public class TTS {
                         lang.name = r[2];
                         lang.gender = UNKNOWN;
                     }
-                    
+
                     if(lang.gender == FEMALE) {
                         lang.name += " (Frau)";
                     } else if(lang.gender == MALE) {
                         lang.name += " (Mann)";
                     }
-                    
+
                     variantIDs.add(lang.id);
                     variants.put(lang.id, lang);
                 }
@@ -188,14 +191,14 @@ public class TTS {
             throw new Error(ioe);
         }
     }
-    
+
     public static void play(final String text, int amplitude, int pitch, int speed, String voice, String variant) throws IOException {
-        
+
         if(ENABLED == false) {
             log.error("tts is not enabled");
             return;
         }
-        
+
         speed = Math.max(Math.min(speed, 450), 80);
         amplitude = Math.max(Math.min(amplitude, 20), 0);
         pitch = Math.max(Math.min(pitch, 99), 0);
@@ -205,7 +208,7 @@ public class TTS {
         } else {
             variant = "+" + variant;
         }
-        
+
         String[] cmd = {
             ESPEAK.getCanonicalPath(),
             "--stdin",
@@ -221,10 +224,10 @@ public class TTS {
             "-v",
             voice + variant
         };
-        
+
         final Process p = new ProcessBuilder(cmd).start();
-      
-        
+
+
         // copy text to p1
         new Thread() {
             @Override
@@ -238,10 +241,10 @@ public class TTS {
                 }
             }
         }.start();
-        
+
     }
-    
-    
+
+
     /**
      *
      * @param text The text to read
@@ -254,14 +257,14 @@ public class TTS {
      * @throws java.io.IOException
      */
     public static void generate(final String text, int amplitude, int pitch, int speed, String voice, String variant, final File mp3) throws IOException {
-        
+
         final boolean PADDING = false;
-        
+
         if(ENABLED == false) {
             log.error("tts is not enabled");
             return;
         }
-        
+
         speed = Math.max(Math.min(speed, 450), 80);
         amplitude = Math.max(Math.min(amplitude, 20), 0);
         pitch = Math.max(Math.min(pitch, 99), 0);
@@ -271,7 +274,7 @@ public class TTS {
         } else {
             variant = "+" + variant;
         }
-        
+
         String[] cmd1 = {
             ESPEAK.getCanonicalPath(),
             "--stdin",
@@ -288,7 +291,7 @@ public class TTS {
             "-v",
             voice + variant
         };
-        
+
         String[] cmd2 = {
             "sox",
             "-",
@@ -299,25 +302,25 @@ public class TTS {
             "0",
             "1"
         };
-        
-        
+
+
         String[] cmd3 = {
             LAME.getCanonicalPath(),
             "-",
             "-"
         };
-        
+
         final Process p1 = new ProcessBuilder(cmd1).start();
-        
+
         Process _p2 = null;
         if(PADDING) {
             _p2 = new ProcessBuilder(cmd2).start();
         }
         final Process p2 = _p2;
-        
-        
+
+
         final Process p3 = new ProcessBuilder(cmd3).start();
-        
+
         // write mp3
         new Thread() {
             @Override
@@ -332,15 +335,15 @@ public class TTS {
                 }
             }
         }.start();
-        
+
         if(PADDING) {
             // copy data from p2 to p3
             new Thread() {
                 @Override
                 public void run() {
                     try {
-                        InputStream in = p2.getInputStream();    
-                        InputStream err = p2.getErrorStream();                
+                        InputStream in = p2.getInputStream();
+                        InputStream err = p2.getErrorStream();
                         OutputStream out = p3.getOutputStream();
                         copyStream(in, err, out);
                     } catch(IOException ioe) {
@@ -353,8 +356,8 @@ public class TTS {
                 @Override
                 public void run() {
                     try {
-                        InputStream in = p1.getInputStream();    
-                        InputStream err = p1.getErrorStream();                
+                        InputStream in = p1.getInputStream();
+                        InputStream err = p1.getErrorStream();
                         OutputStream out = p2.getOutputStream();
                         copyStream(in, err, out);
                     } catch(IOException ioe) {
@@ -368,8 +371,8 @@ public class TTS {
                 @Override
                 public void run() {
                     try {
-                        InputStream in = p1.getInputStream();    
-                        InputStream err = p1.getErrorStream();                
+                        InputStream in = p1.getInputStream();
+                        InputStream err = p1.getErrorStream();
                         OutputStream out = p3.getOutputStream();
                         copyStream(in, err, out);
                     } catch(IOException ioe) {
@@ -378,7 +381,7 @@ public class TTS {
                 }
             }.start();
         }
-        
+
         // copy text to p1
         new Thread() {
             @Override
@@ -392,15 +395,15 @@ public class TTS {
                 }
             }
         }.start();
-        
+
         try {
             p3.waitFor();
         } catch (InterruptedException ex) {
         }
     }
-    
+
     private static void copyStream(InputStream in, final InputStream err, OutputStream out) throws IOException {
-        
+
         if(err != null) {
             new Thread() {
                 @Override
@@ -419,7 +422,7 @@ public class TTS {
                 }
             }.start();
         }
-        
+
         byte[] buffer = new byte[4096];
         int c = 0;
         while(true) {
@@ -433,7 +436,7 @@ public class TTS {
             out.flush();
         }
     }
-    
+
 }
 
 class MyComparator implements Comparator<Language> {

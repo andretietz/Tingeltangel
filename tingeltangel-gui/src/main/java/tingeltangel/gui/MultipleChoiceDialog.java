@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2015   Martin Dames <martin@bastionbytes.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,27 +14,20 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 
 package tingeltangel.gui;
 
 import tingeltangel.tools.Callback;
-import java.awt.BorderLayout;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 
 public class MultipleChoiceDialog {
- 
+
     public static void showDropdown(JFrame frame, String title, String question, String button, String[] options, int preSelected, final Callback callback) {
         String answer = (String)JOptionPane.showInputDialog(
                     frame,
@@ -48,7 +41,7 @@ public class MultipleChoiceDialog {
             callback.callback(answer);
         }
     }
-    
+
     public static void show(JFrame frame, String title, String question, String button, String[] options, String[] actions, int preSelected, final Callback callback, int x, int y) {
         JRadioButton[] buttons = new JRadioButton[options.length];
         final ButtonGroup group = new ButtonGroup();
@@ -91,6 +84,6 @@ public class MultipleChoiceDialog {
         dialog.pack();
         dialog.setVisible(true);
     }
-    
-    
+
+
 }
