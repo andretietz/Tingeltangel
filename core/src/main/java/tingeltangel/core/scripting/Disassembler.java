@@ -1,6 +1,6 @@
 /*
     Copyright (C) 2015   Jesper Zedlitz <jesper@zedlitz.de>
-  
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-  
+
 */
 
 package tingeltangel.core.scripting;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class Disassembler {
 
-    
+
     Map<Integer, Integer> labels = new HashMap<Integer, Integer>(); // f(offset)=label
     int labelCount = 1;
     StringBuffer sb = new StringBuffer();
@@ -43,7 +43,7 @@ public class Disassembler {
 
         offset =  offset + 6;
     }
-    
+
     private void disassembleCommandRegister(String command) {
         sb.append(command);
         sb.append(" v");
@@ -89,7 +89,7 @@ public class Disassembler {
         if(b[0] == 0 && b[1] == 0 && b[2] == 0 && b[3] == 0) {
             throw new SyntaxError("Script stats with 0x00000000. That's an invalid script.");
         }
-        
+
         // first pass (collect jump targets)
         while (offset < b.length) {
             if (offset == b.length - 1) {
@@ -116,12 +116,12 @@ public class Disassembler {
                 }
             }
         }
-        
+
         // second pass
         offset = 0;
         while (offset < b.length) {
-            
-            
+
+
             if (labels.containsKey(offset)) {
                 sb.append("\n:l");
                 sb.append(labels.get(offset));

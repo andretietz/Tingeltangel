@@ -1,16 +1,19 @@
 buildscript {
     repositories {
-        mavenLocal()
         mavenCentral()
         maven { url { "https://plugins.gradle.org/m2/" }}
         jcenter()
+        mavenLocal()
     }
     dependencies {
-        // shadow plugin to create fat jar
-        classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:1.4.10"
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.28.0'
+        classpath "com.vanniktech:gradle-code-quality-tools-plugin:0.20.0"
 
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+
+        // legacy reasons
         classpath 'org.anarres.gradle:gradle-sablecc-plugin:1.0.5'
-        classpath 'gradle.plugin.de.inetsoftware:SetupBuilder:4.8.7'
     }
 }
 allprojects {
@@ -19,6 +22,20 @@ allprojects {
         maven { url { "https://maven.onehippo.com/maven2/" }}
         mavenCentral()
         jcenter()
+        mavenLocal()
     }
 }
 
+apply plugin: "com.vanniktech.code.quality.tools"
+codeQualityTools {
+
+    ignoreProjects = []
+
+    detekt.config = rootProject.file("quality/detekt.yml").path
+    detekt.toolVersion = '1.5.0'
+    ktlint.toolVersion = '0.28.0'
+    lint.lintConfig rootProject.file("quality/lint.xml")
+    checkstyle.configFile rootProject.file("quality/checkstyle.xml").path
+//    kotlin.allWarningsAsErrors false
+//    pmd.enabled false
+}

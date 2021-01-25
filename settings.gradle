@@ -1,8 +1,5 @@
 include 'core'
-include 'tingeltangel-gui'
-include 'tingeltangel-manager'
-include 'tingeltangel-cli'
-include 'tingeltangel-andersicht'
+include 'bookpen'
 
-rootProject.name = 'tingeltangel-root'
+rootProject.name = 'bookpen-root'
 
