@@ -1,6 +1,5 @@
 plugins {
     id 'kotlin'
-    id 'application'
 }
 
 sourceCompatibility = "1.8"
@@ -8,13 +7,11 @@ compileKotlin.kotlinOptions.jvmTarget = "1.8"
 compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
 
 group "$GROUP"
-version "$VERSION_NAME"
 
-mainClassName = "com.andretietz.audiopen.Main"
 
 dependencies {
-    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
-    api "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    implementation project(":core")
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     testImplementation "junit:junit:$junitVersion"
 }
 

@@ -1,0 +1,36 @@
+plugins {
+    id 'kotlin'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+}
+
+sourceCompatibility = "1.8"
+compileKotlin.kotlinOptions.jvmTarget = "1.8"
+compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
+
+group "$GROUP"
+version "$VERSION_NAME"
+
+mainClassName = "com.andretietz.tingeltangel.Application"
+
+
+dependencies {
+    implementation project(':business')
+    implementation project(':pen-bookii')
+
+    implementation "no.tornado:tornadofx:2.0.0-SNAPSHOT"
+    implementation 'org.controlsfx:controlsfx:8.40.16'
+
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+
+    testImplementation "junit:junit:$junitVersion"
+}
+
+javafx {
+    version = "14"
+    modules = ['javafx.controls']
+}
+
+jar.manifest {
+    attributes("Main-Class": project.mainClassName)
+}

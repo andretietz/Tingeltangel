@@ -9,7 +9,6 @@ buildscript {
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:1.4.10"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.28.0'
         classpath "com.vanniktech:gradle-code-quality-tools-plugin:0.20.0"
-
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
         // legacy reasons
@@ -20,6 +19,7 @@ allprojects {
     repositories {
         mavenLocal()
         maven { url { "https://maven.onehippo.com/maven2/" }}
+        maven { url { "https://oss.sonatype.org/content/repositories/snapshots" }}
         mavenCentral()
         jcenter()
         mavenLocal()
@@ -29,7 +29,7 @@ allprojects {
 apply plugin: "com.vanniktech.code.quality.tools"
 codeQualityTools {
 
-    ignoreProjects = []
+    ignoreProjects = ["z_historic"]
 
     detekt.config = rootProject.file("quality/detekt.yml").path
     detekt.toolVersion = '1.5.0'

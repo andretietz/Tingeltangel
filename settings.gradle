@@ -1,5 +1,8 @@
+include 'z_historic'
 include 'core'
-include 'audiopen'
+include 'business'
+include 'pen-bookii'
+include 'tingeltangel'
 
-rootProject.name = 'audiopen-root'
+rootProject.name = 'tingeltangel-root'
 

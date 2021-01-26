@@ -29,6 +29,12 @@ style:
     active: false
   MandatoryBracesIfStatements:
     active: false
+  DataClassContainsFunctions:
+    active: false
+  WildcardImport:
+    active: true
+  UseCheckOrError:
+    active: false
 
 comments:
   UndocumentedPublicClass:
