@@ -10,8 +10,7 @@ group "$GROUP"
 
 
 dependencies {
-    implementation project(":core")
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    api project(":core")
     testImplementation "junit:junit:$junitVersion"
 }
 

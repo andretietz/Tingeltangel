@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class Info(
+internal data class Info(
     @Json(name = "mid")
     val id: Int,
     val title: String,
@@ -14,11 +14,13 @@ data class Info(
      */
     @Json(name = "bookAreaCode")
     val areaCode: String,
+    @Json(name = "versionCount")
+    val version: Int,
     val publisher: Publisher
 )
 
 @JsonClass(generateAdapter = true)
-data class Publisher(
+internal data class Publisher(
     @Json(name = "publisherId")
     val id: Int
 )

@@ -1,6 +1,6 @@
 package com.andretietz.tingeltangel.pencontract
 
-import java.io.File
+import java.net.URL
 
 /**
  * Contains all information of a book, but not the actual files, except for the image.
@@ -18,8 +18,10 @@ data class BookInfo(
      * Title of the book.
      */
     val title: String,
+
+    val version: Int,
     /**
      * Image of the book.
      */
-    val image: File?
+    val image: URL?
 )

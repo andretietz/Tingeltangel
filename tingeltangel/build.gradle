@@ -21,8 +21,6 @@ dependencies {
     implementation "no.tornado:tornadofx:2.0.0-SNAPSHOT"
     implementation 'org.controlsfx:controlsfx:8.40.16'
 
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
-
     testImplementation "junit:junit:$junitVersion"
 }
 
