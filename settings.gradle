@@ -1,5 +1,5 @@
 include 'core'
-include 'bookpen'
+include 'audiopen'
 
-rootProject.name = 'bookpen-root'
+rootProject.name = 'audiopen-root'
 
