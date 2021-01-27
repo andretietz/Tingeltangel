@@ -2,8 +2,6 @@ package com.andretietz.tingeltangel
 
 import com.andretietz.tingeltangel.bookii.BookiiContract
 import com.andretietz.tingeltangel.cache.CacheInterceptor
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import okhttp3.Cache
@@ -19,15 +17,12 @@ class Application {
             Application().run()
         }
 
-        val coroutineScope = CoroutineScope(Dispatchers.IO)
-
-        // TODO:
+        //        val coroutineScope = CoroutineScope(Dispatchers.IO)
         private val HOME = System.getProperty("user.home")
-        private val CONFIG = "${HOME}/.tingeltangel/cache/"
+        private val CONFIG = "$HOME/.tingeltangel/cache/"
 
         private const val CACHE_SIZE = 50L * 1024L * 1024L // 50MB
         private const val CACHE_AGE_TIME = 24
-
     }
 
     private val client = OkHttpClient.Builder()
@@ -49,8 +44,5 @@ class Application {
                 }
             }
         }
-
     }
 }
-
-

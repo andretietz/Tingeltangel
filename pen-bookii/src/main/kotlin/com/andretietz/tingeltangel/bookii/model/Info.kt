@@ -16,11 +16,18 @@ internal data class Info(
     val areaCode: String,
     @Json(name = "versionCount")
     val version: Int,
-    val publisher: Publisher
+    val publisher: Publisher,
+
+    val author: String,
+    val mediaType: String,
+    val volume: Int,
+    val isbn: String?
+
 )
 
 @JsonClass(generateAdapter = true)
 internal data class Publisher(
     @Json(name = "publisherId")
-    val id: Int
+    val id: Int,
+    val name: String
 )

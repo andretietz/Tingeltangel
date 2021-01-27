@@ -2,7 +2,6 @@ package com.andretietz.tingeltangel.bookii
 
 import com.andretietz.tingeltangel.pencontract.AudioPenContract
 import com.andretietz.tingeltangel.pencontract.BookSource
-import com.andretietz.tingeltangel.pencontract.HardwareContract
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -27,14 +26,7 @@ class BookiiContract(
         }
     }
 
-
-    override fun source(): BookSource {
-        return BookiiBookSource(api, cacheDir)
-    }
-
-    override fun hardware(): HardwareContract {
-        TODO("Not yet implemented")
-    }
+    override fun source(): BookSource = BookiiBookSource(api, cacheDir)
 
     override val type = TYPE
 

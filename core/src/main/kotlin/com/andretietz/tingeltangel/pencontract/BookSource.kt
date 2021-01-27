@@ -4,7 +4,7 @@ interface BookSource {
     /**
      * returns the available books for that source.
      */
-    suspend fun availableBooks(): Set<BookInfo>
+    suspend fun availableBooks(): List<BookInfo>
 
     /**
      * @return the book including all files.

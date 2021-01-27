@@ -1,7 +1,7 @@
 package com.andretietz.audiopen.core.script
 
 import com.andretietz.tingeltangel.core.script.Disassembler
-import junit.framework.Assert.assertEquals
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.io.ByteArrayInputStream
 
@@ -30,13 +30,13 @@ internal class DisassemblerTest {
 
         ByteArrayInputStream(byteArray).use {
             val result = decompiler.collectLabels(it)
-            assertEquals(5, result.size)
+            assertThat(result.size).isEqualTo(5)
             val valueList = result.keys.toList()
-            assertEquals(0x18, valueList[0])
-            assertEquals(0x28, valueList[1])
-            assertEquals(0x20, valueList[2])
-            assertEquals(0x12a, valueList[3])
-            assertEquals(0x44, valueList[4])
+            assertThat(valueList[0]).isEqualTo(0x18)
+            assertThat(valueList[1]).isEqualTo(0x28)
+            assertThat(valueList[2]).isEqualTo(0x20)
+            assertThat(valueList[3]).isEqualTo(0x12a)
+            assertThat(valueList[4]).isEqualTo(0x44)
         }
     }
 
@@ -60,8 +60,7 @@ end
 
         ).map { it.toByte() }.toByteArray()
         val result = decompiler.disassemble(ByteArrayInputStream(byteArray))
-
-        assertEquals(outcome, result)
+        assertThat(result).isEqualTo(outcome)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -104,7 +103,7 @@ end
         ).map { it.toByte() }.toByteArray()
         val result = decompiler.disassemble(ByteArrayInputStream(byteArray))
 
-        assertEquals(outcome, result)
+        assertThat(result).isEqualTo(outcome)
     }
 
     @Test(expected = IllegalStateException::class)
