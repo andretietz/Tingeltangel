@@ -4,6 +4,7 @@ import com.andretietz.tingeltangel.bookii.BookiiContract
 import com.andretietz.tingeltangel.cache.CacheInterceptor
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import net.samuelcampos.usbdrivedetector.USBDeviceDetectorManager
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -36,13 +37,12 @@ class Application {
     fun run() {
 //        launch<MainApp>()
         val contract = BookiiContract(client, File(CONFIG))
-
-        runBlocking {
-            async(coroutineContext) {
-                contract.source().availableBooks().firstOrNull()?.let {
-                    println(contract.source().getBook(it))
-                }
+        USBDeviceDetectorManager().addDriveListener {
+            runBlocking {
+                println(contract.verifyDevice(it.storageDevice.rootDirectory))
             }
         }
+
+        Thread.sleep(10000)
     }
 }

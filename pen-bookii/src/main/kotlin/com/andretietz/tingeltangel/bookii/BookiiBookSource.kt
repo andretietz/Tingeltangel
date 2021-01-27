@@ -15,7 +15,6 @@ internal class BookiiBookSource(
 
     override suspend fun availableBooks() = api.versions().map { it.key }
         .chunked(MAX_BOOKINFO_ITEMS)
-//        .take(1)// TODO tmp
         .map { api.info(it.joinToString(",") { item -> "\"$item\"" }) }
         .flatten()
         .map { info ->

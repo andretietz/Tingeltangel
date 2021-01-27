@@ -22,6 +22,9 @@ dependencies {
     implementation 'org.controlsfx:controlsfx:8.40.16'
 
     testImplementation "junit:junit:$junitVersion"
+
+    //TEST
+    implementation "net.samuelcampos:usbdrivedetector:2.1.1"
 }
 
 javafx {

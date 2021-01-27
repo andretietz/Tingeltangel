@@ -1,6 +1,7 @@
 package com.andretietz.tingeltangel.bookii
 
 import com.andretietz.tingeltangel.pencontract.AudioPenContract
+import com.andretietz.tingeltangel.pencontract.AudioPenDevice
 import com.andretietz.tingeltangel.pencontract.BookSource
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -27,6 +28,16 @@ class BookiiContract(
     }
 
     override fun source(): BookSource = BookiiBookSource(api, cacheDir)
+
+    override suspend fun verifyDevice(rootFolder: File): AudioPenDevice? {
+        return rootFolder
+            .listFiles()
+            // optimistic check
+            ?.first { it.name == "book" && it.isDirectory || it.name == "configure" && it.isDirectory }
+            ?.let {
+                return AudioPenDevice(TYPE, rootFolder)
+            }
+    }
 
     override val type = TYPE
 

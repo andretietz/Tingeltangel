@@ -1,5 +1,7 @@
 package com.andretietz.tingeltangel.pencontract
 
+import java.io.File
+
 interface AudioPenContract {
 
     /**
@@ -7,4 +9,6 @@ interface AudioPenContract {
      */
     val type: String
     fun source(): BookSource
+
+    suspend fun verifyDevice(rootFolder: File): AudioPenDevice?
 }

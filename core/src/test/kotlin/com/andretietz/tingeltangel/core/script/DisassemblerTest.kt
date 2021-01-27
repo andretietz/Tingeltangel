@@ -1,6 +1,5 @@
-package com.andretietz.audiopen.core.script
+package com.andretietz.tingeltangel.core.script
 
-import com.andretietz.tingeltangel.core.script.Disassembler
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.io.ByteArrayInputStream

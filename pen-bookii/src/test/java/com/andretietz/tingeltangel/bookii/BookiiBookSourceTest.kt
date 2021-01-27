@@ -17,20 +17,22 @@ internal class BookiiBookSourceTest {
         val server = MockWebServer()
         val api = createApi(server.url("/"))
         server.enqueue(mockFileAsResponse("get-ids.json"))
-        server.enqueue(mockFileAsResponse("get-book-info.json"))
+        server.enqueue(mockFileAsResponse("get-book-info-01.json"))
+        server.enqueue(mockFileAsResponse("get-book-info-02.json"))
 
         val books = BookiiBookSource(api, MOCK_CONFIG_FOLDER).availableBooks()
 
-        assertThat(books.size).isEqualTo(3)
+        assertThat(books.size).isEqualTo(28)
+        val book = books.firstOrNull { info -> info.id == "9942"}!!
 
-        assertThat(books[0].id).isEqualTo("9942")
-        assertThat(books[0].title).isEqualTo("Frühe Sprachbildung - Vorkurs")
-        assertThat(books[0].image.toString())
+        assertThat(book.id).isEqualTo("9942")
+        assertThat(book.title).isEqualTo("Frühe Sprachbildung - Vorkurs")
+        assertThat(book.image.toString())
             .isEqualTo("http://www.bookii-streamingservice.de/files/3/9942/9942_en.png")
-        assertThat(books[0].contentUrl
+        assertThat(book.contentUrl
             .toString()).isEqualTo("http://www.bookii-streamingservice.de/files/3/9942/3/09942_en.kii")
-        assertThat(books[0].version).isEqualTo(3)
-        assertThat(books[0].type).isEqualTo("bookii")
+        assertThat(book.version).isEqualTo(3)
+        assertThat(book.type).isEqualTo("bookii")
 
         server.shutdown()
     }
