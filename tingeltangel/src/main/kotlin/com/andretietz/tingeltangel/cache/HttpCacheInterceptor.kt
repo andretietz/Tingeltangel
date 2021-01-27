@@ -6,7 +6,7 @@ import okhttp3.Response
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-class CacheInterceptor(private val time: Int, private val timeUnit: TimeUnit) : Interceptor {
+class HttpCacheInterceptor(private val time: Int, private val timeUnit: TimeUnit) : Interceptor {
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val response: Response = chain.proceed(chain.request())

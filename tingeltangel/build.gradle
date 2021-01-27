@@ -21,10 +21,17 @@ dependencies {
     implementation "no.tornado:tornadofx:2.0.0-SNAPSHOT"
     implementation 'org.controlsfx:controlsfx:8.40.16'
 
-    testImplementation "junit:junit:$junitVersion"
+    implementation "org.kodein.di:kodein-di-generic-jvm:$kodeinVersion"
 
-    //TEST
     implementation "net.samuelcampos:usbdrivedetector:2.1.1"
+
+    testImplementation "com.squareup.okhttp3:mockwebserver:$okhttpVersion"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
+    testImplementation "org.assertj:assertj-core:3.18.1"
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "io.mockk:mockk:1.10.5"
+
+
 }
 
 javafx {
