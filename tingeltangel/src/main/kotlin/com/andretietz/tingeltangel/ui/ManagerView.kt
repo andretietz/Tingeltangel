@@ -3,62 +3,187 @@ package com.andretietz.tingeltangel.ui
 import com.andretietz.tingeltangel.component
 import com.andretietz.tingeltangel.manager.Interactor
 import com.andretietz.tingeltangel.manager.ViewState
+import com.andretietz.tingeltangel.pencontract.AudioPenDevice
 import com.andretietz.tingeltangel.pencontract.BookInfo
+import com.andretietz.tingeltangel.pencontract.PenType
 import javafx.beans.property.SimpleListProperty
+import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.SimpleStringProperty
+import javafx.geometry.Pos
+import javafx.scene.image.Image
+import javafx.scene.text.Font
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import org.kodein.di.generic.instance
-import tornadofx.View
-import tornadofx.hbox
-import tornadofx.imageview
-import tornadofx.label
-import tornadofx.listview
-import tornadofx.runLater
-import tornadofx.textfield
-import tornadofx.toObservable
-import tornadofx.vbox
+import tornadofx.*
 
-class ManagerView : View() {
+class ManagerView() : View() {
 
-    private val interactor by component().instance<Interactor>()
+  private val interactor by component().instance<Interactor>()
 
-    init {
-        interactor.scope.launch {
-            interactor.state.consumeAsFlow().collect { runLater { update(it) } }
-        }
+  init {
+    interactor.scope.launch {
+      interactor.state.consumeAsFlow().collect { runLater { update(it) } }
     }
+  }
 
-    private val bookItems = SimpleListProperty<BookInfo>()
+  private val localBooks = SimpleListProperty<BookInfo>()
+  private val localBookFilter = SimpleStringProperty().onChange {
+    interactor.filterLocalBooks(it)
+  }
+  private val deviceBooks = SimpleListProperty<BookInfo>()
+  private val deviceBookFilter = SimpleStringProperty().onChange {
+    interactor.filterDeviceBooks(it)
+  }
 
-    private fun update(state: ViewState) {
-        when (state) {
-            is ViewState.Init -> {
-                bookItems.value = state.books.toObservable()
-            }
-        }
+  private val bookTypes = SimpleListProperty<String>()
+  private val currentlySelectedBookType = SimpleObjectProperty<String>()
+//  private val bookTypes = SimpleListProperty<PenType>()
+//  private val currentlySelectedBookType = SimpleObjectProperty<PenType>()
+
+  private val audioPenTypes = SimpleListProperty<AudioPenDevice>()
+  private val currentlySelectedAudioPen = SimpleObjectProperty<AudioPenDevice>()
+
+  private fun update(state: ViewState) {
+    when (state) {
+      is ViewState.Init -> {
+        localBooks.value = state.books.toObservable()
+        currentlySelectedBookType.value = state.bookTypes.first().name
+        bookTypes.value = state.bookTypes.map { it.name }.toObservable()
+      }
+      is ViewState.LocalBookListUpdate -> {
+        localBooks.value = state.books.toObservable()
+      }
     }
+  }
 
-    override val root = hbox {
-        // left panel
-        vbox {
-            listview(bookItems) {
-                cellFormat {
-                    graphic = hbox {
-                        // IMAGE
-                        setPrefSize(300.0,50.0)
-                        imageview(it.image.toString(), lazyload = true) {
-                            fitHeight = 50.0
-                            fitWidth = 50.0
+  override val root = form {
+    hbox {
+      vbox {
+        combobox(currentlySelectedBookType, bookTypes) {
+//          cellFormat { text = it.name }
+//          buttonCell = cellFactory.call()
+        }
+        textfield(localBookFilter) {
+          // TODO: localize
+          promptText = "Search"
+        }
+        listview(localBooks) {
+          prefWidth = 700.0
+          cellFormat {
+            graphic = hbox {
+              setPrefSize(700.0, IMAGE_MAX_HEIGHT)
+              vbox {
+                setPrefSize(IMAGE_MAX_HEIGHT, IMAGE_MAX_HEIGHT)
+                alignment = Pos.CENTER
+                imageview(it.image.toString()) {
+                  style = "-fx-background-color: BLACK"
+                  fitHeight = IMAGE_MAX_HEIGHT
+                  fitWidth = IMAGE_MAX_HEIGHT
+                  it.image?.let {
+                    interactor.loadImage(it) { file ->
+                      val img = Image(file.inputStream())
+                      when {
+                        img.height == img.width -> {
+                          fitHeight = IMAGE_MAX_HEIGHT
+                          fitWidth = IMAGE_MAX_HEIGHT
                         }
-                        label(it.title)
+                        img.height > img.width -> {
+                          fitHeight = IMAGE_MAX_HEIGHT
+                          fitWidth = IMAGE_MAX_HEIGHT * img.width / img.height
+                        }
+                        else -> {
+                          fitWidth = IMAGE_MAX_HEIGHT
+                          fitHeight = IMAGE_MAX_HEIGHT * img.height / img.width
+                        }
+                      }
+                      runLater { image = img }
                     }
+                  }
+
                 }
+              }
+              vbox { prefWidth = 10.0 }
+              vbox {
+                alignment = Pos.CENTER
+                label("${it.title.trim()} (${it.id})") {
+                  font = Font.font(15.0)
+                }
+              }
+
             }
+          }
         }
-
-        vbox {
+      }
+      vbox {
+        alignment = Pos.CENTER
+        button("->") {
 
         }
+      }
+      vbox {
+        combobox(currentlySelectedAudioPen) {
+          items = audioPenTypes
+          cellFormat {
+            text = it.type
+          }
+        }
+        textfield(deviceBookFilter) {
+          // TODO: localize
+          promptText = "Search"
+        }
+        listview(deviceBooks) {
+          prefWidth = 700.0
+          cellFormat {
+            graphic = hbox {
+              setPrefSize(700.0, IMAGE_MAX_HEIGHT)
+              vbox {
+                setPrefSize(IMAGE_MAX_HEIGHT, IMAGE_MAX_HEIGHT)
+                alignment = Pos.CENTER
+                imageview(it.image.toString()) {
+                  style = "-fx-background-color: BLACK"
+                  fitHeight = IMAGE_MAX_HEIGHT
+                  fitWidth = IMAGE_MAX_HEIGHT
+                  it.image?.let {
+                    interactor.loadImage(it) { file ->
+                      val img = Image(file.inputStream())
+                      when {
+                        img.height == img.width -> {
+                          fitHeight = IMAGE_MAX_HEIGHT
+                          fitWidth = IMAGE_MAX_HEIGHT
+                        }
+                        img.height > img.width -> {
+                          fitHeight = IMAGE_MAX_HEIGHT
+                          fitWidth = IMAGE_MAX_HEIGHT * img.width / img.height
+                        }
+                        else -> {
+                          fitWidth = IMAGE_MAX_HEIGHT
+                          fitHeight = IMAGE_MAX_HEIGHT * img.height / img.width
+                        }
+                      }
+                      runLater { image = img }
+                    }
+                  }
+
+                }
+              }
+              vbox { prefWidth = 10.0 }
+              vbox {
+                alignment = Pos.CENTER
+                label("${it.title.trim()} (${it.id})") {
+                  font = Font.font(15.0)
+                }
+              }
+
+            }
+          }
+        }
+      }
     }
+  }
+
+  companion object {
+    const val IMAGE_MAX_HEIGHT = 70.0
+  }
 }

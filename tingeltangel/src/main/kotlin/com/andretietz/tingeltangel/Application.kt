@@ -2,8 +2,10 @@ package com.andretietz.tingeltangel
 
 import com.andretietz.tingeltangel.bookii.BookiiContract
 import com.andretietz.tingeltangel.cache.HttpCacheInterceptor
+import com.andretietz.tingeltangel.manager.ImageCache
 import com.andretietz.tingeltangel.manager.Interactor
 import com.andretietz.tingeltangel.manager.ManagerViewModel
+import com.andretietz.tingeltangel.pencontract.AudioPenContract
 import com.andretietz.tingeltangel.pencontract.BookSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +29,7 @@ class Application {
 
         val coroutineScope = CoroutineScope(Dispatchers.IO)
         private val HOME = System.getProperty("user.home")
-        private val CONFIG = "$HOME/.tingeltangel/cache/"
+        private val CACHE_DIR = File("$HOME/.tingeltangel/cache/")
 
         private const val CACHE_SIZE = 50L * 1024L * 1024L // 50MB
         private const val CACHE_AGE_TIME = 24
@@ -36,7 +38,7 @@ class Application {
     init {
         DIHelper.initKodein(Kodein {
 
-            bind<File>() with singleton { File(CONFIG) }
+            bind<File>() with singleton { CACHE_DIR }
 
             bind<OkHttpClient>() with singleton {
                 OkHttpClient.Builder()
@@ -48,12 +50,18 @@ class Application {
                     .build()
             }
 
-            bind<List<BookSource>>() with singleton {
-                listOf(BookiiContract(instance(), instance()).source())
+            bind<List<AudioPenContract>>() with singleton {
+                listOf(
+                    BookiiContract(instance(), instance()),
+                )
+            }
+
+            bind<ImageCache>() with singleton {
+                ImageCache(File(CACHE_DIR, "images"), coroutineScope)
             }
 
             bind<Interactor>() with singleton {
-                ManagerViewModel(coroutineScope, instance())
+                ManagerViewModel(coroutineScope, instance(), instance())
             }
         })
     }

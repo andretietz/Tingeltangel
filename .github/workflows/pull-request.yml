@@ -31,5 +31,5 @@ jobs:
         uses: gradle/wrapper-validation-action@v1
       # run gradle command to build the project
       - name: Building and testing Application
-        run: ./gradlew build jpackageImage --no-daemon --no-parallel --stacktrace
+        run: ./gradlew build --no-daemon --no-parallel --stacktrace
         shell: bash

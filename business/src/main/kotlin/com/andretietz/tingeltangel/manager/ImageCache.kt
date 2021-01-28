@@ -1,4 +1,4 @@
-package com.andretietz.tingeltangel.cache
+package com.andretietz.tingeltangel.manager
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -11,15 +11,23 @@ class ImageCache(
     private val cacheDir: File,
     private val coroutineScope: CoroutineScope
 ) {
-    fun image(url: URL, defaultImage: File, update: (image: File) -> Unit) {
+
+    init {
+      if(!cacheDir.exists()) {
+          cacheDir.mkdirs()
+      }
+    }
+    fun image(url: URL, update: (image: File) -> Unit) {
         File(cacheDir, "${md5(url.toString())}${extension(url)}").also { file ->
             if (file.exists()) {
                 update(file)
             } else {
-                update(defaultImage)
+//                update(defaultImage)
                 coroutineScope.launch {
                     url.openStream().use { input ->
-                        file.outputStream().use { output -> input.copyTo(output) }
+                        if(file.createNewFile()) {
+                            file.outputStream().use { output -> input.copyTo(output) }
+                        }
                     }
                     update(file)
                 }

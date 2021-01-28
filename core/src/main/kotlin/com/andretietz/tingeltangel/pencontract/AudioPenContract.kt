@@ -4,11 +4,17 @@ import java.io.File
 
 interface AudioPenContract {
 
-    /**
-     * Type of the book source.
-     */
-    val type: String
-    fun source(): BookSource
+  /**
+   * Type of the book source.
+   */
+  val type: PenType
 
-    suspend fun verifyDevice(rootFolder: File): AudioPenDevice?
+  fun source(): BookSource
+
+  suspend fun verifyDevice(rootFolder: File): AudioPenDevice?
 }
+
+data class PenType(
+  val name: String,
+  val type: String
+)
