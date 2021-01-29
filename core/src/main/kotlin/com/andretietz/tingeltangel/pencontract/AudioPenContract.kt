@@ -7,14 +7,17 @@ interface AudioPenContract {
   /**
    * Type of the book source.
    */
-  val type: PenType
+  val type: Type
 
   fun source(): BookSource
 
-  suspend fun verifyDevice(rootFolder: File): AudioPenDevice?
+  fun verifyDevice(rootFolder: File): Boolean
+
+  fun booksFromDevice(device: AudioPenDevice): List<Book>
+
+  data class Type(
+    val name: String,
+    val type: String
+  )
 }
 
-data class PenType(
-  val name: String,
-  val type: String
-)

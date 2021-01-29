@@ -23,7 +23,7 @@ dependencies {
 
     implementation "org.kodein.di:kodein-di-generic-jvm:$kodeinVersion"
 
-    implementation "net.samuelcampos:usbdrivedetector:2.1.1"
+
 
     testImplementation "com.squareup.okhttp3:mockwebserver:$okhttpVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"

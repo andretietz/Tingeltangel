@@ -2,11 +2,12 @@ package com.andretietz.tingeltangel
 
 import com.andretietz.tingeltangel.bookii.BookiiContract
 import com.andretietz.tingeltangel.cache.HttpCacheInterceptor
+import com.andretietz.tingeltangel.devicedetector.WindowsAudioPenDetector
 import com.andretietz.tingeltangel.manager.ImageCache
 import com.andretietz.tingeltangel.manager.Interactor
 import com.andretietz.tingeltangel.manager.ManagerViewModel
 import com.andretietz.tingeltangel.pencontract.AudioPenContract
-import com.andretietz.tingeltangel.pencontract.BookSource
+import com.andretietz.tingeltangel.pencontract.AudioPenDetector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.Cache
@@ -21,53 +22,60 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 class Application {
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            Application().run()
-        }
-
-        val coroutineScope = CoroutineScope(Dispatchers.IO)
-        private val HOME = System.getProperty("user.home")
-        private val CACHE_DIR = File("$HOME/.tingeltangel/cache/")
-
-        private const val CACHE_SIZE = 50L * 1024L * 1024L // 50MB
-        private const val CACHE_AGE_TIME = 24
+  companion object {
+    @JvmStatic
+    fun main(args: Array<String>) {
+      Application().run()
     }
 
-    init {
-        DIHelper.initKodein(Kodein {
+    val coroutineScope = CoroutineScope(Dispatchers.IO)
+    private val HOME = System.getProperty("user.home")
+    private val CACHE_DIR = File("$HOME/.tingeltangel/cache/")
 
-            bind<File>() with singleton { CACHE_DIR }
+    private const val CACHE_SIZE = 50L * 1024L * 1024L // 50MB
+    private const val CACHE_AGE_TIME = 24
+  }
 
-            bind<OkHttpClient>() with singleton {
-                OkHttpClient.Builder()
-                    .cache(Cache(File(instance<File>(), "http_cache"), CACHE_SIZE))
-                    .addInterceptor(HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
-                        override fun log(message: String) = println(message)
-                    }).apply { level = HttpLoggingInterceptor.Level.BODY })
-                    .addNetworkInterceptor(HttpCacheInterceptor(CACHE_AGE_TIME, TimeUnit.HOURS))
-                    .build()
-            }
+  init {
+    DIHelper.initKodein(Kodein {
 
-            bind<List<AudioPenContract>>() with singleton {
-                listOf(
-                    BookiiContract(instance(), instance()),
-                )
-            }
+      bind<File>() with singleton { CACHE_DIR }
 
-            bind<ImageCache>() with singleton {
-                ImageCache(File(CACHE_DIR, "images"), coroutineScope)
-            }
+      bind<OkHttpClient>() with singleton {
+        OkHttpClient.Builder()
+          .cache(Cache(File(instance<File>(), "http_cache"), CACHE_SIZE))
+          .addInterceptor(HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
+            override fun log(message: String) = println(message)
+          }).apply { level = HttpLoggingInterceptor.Level.BODY })
+          .addNetworkInterceptor(HttpCacheInterceptor(CACHE_AGE_TIME, TimeUnit.HOURS))
+          .build()
+      }
 
-            bind<Interactor>() with singleton {
-                ManagerViewModel(coroutineScope, instance(), instance())
-            }
-        })
-    }
+      bind<List<AudioPenContract>>() with singleton {
+        listOf(
+          BookiiContract(instance(), instance()),
+        )
+      }
 
-    fun run() {
-        launch<MainApp>()
+      bind<ImageCache>() with singleton {
+        ImageCache(File(CACHE_DIR, "images"), coroutineScope)
+      }
+
+      bind<Interactor>() with singleton {
+        ManagerViewModel(coroutineScope, instance(), instance(), instance())
+      }
+
+      bind<AudioPenDetector>() with singleton {
+        WindowsAudioPenDetector(
+          instance(), coroutineScope
+        )
+      }
+
+    })
+  }
+
+  fun run() {
+    launch<MainApp>()
 //        val contract = BookiiContract(client, File(CONFIG))
 //        USBDeviceDetectorManager().addDriveListener {
 //            runBlocking {
@@ -76,5 +84,5 @@ class Application {
 //        }
 //
 //        Thread.sleep(10000)
-    }
+  }
 }

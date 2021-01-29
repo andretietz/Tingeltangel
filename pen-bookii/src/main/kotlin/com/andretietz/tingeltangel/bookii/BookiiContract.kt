@@ -2,8 +2,9 @@ package com.andretietz.tingeltangel.bookii
 
 import com.andretietz.tingeltangel.pencontract.AudioPenContract
 import com.andretietz.tingeltangel.pencontract.AudioPenDevice
+import com.andretietz.tingeltangel.pencontract.Book
+import com.andretietz.tingeltangel.pencontract.BookInfo
 import com.andretietz.tingeltangel.pencontract.BookSource
-import com.andretietz.tingeltangel.pencontract.PenType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -30,21 +31,44 @@ class BookiiContract(
 
   override fun source(): BookSource = BookiiBookSource(api, cacheDir)
 
-  override suspend fun verifyDevice(rootFolder: File): AudioPenDevice? {
-    return rootFolder
-      .listFiles()
-      // optimistic check
-      ?.first { it.name == "book" && it.isDirectory || it.name == "configure" && it.isDirectory }
-      ?.let {
-        return AudioPenDevice(TYPE, rootFolder)
-      }
+  override fun verifyDevice(rootFolder: File): Boolean {
+    val bookiiDirs = rootFolder.listFiles()
+      ?.filter { it.name == DIR_BOOK && it.isDirectory || it.name == DIR_CONFIG && it.isDirectory } ?: return false
+    if (bookiiDirs.size != 2) return false
+    val configFile = bookiiDirs.first { it.name == DIR_CONFIG }.listFiles()
+      ?.firstOrNull { it.name == FILE_SETTINGS } ?: return false
+    val tbdFile = bookiiDirs.first { it.name == DIR_CONFIG }.listFiles()
+      ?.firstOrNull { it.name == FILE_TBD } ?: return false
+    return configFile.exists() && tbdFile.exists()
   }
 
-  override val type = PenType(NAME, TYPE)
+  override fun booksFromDevice(device: AudioPenDevice): List<Book> {
+    val bookDir = device.rootDirectory.listFiles()?.firstOrNull { it.name == DIR_BOOK } ?: return emptyList()
+
+//    BookInfo(
+//
+//      )
+
+    val bookFiles = bookDir.listFiles()?.filter { it.name.endsWith("kii") }
+    val imageFiles = bookDir.listFiles()?.filter { it.name.endsWith("png") }
+    val infoFiles = bookDir.listFiles()?.filter { it.name.endsWith("txt") }
+
+    return emptyList()
+  }
+
+
+  override val type = AudioPenContract.Type(NAME, TYPE)
 
   companion object {
     internal const val TYPE = "bookii"
     internal const val NAME = "Bookii"
     private const val API_BASE_URL = "https://www.bookii-medienservice.de/Medienserver-1.0/api/"
+
+    private const val DIR_BOOK = "book"
+    private const val DIR_CONFIG = "configure"
+    private const val FILE_SETTINGS = "settings.ini"
+    private const val FILE_TBD = "tbd.txt"
+
+
   }
 }

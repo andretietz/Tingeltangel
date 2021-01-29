@@ -5,7 +5,6 @@ import com.andretietz.tingeltangel.manager.Interactor
 import com.andretietz.tingeltangel.manager.ViewState
 import com.andretietz.tingeltangel.pencontract.AudioPenDevice
 import com.andretietz.tingeltangel.pencontract.BookInfo
-import com.andretietz.tingeltangel.pencontract.PenType
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -18,11 +17,12 @@ import kotlinx.coroutines.launch
 import org.kodein.di.generic.instance
 import tornadofx.*
 
-class ManagerView() : View() {
+class ManagerView : View() {
 
   private val interactor by component().instance<Interactor>()
 
   init {
+    title = messages["view_title"]
     interactor.scope.launch {
       interactor.state.consumeAsFlow().collect { runLater { update(it) } }
     }
@@ -54,6 +54,11 @@ class ManagerView() : View() {
       }
       is ViewState.LocalBookListUpdate -> {
         localBooks.value = state.books.toObservable()
+      }
+      is ViewState.DeviceListUpdate -> {
+        audioPenTypes.value = state.devices.toObservable()
+        currentlySelectedAudioPen.value = state.devices.firstOrNull()
+        // TODO books:?
       }
     }
   }
