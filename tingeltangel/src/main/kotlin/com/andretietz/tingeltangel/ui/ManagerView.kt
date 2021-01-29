@@ -61,10 +61,7 @@ class ManagerView() : View() {
   override val root = form {
     hbox {
       vbox {
-        combobox(currentlySelectedBookType, bookTypes) {
-//          cellFormat { text = it.name }
-//          buttonCell = cellFactory.call()
-        }
+        combobox(currentlySelectedBookType, bookTypes)
         textfield(localBookFilter) {
           // TODO: localize
           promptText = "Search"
@@ -78,7 +75,6 @@ class ManagerView() : View() {
                 setPrefSize(IMAGE_MAX_HEIGHT, IMAGE_MAX_HEIGHT)
                 alignment = Pos.CENTER
                 imageview(it.image.toString()) {
-                  style = "-fx-background-color: BLACK"
                   fitHeight = IMAGE_MAX_HEIGHT
                   fitWidth = IMAGE_MAX_HEIGHT
                   it.image?.let {
@@ -142,7 +138,6 @@ class ManagerView() : View() {
                 setPrefSize(IMAGE_MAX_HEIGHT, IMAGE_MAX_HEIGHT)
                 alignment = Pos.CENTER
                 imageview(it.image.toString()) {
-                  style = "-fx-background-color: BLACK"
                   fitHeight = IMAGE_MAX_HEIGHT
                   fitWidth = IMAGE_MAX_HEIGHT
                   it.image?.let {
