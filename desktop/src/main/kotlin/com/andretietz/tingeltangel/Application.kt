@@ -74,15 +74,5 @@ class Application {
     })
   }
 
-  fun run() {
-    launch<MainApp>()
-//        val contract = BookiiContract(client, File(CONFIG))
-//        USBDeviceDetectorManager().addDriveListener {
-//            runBlocking {
-//                println(contract.verifyDevice(it.storageDevice.rootDirectory))
-//            }
-//        }
-//
-//        Thread.sleep(10000)
-  }
+  fun run() = launch<MainApp>()
 }

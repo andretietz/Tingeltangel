@@ -27,7 +27,6 @@ class ManagerViewModel(
     scope.launch {
       currentlyLoadedLocalBookInfos = sources.first().source().availableBooks()
       send(ViewState.Init(
-        currentlyLoadedLocalBookInfos,
         sources.map { it.type }
       ))
     }
@@ -69,6 +68,21 @@ class ManagerViewModel(
     }
   }
 
+  override fun selectBookSource(sourceType: AudioPenContract.Type?) {
+    scope.launch {
+      if (sourceType == null) {
+        channel.send(ViewState.LocalBookListUpdate(emptyList()))
+      } else {
+        currentlyLoadedLocalBookInfos = sources.first { it.type == sourceType }
+          .source().availableBooks()
+        channel.send(ViewState.LocalBookListUpdate(currentlyLoadedLocalBookInfos))
+      }
+    }
+  }
+
+  override fun removeFromDevice(it: BookInfo) {
+    println("delete: $it")
+  }
 
   override fun filterLocalBooks(filter: String?) {
     scope.launch {

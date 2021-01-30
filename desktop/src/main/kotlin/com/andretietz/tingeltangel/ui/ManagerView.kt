@@ -11,12 +11,14 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.image.Image
+import javafx.scene.layout.Region
 import javafx.scene.text.Font
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import org.kodein.di.generic.instance
 import tornadofx.View
+import tornadofx.action
 import tornadofx.button
 import tornadofx.combobox
 import tornadofx.form
@@ -44,8 +46,6 @@ class ManagerView : View() {
     interactor.filterDeviceBooks(it)
   }
 
-  //  private val bookTypes = SimpleListProperty<String>()
-//  private val currentlySelectedBookType = SimpleObjectProperty<String>()
   private val bookTypes = SimpleListProperty<AudioPenContract.Type>()
   private val currentlySelectedBookType = SimpleObjectProperty<AudioPenContract.Type>()
 
@@ -61,12 +61,15 @@ class ManagerView : View() {
     currentlySelectedAudioPen.onChange {
       interactor.selectAudioPen(it)
     }
+
+    currentlySelectedBookType.onChange {
+      interactor.selectBookSource(it)
+    }
   }
 
   private fun update(state: ViewState) {
     when (state) {
       is ViewState.Init -> {
-        localBooks.value = state.bookInfos.toObservable()
         currentlySelectedBookType.value = state.bookTypes.first()
         bookTypes.value = state.bookTypes.toObservable()
       }
@@ -75,6 +78,7 @@ class ManagerView : View() {
       }
       is ViewState.DeviceListUpdate -> {
         audioPenTypes.value = state.devices.toObservable()
+        currentlySelectedAudioPen.value
         currentlySelectedAudioPen.value = state.devices.firstOrNull()
       }
       is ViewState.DeviceBookUpdate -> {
@@ -92,57 +96,11 @@ class ManagerView : View() {
         textfield(localBookFilter) {
           promptText = messages["textfield_search_official_label"]
         }
-        listview(localBooks) {
-          prefWidth = 700.0
-          cellFormat {
-            graphic = hbox {
-              setPrefSize(700.0, IMAGE_MAX_HEIGHT)
-              vbox {
-                setPrefSize(IMAGE_MAX_HEIGHT, IMAGE_MAX_HEIGHT)
-                alignment = Pos.CENTER
-                imageview(it.image.toString()) {
-                  fitHeight = IMAGE_MAX_HEIGHT
-                  fitWidth = IMAGE_MAX_HEIGHT
-                  it.image?.let {
-                    interactor.loadImage(it) { file ->
-                      val img = Image(file.inputStream())
-                      when {
-                        img.height == img.width -> {
-                          fitHeight = IMAGE_MAX_HEIGHT
-                          fitWidth = IMAGE_MAX_HEIGHT
-                        }
-                        img.height > img.width -> {
-                          fitHeight = IMAGE_MAX_HEIGHT
-                          fitWidth = IMAGE_MAX_HEIGHT * img.width / img.height
-                        }
-                        else -> {
-                          fitWidth = IMAGE_MAX_HEIGHT
-                          fitHeight = IMAGE_MAX_HEIGHT * img.height / img.width
-                        }
-                      }
-                      runLater { image = img }
-                    }
-                  }
-
-                }
-              }
-              vbox { prefWidth = 10.0 }
-              vbox {
-                alignment = Pos.CENTER
-                label("${it.title.trim()} (${it.id})") {
-                  font = Font.font(15.0)
-                }
-              }
-
-            }
-          }
-        }
+        provideList(this, localBooks, false)
       }
       vbox {
         alignment = Pos.CENTER
-        button("->") {
-
-        }
+        button("->")
       }
       vbox {
         combobox(currentlySelectedAudioPen, audioPenTypes) {
@@ -153,48 +111,50 @@ class ManagerView : View() {
         textfield(deviceBookFilter) {
           promptText = messages["textfield_search_device_label"]
         }
-        listview(deviceBooks) {
-          prefWidth = 700.0
-          cellFormat {
-            graphic = hbox {
-              setPrefSize(700.0, IMAGE_MAX_HEIGHT)
-              vbox {
-                setPrefSize(IMAGE_MAX_HEIGHT, IMAGE_MAX_HEIGHT)
-                alignment = Pos.CENTER
-                imageview(it.image.toString()) {
-                  fitHeight = IMAGE_MAX_HEIGHT
-                  fitWidth = IMAGE_MAX_HEIGHT
-                  it.image?.let {
-                    interactor.loadImage(it) { file ->
-                      val img = Image(file.inputStream())
-                      when {
-                        img.height == img.width -> {
-                          fitHeight = IMAGE_MAX_HEIGHT
-                          fitWidth = IMAGE_MAX_HEIGHT
-                        }
-                        img.height > img.width -> {
-                          fitHeight = IMAGE_MAX_HEIGHT
-                          fitWidth = IMAGE_MAX_HEIGHT * img.width / img.height
-                        }
-                        else -> {
-                          fitWidth = IMAGE_MAX_HEIGHT
-                          fitHeight = IMAGE_MAX_HEIGHT * img.height / img.width
-                        }
-                      }
-                      runLater { image = img }
-                    }
+        provideList(this, deviceBooks, true)
+      }
+    }
+  }
+
+  private fun provideList(region: Region, deviceBooks: SimpleListProperty<BookInfo>, deletable: Boolean) {
+    region.apply {
+      listview(deviceBooks) {
+        prefWidth = LIST_WIDTH
+        cellFormat {
+          graphic = hbox {
+            setPrefSize(LIST_WIDTH, IMAGE_MAX_HEIGHT)
+            vbox {
+              setPrefSize(IMAGE_MAX_HEIGHT, IMAGE_MAX_HEIGHT)
+              alignment = Pos.CENTER
+              imageview(it.image.toString()) {
+                fitHeight = IMAGE_MAX_HEIGHT
+                fitWidth = IMAGE_MAX_HEIGHT
+                it.image?.let {
+                  interactor.loadImage(it) { file ->
+                    val img = Image(file.inputStream())
+                    val (width, height) = scaleDownAndKeepRatio(img)
+                    setPrefSize(width, height)
+                    runLater { image = img }
                   }
-
                 }
               }
-              vbox { prefWidth = 10.0 }
+            }
+            vbox { prefWidth = IMAGE_TEXT_SPACING }
+            vbox {
+              alignment = Pos.CENTER_LEFT
+              prefWidth = LIST_WIDTH - IMAGE_MAX_HEIGHT - IMAGE_MAX_HEIGHT - (if (deletable) IMAGE_MAX_HEIGHT else 0.0)
+              label("${it.title.trim()} (${it.id})") {
+                font = Font.font(LIST_ITEM_FONT_SIZE)
+              }
+            }
+            if (deletable) {
               vbox {
                 alignment = Pos.CENTER
-                label("${it.title.trim()} (${it.id})") {
-                  font = Font.font(15.0)
+                prefWidth = IMAGE_MAX_HEIGHT
+                button(messages["button_delete_book"]) {
+                  action { interactor.removeFromDevice(it) }
                 }
               }
-
             }
           }
         }
@@ -202,7 +162,31 @@ class ManagerView : View() {
     }
   }
 
+  private fun scaleDownAndKeepRatio(image: Image) = when {
+    image.height == image.width -> {
+      arrayOf(
+        IMAGE_MAX_HEIGHT,
+        IMAGE_MAX_HEIGHT
+      )
+    }
+    image.height > image.width -> {
+      arrayOf(
+        IMAGE_MAX_HEIGHT * image.width / image.height,
+        IMAGE_MAX_HEIGHT
+      )
+    }
+    else -> {
+      arrayOf(
+        IMAGE_MAX_HEIGHT,
+        IMAGE_MAX_HEIGHT * image.height / image.width
+      )
+    }
+  }
+
   companion object {
-    const val IMAGE_MAX_HEIGHT = 70.0
+    private const val IMAGE_MAX_HEIGHT = 70.0
+    private const val LIST_WIDTH = 700.0
+    private const val IMAGE_TEXT_SPACING = 10.0
+    private const val LIST_ITEM_FONT_SIZE = 15.0
   }
 }

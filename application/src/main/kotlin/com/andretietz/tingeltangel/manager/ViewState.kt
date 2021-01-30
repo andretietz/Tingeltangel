@@ -7,7 +7,6 @@ import com.andretietz.tingeltangel.pencontract.BookInfo
 sealed class ViewState {
 
   data class Init(
-    val bookInfos: List<BookInfo>,
     val bookTypes: List<AudioPenContract.Type>
   ) : ViewState()
 
