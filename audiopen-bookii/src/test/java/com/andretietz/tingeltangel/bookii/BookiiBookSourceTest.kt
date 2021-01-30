@@ -12,28 +12,30 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 internal class BookiiBookSourceTest {
 
-    @Test
-    fun `Receiving books`() = runBlocking {
-        val server = MockWebServer()
-        val api = createApi(server.url("/"))
-        server.enqueue(mockFileAsResponse("get-ids.json"))
-        server.enqueue(mockFileAsResponse("get-book-info-01.json"))
-        server.enqueue(mockFileAsResponse("get-book-info-02.json"))
+  @Test
+  fun `Receiving books`() = runBlocking {
+    val server = MockWebServer()
+    val api = createApi(server.url("/"))
+    server.enqueue(mockFileAsResponse("get-ids.json"))
+    server.enqueue(mockFileAsResponse("get-book-info-01.json"))
+    server.enqueue(mockFileAsResponse("get-book-info-02.json"))
 
-        val books = BookiiBookSource(api, MOCK_CONFIG_FOLDER).availableBooks()
+    val books = BookiiBookSource(api, MOCK_CONFIG_FOLDER).availableBooks()
 
-        assertThat(books.size).isEqualTo(28)
-        val book = books.firstOrNull { info -> info.id == "9942"}!!
+    assertThat(books.size).isEqualTo(28)
+    val book = books.firstOrNull { info -> info.id == "9942" }!!
 
-        assertThat(book.id).isEqualTo("9942")
-        assertThat(book.title).isEqualTo("Frühe Sprachbildung - Vorkurs")
-        assertThat(book.image.toString())
-            .isEqualTo("http://www.bookii-streamingservice.de/files/3/9942/9942_en.png")
-        assertThat(book.contentUrl
-            .toString()).isEqualTo("http://www.bookii-streamingservice.de/files/3/9942/3/09942_en.kii")
-        assertThat(book.version).isEqualTo(3)
-        assertThat(book.type).isEqualTo("bookii")
+    assertThat(book.id).isEqualTo("9942")
+    assertThat(book.title).isEqualTo("Frühe Sprachbildung - Vorkurs")
+    assertThat(book.image.toString())
+      .isEqualTo("http://www.bookii-streamingservice.de/files/3/9942/9942_en.png")
+    assertThat(
+      book.contentUrl
+        .toString()
+    ).isEqualTo("http://www.bookii-streamingservice.de/files/3/9942/3/09942_en.kii")
+    assertThat(book.version).isEqualTo(3)
+    assertThat(book.type).isEqualTo("bookii")
 
-        server.shutdown()
-    }
+    server.shutdown()
+  }
 }

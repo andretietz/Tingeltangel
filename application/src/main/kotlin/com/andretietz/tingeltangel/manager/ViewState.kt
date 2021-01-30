@@ -18,5 +18,3 @@ sealed class ViewState {
 
   data class DeviceBookUpdate(val books: List<BookInfo>) : ViewState()
 }
-
-

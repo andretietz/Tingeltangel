@@ -73,17 +73,13 @@ class ManagerView : View() {
         currentlySelectedBookType.value = state.bookTypes.first()
         bookTypes.value = state.bookTypes.toObservable()
       }
-      is ViewState.LocalBookListUpdate -> {
-        localBooks.value = state.bookInfos.toObservable()
-      }
+      is ViewState.LocalBookListUpdate -> localBooks.value = state.bookInfos.toObservable()
       is ViewState.DeviceListUpdate -> {
         audioPenTypes.value = state.devices.toObservable()
         currentlySelectedAudioPen.value
         currentlySelectedAudioPen.value = state.devices.firstOrNull()
       }
-      is ViewState.DeviceBookUpdate -> {
-        deviceBooks.value = state.books.toObservable()
-      }
+      is ViewState.DeviceBookUpdate -> deviceBooks.value = state.books.toObservable()
     }
   }
 
@@ -117,7 +113,7 @@ class ManagerView : View() {
   }
 
   private fun provideList(region: Region, deviceBooks: SimpleListProperty<BookInfo>, deletable: Boolean) {
-    region.apply {
+    region.also {
       listview(deviceBooks) {
         prefWidth = LIST_WIDTH
         cellFormat {
@@ -142,7 +138,7 @@ class ManagerView : View() {
             vbox { prefWidth = IMAGE_TEXT_SPACING }
             vbox {
               alignment = Pos.CENTER_LEFT
-              prefWidth = LIST_WIDTH - IMAGE_MAX_HEIGHT - IMAGE_MAX_HEIGHT - (if (deletable) IMAGE_MAX_HEIGHT else 0.0)
+              prefWidth = LIST_WIDTH - IMAGE_MAX_HEIGHT - IMAGE_MAX_HEIGHT - if (deletable) IMAGE_MAX_HEIGHT else 0.0
               label("${it.title.trim()} (${it.id})") {
                 font = Font.font(LIST_ITEM_FONT_SIZE)
               }
@@ -163,24 +159,18 @@ class ManagerView : View() {
   }
 
   private fun scaleDownAndKeepRatio(image: Image) = when {
-    image.height == image.width -> {
-      arrayOf(
-        IMAGE_MAX_HEIGHT,
-        IMAGE_MAX_HEIGHT
-      )
-    }
-    image.height > image.width -> {
-      arrayOf(
-        IMAGE_MAX_HEIGHT * image.width / image.height,
-        IMAGE_MAX_HEIGHT
-      )
-    }
-    else -> {
-      arrayOf(
-        IMAGE_MAX_HEIGHT,
-        IMAGE_MAX_HEIGHT * image.height / image.width
-      )
-    }
+    image.height == image.width -> arrayOf(
+      IMAGE_MAX_HEIGHT,
+      IMAGE_MAX_HEIGHT
+    )
+    image.height > image.width -> arrayOf(
+      IMAGE_MAX_HEIGHT * image.width / image.height,
+      IMAGE_MAX_HEIGHT
+    )
+    else -> arrayOf(
+      IMAGE_MAX_HEIGHT,
+      IMAGE_MAX_HEIGHT * image.height / image.width
+    )
   }
 
   companion object {

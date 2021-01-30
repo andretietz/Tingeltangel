@@ -9,6 +9,4 @@ object DIHelper {
   }
 }
 
-fun component(): Kodein {
-  return DIHelper.kodein ?: throw IllegalStateException("Please call DIHelper.initKodein() !")
-}
+fun component() = DIHelper.kodein ?: throw IllegalStateException("Please call DIHelper.initKodein() !")

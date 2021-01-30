@@ -20,18 +20,14 @@ internal class ImageCacheTest {
   companion object {
     private const val SAMPLE_IMAGE = "http://www.bookii-streamingservice.de/files/3/9942/9942_en.png"
     private val CACHE_FOLDER = File("src/test/resources/imagecache/cache")
-    private val DUMMY_DEFAULT_FILE = File("dummy")
-
   }
 
   @get:Rule
   val coroutineRule = TestCoroutineRule()
 
-
   init {
     CACHE_FOLDER.mkdirs()
   }
-
 
   @Test
   fun `show image cache miss`() = runBlockingTest {
@@ -47,15 +43,11 @@ internal class ImageCacheTest {
       cache.image(url, callback)
       verify(exactly = 1) { callback(any()) }
 
-
       assertThat(localFile).exists().isFile
       cache.image(url, callback)
       verify(exactly = 2) { callback(any()) }
-
-
     } finally {
       cache.clear()
     }
   }
 }
-

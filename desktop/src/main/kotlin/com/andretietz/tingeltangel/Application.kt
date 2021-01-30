@@ -28,6 +28,9 @@ class Application {
       Application().run()
     }
 
+    /**
+     * Application global coroutine scope.
+     */
     val coroutineScope = CoroutineScope(Dispatchers.IO)
     private val HOME = System.getProperty("user.home")
     private val CACHE_DIR = File("$HOME/.tingeltangel/cache/")
@@ -52,9 +55,7 @@ class Application {
       }
 
       bind<List<AudioPenContract>>() with singleton {
-        listOf(
-          BookiiContract(instance(), instance()),
-        )
+        listOf(BookiiContract(instance(), instance()))
       }
 
       bind<ImageCache>() with singleton {
@@ -70,7 +71,6 @@ class Application {
           instance(), coroutineScope
         )
       }
-
     })
   }
 

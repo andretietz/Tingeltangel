@@ -80,8 +80,8 @@ class ManagerViewModel(
     }
   }
 
-  override fun removeFromDevice(it: BookInfo) {
-    println("delete: $it")
+  override fun removeFromDevice(book: BookInfo) {
+    println("delete: $book")
   }
 
   override fun filterLocalBooks(filter: String?) {

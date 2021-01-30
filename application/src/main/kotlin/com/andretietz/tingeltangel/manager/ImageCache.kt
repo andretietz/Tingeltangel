@@ -19,19 +19,20 @@ class ImageCache(
   }
 
   fun image(url: URL, update: (image: File) -> Unit) {
-    if (url.protocol == "file") {
+    if (url.protocol == URL_FILE_PROTOCOL) {
       update(File(url.file))
-    }
-    File(cacheDir, "${md5(url.toString())}${extension(url)}").also { file ->
-      if (file.exists()) {
-        update(file)
-      } else {
-        if (file.createNewFile()) {
-          coroutineScope.launch {
-            url.openStream().use { input ->
-              file.outputStream().use { output -> input.copyTo(output) }
+    } else {
+      File(cacheDir, "${md5(url.toString())}${extension(url)}").also { file ->
+        if (file.exists()) {
+          update(file)
+        } else {
+          if (file.createNewFile()) {
+            coroutineScope.launch {
+              url.openStream().use { input ->
+                file.outputStream().use { output -> input.copyTo(output) }
+              }
+              update(file)
             }
-            update(file)
           }
         }
       }
@@ -44,6 +45,7 @@ class ImageCache(
     }
   }
 
+  @SuppressWarnings("Detekt.MagicNumber")
   private fun md5(input: String): String {
     val md = MessageDigest.getInstance("MD5")
     return BigInteger(1, md.digest(input.toByteArray())).toString(16).padStart(32, '0')
@@ -56,5 +58,9 @@ class ImageCache(
     } else {
       ".cache"
     }
+  }
+
+  companion object {
+    private const val URL_FILE_PROTOCOL = "file"
   }
 }

@@ -5,7 +5,6 @@ import com.andretietz.tingeltangel.pencontract.AudioPenDevice
 import com.andretietz.tingeltangel.pencontract.Book
 import com.andretietz.tingeltangel.pencontract.BookInfo
 import com.andretietz.tingeltangel.pencontract.BookSource
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -62,7 +61,6 @@ class BookiiContract(
   private fun parseInfoFile(file: File): BookInfo? {
     val (id, _) = infoFileRegex.find(file.name)?.destructured ?: return null
 
-
     val map = mutableMapOf<String, String>()
 
     file.readLines()
@@ -86,22 +84,22 @@ class BookiiContract(
     )
   }
 
+  @SuppressWarnings("Detekt.UnusedPrivateMember")
   private fun createInfoFile(info: BookInfo): String {
-    val sb = StringBuilder()
-    sb.appendLine("$SETTINGS_NAME: ${info.title}")
-    sb.appendLine("$SETTINGS_BOOK_PUBLISHER: ${info.publisherName}")
-    sb.appendLine("$SETTINGS_BOOK_AUTHOR: ${info.authorName}")
-    sb.appendLine("$SETTINGS_BOOK_VERSION: ${info.version}")
-    sb.appendLine("$SETTINGS_URL: ${info.image?.toString() ?: ""}")
-    sb.appendLine("$SETTINGS_THUMB_MD5:") // TODO: could be generated
-    sb.appendLine("$SETTINGS_FILE_MD5:") // TODO: could be generated
-    sb.appendLine("$SETTINGS_BOOK_AREA_CODE: ${info.areaCode}")
-    sb.appendLine("$SETTINGS_TYPE: ${info.mediaType}")
-    sb.appendLine("$SETTINGS_ISBN: ${info.isbn ?: ""}")
-    sb.appendLine("$SETTINGS_VOLUME: ${info.volume}")
-    return sb.toString()
+    return StringBuilder().apply {
+      appendLine("$SETTINGS_NAME: ${info.title}")
+      appendLine("$SETTINGS_BOOK_PUBLISHER: ${info.publisherName}")
+      appendLine("$SETTINGS_BOOK_AUTHOR: ${info.authorName}")
+      appendLine("$SETTINGS_BOOK_VERSION: ${info.version}")
+      appendLine("$SETTINGS_URL: ${info.image?.toString() ?: ""}")
+      appendLine("$SETTINGS_THUMB_MD5:") // TBD: could be generated
+      appendLine("$SETTINGS_FILE_MD5:") // TBD: could be generated
+      appendLine("$SETTINGS_BOOK_AREA_CODE: ${info.areaCode}")
+      appendLine("$SETTINGS_TYPE: ${info.mediaType}")
+      appendLine("$SETTINGS_ISBN: ${info.isbn ?: ""}")
+      appendLine("$SETTINGS_VOLUME: ${info.volume}")
+    }.toString()
   }
-
 
   override val type = AudioPenContract.Type(NAME, TYPE)
 
@@ -116,7 +114,6 @@ class BookiiContract(
     private const val FILE_TBD = "tbd.txt"
 
     private val infoFileRegex = Regex("^([0-9]{5})\\_([a-z]{2})\\.txt\$")
-
 
     private const val SETTINGS_NAME = "Name"
     private const val SETTINGS_BOOK_AREA_CODE = "Book Area Code"
