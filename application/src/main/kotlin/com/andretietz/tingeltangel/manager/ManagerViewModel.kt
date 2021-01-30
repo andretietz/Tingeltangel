@@ -80,6 +80,11 @@ class ManagerViewModel(
     }
   }
 
+  override fun transferBookToDevice(book: BookInfo?, audioPen: AudioPenDevice?) {
+    if (book == null || audioPen == null) return
+    println("TBD: transfer $book to $audioPen")
+  }
+
   override fun removeFromDevice(book: BookInfo) {
     println("delete: $book")
   }

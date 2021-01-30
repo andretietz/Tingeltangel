@@ -28,6 +28,7 @@ import tornadofx.imageview
 import tornadofx.label
 import tornadofx.listview
 import tornadofx.onChange
+import tornadofx.onUserSelect
 import tornadofx.runLater
 import tornadofx.textfield
 import tornadofx.toObservable
@@ -51,6 +52,8 @@ class ManagerView : View() {
 
   private val audioPenTypes = SimpleListProperty<AudioPenDevice>()
   private val currentlySelectedAudioPen = SimpleObjectProperty<AudioPenDevice>()
+
+  private var selectedLocalBookInfo: BookInfo? = null
 
   init {
     title = messages["view_title"]
@@ -92,11 +95,17 @@ class ManagerView : View() {
         textfield(localBookFilter) {
           promptText = messages["textfield_search_official_label"]
         }
-        provideList(this, localBooks, false)
+        provideList(this, localBooks, false) {
+          selectedLocalBookInfo = it
+        }
       }
       vbox {
         alignment = Pos.CENTER
-        button("->")
+        button("->") {
+          action {
+            interactor.transferBookToDevice(selectedLocalBookInfo, currentlySelectedAudioPen.value)
+          }
+        }
       }
       vbox {
         combobox(currentlySelectedAudioPen, audioPenTypes) {
@@ -112,10 +121,17 @@ class ManagerView : View() {
     }
   }
 
-  private fun provideList(region: Region, deviceBooks: SimpleListProperty<BookInfo>, deletable: Boolean) {
-    region.also {
+  @SuppressWarnings("Detekt.UnnecessaryApply")
+  private fun provideList(
+    region: Region,
+    deviceBooks: SimpleListProperty<BookInfo>,
+    deletable: Boolean,
+    onSelect: (BookInfo) -> Unit = {}
+  ) {
+    region.apply {
       listview(deviceBooks) {
         prefWidth = LIST_WIDTH
+        onUserSelect(1) { onSelect(it) }
         cellFormat {
           graphic = hbox {
             setPrefSize(LIST_WIDTH, IMAGE_MAX_HEIGHT)

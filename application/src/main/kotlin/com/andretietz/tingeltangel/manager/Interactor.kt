@@ -27,4 +27,5 @@ interface Interactor {
   fun selectAudioPen(device: AudioPenDevice?)
   fun removeFromDevice(book: BookInfo)
   fun selectBookSource(sourceType: AudioPenContract.Type?)
+  fun transferBookToDevice(book: BookInfo?, audioPen: AudioPenDevice?)
 }
