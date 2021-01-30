@@ -3,6 +3,7 @@ package com.andretietz.tingeltangel.ui
 import com.andretietz.tingeltangel.component
 import com.andretietz.tingeltangel.manager.Interactor
 import com.andretietz.tingeltangel.manager.ViewState
+import com.andretietz.tingeltangel.pencontract.AudioPenContract
 import com.andretietz.tingeltangel.pencontract.AudioPenDevice
 import com.andretietz.tingeltangel.pencontract.BookInfo
 import javafx.beans.property.SimpleListProperty
@@ -15,18 +16,24 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import org.kodein.di.generic.instance
-import tornadofx.*
+import tornadofx.View
+import tornadofx.button
+import tornadofx.combobox
+import tornadofx.form
+import tornadofx.get
+import tornadofx.hbox
+import tornadofx.imageview
+import tornadofx.label
+import tornadofx.listview
+import tornadofx.onChange
+import tornadofx.runLater
+import tornadofx.textfield
+import tornadofx.toObservable
+import tornadofx.vbox
 
 class ManagerView : View() {
 
   private val interactor by component().instance<Interactor>()
-
-  init {
-    title = messages["view_title"]
-    interactor.scope.launch {
-      interactor.state.consumeAsFlow().collect { runLater { update(it) } }
-    }
-  }
 
   private val localBooks = SimpleListProperty<BookInfo>()
   private val localBookFilter = SimpleStringProperty().onChange {
@@ -37,28 +44,41 @@ class ManagerView : View() {
     interactor.filterDeviceBooks(it)
   }
 
-  private val bookTypes = SimpleListProperty<String>()
-  private val currentlySelectedBookType = SimpleObjectProperty<String>()
-//  private val bookTypes = SimpleListProperty<PenType>()
-//  private val currentlySelectedBookType = SimpleObjectProperty<PenType>()
+  //  private val bookTypes = SimpleListProperty<String>()
+//  private val currentlySelectedBookType = SimpleObjectProperty<String>()
+  private val bookTypes = SimpleListProperty<AudioPenContract.Type>()
+  private val currentlySelectedBookType = SimpleObjectProperty<AudioPenContract.Type>()
 
   private val audioPenTypes = SimpleListProperty<AudioPenDevice>()
   private val currentlySelectedAudioPen = SimpleObjectProperty<AudioPenDevice>()
 
+  init {
+    title = messages["view_title"]
+    interactor.scope.launch {
+      interactor.state.consumeAsFlow().collect { runLater { update(it) } }
+    }
+
+    currentlySelectedAudioPen.onChange {
+      interactor.selectAudioPen(it)
+    }
+  }
+
   private fun update(state: ViewState) {
     when (state) {
       is ViewState.Init -> {
-        localBooks.value = state.books.toObservable()
-        currentlySelectedBookType.value = state.bookTypes.first().name
-        bookTypes.value = state.bookTypes.map { it.name }.toObservable()
+        localBooks.value = state.bookInfos.toObservable()
+        currentlySelectedBookType.value = state.bookTypes.first()
+        bookTypes.value = state.bookTypes.toObservable()
       }
       is ViewState.LocalBookListUpdate -> {
-        localBooks.value = state.books.toObservable()
+        localBooks.value = state.bookInfos.toObservable()
       }
       is ViewState.DeviceListUpdate -> {
         audioPenTypes.value = state.devices.toObservable()
         currentlySelectedAudioPen.value = state.devices.firstOrNull()
-        // TODO books:?
+      }
+      is ViewState.DeviceBookUpdate -> {
+        deviceBooks.value = state.books.toObservable()
       }
     }
   }
@@ -66,10 +86,11 @@ class ManagerView : View() {
   override val root = form {
     hbox {
       vbox {
-        combobox(currentlySelectedBookType, bookTypes)
+        combobox(currentlySelectedBookType, bookTypes) {
+          cellFormat { text = messages["official_book_source"].format(it.name) }
+        }
         textfield(localBookFilter) {
-          // TODO: localize
-          promptText = "Search"
+          promptText = messages["textfield_search_official_label"]
         }
         listview(localBooks) {
           prefWidth = 700.0
@@ -124,15 +145,13 @@ class ManagerView : View() {
         }
       }
       vbox {
-        combobox(currentlySelectedAudioPen) {
-          items = audioPenTypes
+        combobox(currentlySelectedAudioPen, audioPenTypes) {
           cellFormat {
-            text = it.type
+            text = "${it.type.name} (${it.rootDirectory.path})"
           }
         }
         textfield(deviceBookFilter) {
-          // TODO: localize
-          promptText = "Search"
+          promptText = messages["textfield_search_device_label"]
         }
         listview(deviceBooks) {
           prefWidth = 700.0

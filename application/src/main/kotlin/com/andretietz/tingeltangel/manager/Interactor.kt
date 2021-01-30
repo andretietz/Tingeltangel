@@ -1,5 +1,6 @@
 package com.andretietz.tingeltangel.manager
 
+import com.andretietz.tingeltangel.pencontract.AudioPenDevice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.ReceiveChannel
 import java.io.File
@@ -20,4 +21,6 @@ interface Interactor {
 
   fun filterLocalBooks(filter: String?)
   fun filterDeviceBooks(filter: String?)
+
+  fun selectAudioPen(it: AudioPenDevice?)
 }

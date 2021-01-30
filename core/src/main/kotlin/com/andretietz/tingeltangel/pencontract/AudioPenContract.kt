@@ -13,11 +13,15 @@ interface AudioPenContract {
 
   fun verifyDevice(rootFolder: File): Boolean
 
-  fun booksFromDevice(device: AudioPenDevice): List<Book>
+  suspend fun booksFromDevice(device: AudioPenDevice): List<Book>
 
   data class Type(
     val name: String,
     val type: String
-  )
+  ) {
+    override fun toString(): String {
+      return name
+    }
+  }
 }
 

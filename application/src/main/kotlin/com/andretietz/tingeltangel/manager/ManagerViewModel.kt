@@ -19,14 +19,15 @@ class ManagerViewModel(
   private val deviceDetector: AudioPenDetector
 ) : Interactor {
 
-  private lateinit var currentlyLoadedLocalBooks: List<BookInfo>
+  private lateinit var currentlyLoadedLocalBookInfos: List<BookInfo>
+  private lateinit var currentlyLoadedDeviceBookInfos: List<BookInfo>
   private val connectedDevices: MutableList<AudioPenDevice> = mutableListOf()
 
   private val channel = Channel<ViewState>(Channel.CONFLATED).apply {
     scope.launch {
-      currentlyLoadedLocalBooks = sources.first().source().availableBooks()
+      currentlyLoadedLocalBookInfos = sources.first().source().availableBooks()
       send(ViewState.Init(
-        currentlyLoadedLocalBooks,
+        currentlyLoadedLocalBookInfos,
         sources.map { it.type }
       ))
     }
@@ -51,23 +52,41 @@ class ManagerViewModel(
   }
 
   override val state: ReceiveChannel<ViewState> = channel
-  override fun loadImage(url: URL, callback: (file: File) -> Unit) {
-    imageCache.image(url, callback)
-  }
 
-  override fun filterLocalBooks(filter: String?) {
-    if (filter == null) {
-      scope.launch {
-        channel.send(ViewState.LocalBookListUpdate(currentlyLoadedLocalBooks))
-      }
-    } else {
-      scope.launch {
-        channel.send(ViewState.LocalBookListUpdate(currentlyLoadedLocalBooks.filter { it.title.contains(filter) }))
+  override fun loadImage(url: URL, callback: (file: File) -> Unit) = imageCache.image(url, callback)
+
+  override fun selectAudioPen(device: AudioPenDevice?) {
+    scope.launch {
+      if (device == null) {
+        channel.send(ViewState.DeviceBookUpdate(emptyList()))
+      } else {
+        currentlyLoadedDeviceBookInfos = sources
+          .first { it.type == device.type }
+          .booksFromDevice(device)
+          .map { it.info }
+        channel.send(ViewState.DeviceBookUpdate(currentlyLoadedDeviceBookInfos))
       }
     }
   }
 
+
+  override fun filterLocalBooks(filter: String?) {
+    scope.launch {
+      channel.send(ViewState.LocalBookListUpdate(filter(filter, currentlyLoadedLocalBookInfos)))
+    }
+  }
+
   override fun filterDeviceBooks(filter: String?) {
-    // TODO
+    scope.launch {
+      channel.send(ViewState.DeviceBookUpdate(filter(filter, currentlyLoadedDeviceBookInfos)))
+    }
+  }
+
+  private fun filter(filter: String?, books: List<BookInfo>): List<BookInfo> {
+    return if (filter == null) {
+      books
+    } else {
+      books.filter { it.title.contains(filter) || it.id.contains(filter) }
+    }
   }
 }

@@ -1,7 +1,6 @@
 package com.andretietz.tingeltangel.manager
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import java.math.BigInteger
@@ -20,6 +19,9 @@ class ImageCache(
   }
 
   fun image(url: URL, update: (image: File) -> Unit) {
+    if (url.protocol == "file") {
+      update(File(url.file))
+    }
     File(cacheDir, "${md5(url.toString())}${extension(url)}").also { file ->
       if (file.exists()) {
         update(file)

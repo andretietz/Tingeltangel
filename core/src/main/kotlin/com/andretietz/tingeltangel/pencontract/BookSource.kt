@@ -9,5 +9,5 @@ interface BookSource {
     /**
      * @return the book including all files.
      */
-    suspend fun getBook(book: BookInfo): Book
+    suspend fun getBook(bookInfo: BookInfo): Book
 }

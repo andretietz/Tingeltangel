@@ -15,7 +15,7 @@ mainClassName = "com.andretietz.tingeltangel.Application"
 
 
 dependencies {
-    implementation project(':business')
+    implementation project(':application')
     implementation project(':pen-bookii')
 
     implementation "no.tornado:tornadofx:2.0.0-SNAPSHOT"

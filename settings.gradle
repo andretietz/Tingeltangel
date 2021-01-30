@@ -1,8 +1,8 @@
 //include 'z_historic'
 include 'core'
-include 'business'
+include 'application'
 include 'pen-bookii'
-include 'tingeltangel'
+include 'desktop'
 
 rootProject.name = 'tingeltangel-root'
 

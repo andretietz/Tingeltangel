@@ -40,10 +40,10 @@ internal class BookiiBookSource(
             )
         }
 
-    override suspend fun getBook(book: BookInfo): Book {
-        val size = api.fileSize(book.id, book.version)
+    override suspend fun getBook(bookInfo: BookInfo): Book {
+        val size = api.fileSize(bookInfo.id, bookInfo.version)
         println(size)
-        return Book(book)
+        return Book(bookInfo)
     }
 
     companion object {

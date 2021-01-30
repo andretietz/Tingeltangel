@@ -25,7 +25,7 @@ class WindowsAudioPenDetector(
         scope.launch {
           val device = AudioPenDevice(
             event.storageDevice.uuid,
-            contract.type.type,
+            contract.type,
             event.storageDevice.rootDirectory
           )
           if (event.eventType == DeviceEventType.REMOVED) {
