@@ -16,7 +16,7 @@ mainClassName = "com.andretietz.tingeltangel.Application"
 
 dependencies {
     implementation project(':application')
-    implementation project(':pen-bookii')
+    implementation project(':audiopen-bookii')
 
     implementation "no.tornado:tornadofx:2.0.0-SNAPSHOT"
     implementation 'org.controlsfx:controlsfx:8.40.16'
