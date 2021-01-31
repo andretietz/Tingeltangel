@@ -1,6 +1,5 @@
 package com.andretietz.tingeltangel.cache
 
-import com.andretietz.tingeltangel.manager.ImageCache
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just

@@ -9,7 +9,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-
 class DeviceListViewModel(
   override val scope: CoroutineScope,
   private val deviceManager: List<DeviceManager>,

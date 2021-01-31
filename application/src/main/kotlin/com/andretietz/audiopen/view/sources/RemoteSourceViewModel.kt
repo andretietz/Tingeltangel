@@ -9,9 +9,8 @@ import kotlinx.coroutines.launch
 
 class RemoteSourceViewModel(
   override val scope: CoroutineScope,
-  private val remoteSource: List<RemoteBookSource>,
+  private val remoteSource: List<RemoteBookSource>
 ) : BaseViewModel<RemoteSourceViewState>(scope), RemoteSourceInteractor {
-
 
   private lateinit var currentlyLoadedLocalBookInfos: List<BookInfo>
 

@@ -45,7 +45,6 @@ class ManagerView : View() {
   private val deviceListInteractor by component().instance<DeviceListInteractor>()
   private val imageCache by component().instance<ImageCache>()
 
-
   private val localBooks = SimpleListProperty<BookInfo>()
   private val localBookFilter = SimpleStringProperty().onChange {
     remoteInteractor.filterRemoteBooks(it)
