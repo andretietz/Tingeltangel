@@ -1,8 +1,8 @@
 package com.andretietz.tingeltangel.devicedetector
 
-import com.andretietz.tingeltangel.pencontract.AudioPenContract
-import com.andretietz.tingeltangel.pencontract.AudioPenDetector
-import com.andretietz.tingeltangel.pencontract.AudioPenDevice
+import com.andretietz.audiopen.AudioPenDetector
+import com.andretietz.audiopen.AudioPenDevice
+import com.andretietz.audiopen.device.DeviceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -14,7 +14,7 @@ import net.samuelcampos.usbdrivedetector.USBDeviceDetectorManager
 import net.samuelcampos.usbdrivedetector.events.DeviceEventType
 
 class WindowsAudioPenDetector(
-  private val contracts: List<AudioPenContract>,
+  private val contracts: List<DeviceManager>,
   private val scope: CoroutineScope
 ) : AudioPenDetector {
 
@@ -35,14 +35,6 @@ class WindowsAudioPenDetector(
               offer(AudioPenDetector.DetectorEvent.Connected(device))
             }
           }
-//          contract.verifyDevice(event.storageDevice.rootDirectory)?.let {
-//            when (event.eventType) {
-//              DeviceEventType.CONNECTED -> offer(AudioPenDetector.DetectorEvent.Connected(it))
-//              DeviceEventType.REMOVED -> offer(AudioPenDetector.DetectorEvent.Disconnected(it))
-//              else -> {
-//              }
-//            }
-//          }
         }
       }
     }

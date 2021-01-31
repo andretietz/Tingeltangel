@@ -1,4 +1,4 @@
-package com.andretietz.tingeltangel.bookii.model
+package com.andretietz.audiopen.bookii.api
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

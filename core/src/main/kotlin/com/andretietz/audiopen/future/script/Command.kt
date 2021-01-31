@@ -1,4 +1,4 @@
-package com.andretietz.tingeltangel.core.script
+package com.andretietz.audiopen.future.script
 
 import java.io.ByteArrayInputStream
 

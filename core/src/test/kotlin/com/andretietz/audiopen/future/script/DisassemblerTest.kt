@@ -1,4 +1,4 @@
-package com.andretietz.tingeltangel.core.script
+package com.andretietz.audiopen.future.script
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test

@@ -1,13 +1,13 @@
 package com.andretietz.tingeltangel.manager
 
-import com.andretietz.tingeltangel.pencontract.AudioPenContract
-import com.andretietz.tingeltangel.pencontract.AudioPenDevice
-import com.andretietz.tingeltangel.pencontract.BookInfo
+import com.andretietz.audiopen.AudioPenDevice
+import com.andretietz.audiopen.BookInfo
+import com.andretietz.audiopen.Type
 
 sealed class ViewState {
 
   data class Init(
-    val bookTypes: List<AudioPenContract.Type>
+    val bookTypes: List<Type>
   ) : ViewState()
 
   data class LocalBookListUpdate(

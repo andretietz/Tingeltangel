@@ -1,17 +1,31 @@
-package com.andretietz.tingeltangel.bookii
+package com.andretietz.audiopen.bookii
 
-import com.andretietz.tingeltangel.pencontract.Book
-import com.andretietz.tingeltangel.pencontract.BookInfo
-import com.andretietz.tingeltangel.pencontract.RemoteBookSource
+import com.andretietz.audiopen.Book
+import com.andretietz.audiopen.BookInfo
+import com.andretietz.audiopen.bookii.api.BookiiApi
+import com.andretietz.audiopen.remote.RemoteBookSource
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
 
 @SuppressWarnings("Detekt.UnusedPrivateMember")
-internal class BookiiRemoteSource(
-  private val api: BookiiApi,
-  private val cacheDir: File
+class BookiiRemoteSource(
+  private val cacheDir: File,
+  httpClient: OkHttpClient = OkHttpClient(),
+  baseUrl: String = Bookii.API_BASE_URL
 ) : RemoteBookSource {
+  override val type = Bookii.AUDIOPEN_TYPE
+
+  private val api by lazy {
+    Retrofit.Builder()
+      .baseUrl(baseUrl)
+      .addConverterFactory(MoshiConverterFactory.create())
+      .client(httpClient)
+      .build().create(BookiiApi::class.java)
+  }
 
   override suspend fun availableBooks() = api.versions().map { it.key }
     .chunked(MAX_BOOKINFO_ITEMS)
@@ -20,7 +34,7 @@ internal class BookiiRemoteSource(
     .map { info ->
       BookInfo(
         id = info.id.toString(),
-        type = BookiiContract.TYPE,
+        type = Bookii.AUDIOPEN_TYPE,
         title = info.title,
         version = info.version,
         image = IMAGE_URL.format(info.publisher.id, info.id, info.id, info.areaCode).toHttpUrlOrNull()?.toUrl(),

@@ -1,4 +1,4 @@
-package com.andretietz.tingeltangel.pencontract
+package com.andretietz.audiopen
 
 import java.net.URL
 
@@ -13,7 +13,7 @@ data class BookInfo(
   /**
    * Type of the pen (ting, bookii, etc.)
    */
-  val type: String,
+  val type: Type,
   /**
    * Title of the book.
    */

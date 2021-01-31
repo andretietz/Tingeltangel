@@ -3,9 +3,9 @@ package com.andretietz.tingeltangel.ui
 import com.andretietz.tingeltangel.component
 import com.andretietz.tingeltangel.manager.Interactor
 import com.andretietz.tingeltangel.manager.ViewState
-import com.andretietz.tingeltangel.pencontract.AudioPenContract
-import com.andretietz.tingeltangel.pencontract.AudioPenDevice
-import com.andretietz.tingeltangel.pencontract.BookInfo
+import com.andretietz.audiopen.AudioPenDevice
+import com.andretietz.audiopen.BookInfo
+import com.andretietz.audiopen.Type
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -47,8 +47,8 @@ class ManagerView : View() {
     interactor.filterDeviceBooks(it)
   }
 
-  private val bookTypes = SimpleListProperty<AudioPenContract.Type>()
-  private val currentlySelectedBookType = SimpleObjectProperty<AudioPenContract.Type>()
+  private val bookTypes = SimpleListProperty<Type>()
+  private val currentlySelectedBookType = SimpleObjectProperty<Type>()
 
   private val audioPenTypes = SimpleListProperty<AudioPenDevice>()
   private val currentlySelectedAudioPen = SimpleObjectProperty<AudioPenDevice>()

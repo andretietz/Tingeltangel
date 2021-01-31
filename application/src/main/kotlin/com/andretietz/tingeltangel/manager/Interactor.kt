@@ -1,8 +1,8 @@
 package com.andretietz.tingeltangel.manager
 
-import com.andretietz.tingeltangel.pencontract.AudioPenContract
-import com.andretietz.tingeltangel.pencontract.AudioPenDevice
-import com.andretietz.tingeltangel.pencontract.BookInfo
+import com.andretietz.audiopen.AudioPenDevice
+import com.andretietz.audiopen.BookInfo
+import com.andretietz.audiopen.Type
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.ReceiveChannel
 import java.io.File
@@ -26,6 +26,6 @@ interface Interactor {
 
   fun selectAudioPen(device: AudioPenDevice?)
   fun removeFromDevice(book: BookInfo)
-  fun selectBookSource(sourceType: AudioPenContract.Type?)
+  fun selectBookSource(sourceType: Type?)
   fun transferBookToDevice(book: BookInfo?, audioPen: AudioPenDevice?)
 }

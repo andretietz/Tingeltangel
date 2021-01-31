@@ -1,13 +1,15 @@
 package com.andretietz.tingeltangel
 
-import com.andretietz.tingeltangel.bookii.BookiiContract
+import com.andretietz.audiopen.AudioPenDetector
+import com.andretietz.audiopen.bookii.BookiiDeviceManager
+import com.andretietz.audiopen.bookii.BookiiRemoteSource
+import com.andretietz.audiopen.device.DeviceManager
+import com.andretietz.audiopen.remote.RemoteBookSource
 import com.andretietz.tingeltangel.cache.HttpCacheInterceptor
 import com.andretietz.tingeltangel.devicedetector.WindowsAudioPenDetector
 import com.andretietz.tingeltangel.manager.ImageCache
 import com.andretietz.tingeltangel.manager.Interactor
 import com.andretietz.tingeltangel.manager.ManagerViewModel
-import com.andretietz.tingeltangel.pencontract.AudioPenContract
-import com.andretietz.tingeltangel.pencontract.AudioPenDetector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.Cache
@@ -42,11 +44,9 @@ class Application {
   init {
     DIHelper.initKodein(Kodein {
 
-      bind<File>() with singleton { CACHE_DIR }
-
       bind<OkHttpClient>() with singleton {
         OkHttpClient.Builder()
-          .cache(Cache(File(instance<File>(), "http_cache"), CACHE_SIZE))
+          .cache(Cache(File(CACHE_DIR, "http_cache"), CACHE_SIZE))
           .addInterceptor(HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
             override fun log(message: String) = println(message)
           }).apply { level = HttpLoggingInterceptor.Level.BODY })
@@ -54,8 +54,15 @@ class Application {
           .build()
       }
 
-      bind<List<AudioPenContract>>() with singleton {
-        listOf(BookiiContract(instance(), instance()))
+      bind<List<RemoteBookSource>>() with singleton {
+        listOf(
+          BookiiRemoteSource(File(CACHE_DIR, "bookii"), instance())
+        )
+      }
+      bind<List<DeviceManager>>() with singleton {
+        listOf(
+          BookiiDeviceManager()
+        )
       }
 
       bind<ImageCache>() with singleton {
@@ -63,7 +70,7 @@ class Application {
       }
 
       bind<Interactor>() with singleton {
-        ManagerViewModel(coroutineScope, instance(), instance(), instance())
+        ManagerViewModel(coroutineScope, instance(), instance(), instance(), instance())
       }
 
       bind<AudioPenDetector>() with singleton {

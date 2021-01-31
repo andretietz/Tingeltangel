@@ -1,9 +1,11 @@
 package com.andretietz.tingeltangel.manager
 
-import com.andretietz.tingeltangel.pencontract.AudioPenContract
-import com.andretietz.tingeltangel.pencontract.AudioPenDetector
-import com.andretietz.tingeltangel.pencontract.AudioPenDevice
-import com.andretietz.tingeltangel.pencontract.BookInfo
+import com.andretietz.audiopen.AudioPenDetector
+import com.andretietz.audiopen.AudioPenDevice
+import com.andretietz.audiopen.BookInfo
+import com.andretietz.audiopen.Type
+import com.andretietz.audiopen.device.DeviceManager
+import com.andretietz.audiopen.remote.RemoteBookSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -15,7 +17,8 @@ import java.net.URL
 class ManagerViewModel(
   override val scope: CoroutineScope,
   private val imageCache: ImageCache,
-  private val sources: List<AudioPenContract>,
+  private val remoteSource: List<RemoteBookSource>,
+  private val deviceManager: List<DeviceManager>,
   private val deviceDetector: AudioPenDetector
 ) : Interactor {
 
@@ -25,9 +28,9 @@ class ManagerViewModel(
 
   private val channel = Channel<ViewState>(Channel.CONFLATED).apply {
     scope.launch {
-      currentlyLoadedLocalBookInfos = sources.first().remoteBookSource().availableBooks()
+      currentlyLoadedLocalBookInfos = remoteSource.first().availableBooks()
       send(ViewState.Init(
-        sources.map { it.type }
+        remoteSource.map { it.type }
       ))
     }
   }
@@ -59,7 +62,7 @@ class ManagerViewModel(
       if (device == null) {
         channel.send(ViewState.DeviceBookUpdate(emptyList()))
       } else {
-        currentlyLoadedDeviceBookInfos = sources
+        currentlyLoadedDeviceBookInfos = deviceManager
           .first { it.type == device.type }
           .booksFromDevice(device)
           .map { it.info }
@@ -68,13 +71,12 @@ class ManagerViewModel(
     }
   }
 
-  override fun selectBookSource(sourceType: AudioPenContract.Type?) {
+  override fun selectBookSource(sourceType: Type?) {
     scope.launch {
       if (sourceType == null) {
         channel.send(ViewState.LocalBookListUpdate(emptyList()))
       } else {
-        currentlyLoadedLocalBookInfos = sources.first { it.type == sourceType }
-          .remoteBookSource().availableBooks()
+        currentlyLoadedLocalBookInfos = remoteSource.first { it.type == sourceType }.availableBooks()
         channel.send(ViewState.LocalBookListUpdate(currentlyLoadedLocalBookInfos))
       }
     }

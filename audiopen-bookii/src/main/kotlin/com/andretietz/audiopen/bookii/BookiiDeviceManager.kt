@@ -1,15 +1,17 @@
-package com.andretietz.tingeltangel.bookii
+package com.andretietz.audiopen.bookii
 
-import com.andretietz.tingeltangel.pencontract.AudioPenDevice
-import com.andretietz.tingeltangel.pencontract.Book
-import com.andretietz.tingeltangel.pencontract.BookInfo
-import com.andretietz.tingeltangel.pencontract.AudioPenDeviceManager
+import com.andretietz.audiopen.AudioPenDevice
+import com.andretietz.audiopen.Book
+import com.andretietz.audiopen.BookInfo
+import com.andretietz.audiopen.device.DeviceManager
 import java.io.File
 
-class BookiiDeviceManager : AudioPenDeviceManager {
+class BookiiDeviceManager : DeviceManager {
 
-  override fun verifyDevice(rootFolder: File): Boolean {
-    val bookiiDirs = rootFolder.listFiles()
+  override val type = Bookii.AUDIOPEN_TYPE
+
+  override fun verifyDevice(rootDir: File): Boolean {
+    val bookiiDirs = rootDir.listFiles()
       ?.filter { it.name == DIR_BOOK && it.isDirectory || it.name == DIR_CONFIG && it.isDirectory } ?: return false
     if (bookiiDirs.size != 2) return false
     val configFile = bookiiDirs.first { it.name == DIR_CONFIG }.listFiles()
@@ -28,7 +30,6 @@ class BookiiDeviceManager : AudioPenDeviceManager {
     return infoFiles.map { Book(it) }
   }
 
-
   private fun parseInfoFile(file: File): BookInfo? {
     val (id, _) = infoFileRegex.find(file.name)?.destructured ?: return null
 
@@ -41,7 +42,7 @@ class BookiiDeviceManager : AudioPenDeviceManager {
       }
     return BookInfo(
       id.toInt().toString(),
-      BookiiContract.TYPE,
+      Bookii.AUDIOPEN_TYPE,
       map[SETTINGS_NAME] ?: return null,
       map[SETTINGS_BOOK_AREA_CODE] ?: return null,
       map[SETTINGS_BOOK_VERSION]?.toIntOrNull() ?: return null,
@@ -58,17 +59,17 @@ class BookiiDeviceManager : AudioPenDeviceManager {
   @SuppressWarnings("Detekt.UnusedPrivateMember")
   private fun createInfoFile(info: BookInfo): String {
     return StringBuilder().apply {
-      appendLine("${SETTINGS_NAME}: ${info.title}")
-      appendLine("${SETTINGS_BOOK_PUBLISHER}: ${info.publisherName}")
-      appendLine("${SETTINGS_BOOK_AUTHOR}: ${info.authorName}")
-      appendLine("${SETTINGS_BOOK_VERSION}: ${info.version}")
-      appendLine("${SETTINGS_URL}: ${info.image?.toString() ?: ""}")
-      appendLine("${SETTINGS_THUMB_MD5}:") // TBD: could be generated
-      appendLine("${SETTINGS_FILE_MD5}:") // TBD: could be generated
-      appendLine("${SETTINGS_BOOK_AREA_CODE}: ${info.areaCode}")
-      appendLine("${SETTINGS_TYPE}: ${info.mediaType}")
-      appendLine("${SETTINGS_ISBN}: ${info.isbn ?: ""}")
-      appendLine("${SETTINGS_VOLUME}: ${info.volume}")
+      appendLine("$SETTINGS_NAME: ${info.title}")
+      appendLine("$SETTINGS_BOOK_PUBLISHER: ${info.publisherName}")
+      appendLine("$SETTINGS_BOOK_AUTHOR: ${info.authorName}")
+      appendLine("$SETTINGS_BOOK_VERSION: ${info.version}")
+      appendLine("$SETTINGS_URL: ${info.image?.toString() ?: ""}")
+      appendLine("$SETTINGS_THUMB_MD5:") // TBD: could be generated
+      appendLine("$SETTINGS_FILE_MD5:") // TBD: could be generated
+      appendLine("$SETTINGS_BOOK_AREA_CODE: ${info.areaCode}")
+      appendLine("$SETTINGS_TYPE: ${info.mediaType}")
+      appendLine("$SETTINGS_ISBN: ${info.isbn ?: ""}")
+      appendLine("$SETTINGS_VOLUME: ${info.volume}")
     }.toString()
   }
 

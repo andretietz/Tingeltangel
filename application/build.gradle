@@ -12,6 +12,6 @@ group "$GROUP"
 dependencies {
     api project(":core")
     testImplementation "junit:junit:$junitVersion"
-    implementation "net.samuelcampos:usbdrivedetector:2.1.1"
+
 }
 
