@@ -1,7 +1,7 @@
 package com.andretietz.tingeltangel.ui
 
 import com.andretietz.audiopen.AudioPenDevice
-import com.andretietz.audiopen.BookInfo
+import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Type
 import com.andretietz.audiopen.view.devices.DeviceListInteractor
 import com.andretietz.audiopen.view.devices.DeviceListViewState
@@ -45,11 +45,11 @@ class ManagerView : View() {
   private val deviceListInteractor by component().instance<DeviceListInteractor>()
   private val imageCache by component().instance<ImageCache>()
 
-  private val localBooks = SimpleListProperty<BookInfo>()
+  private val localBooks = SimpleListProperty<BookDisplay>()
   private val localBookFilter = SimpleStringProperty().onChange {
     remoteInteractor.filterRemoteBooks(it)
   }
-  private val deviceBooks = SimpleListProperty<BookInfo>()
+  private val deviceBooks = SimpleListProperty<BookDisplay>()
   private val deviceBookFilter = SimpleStringProperty().onChange {
     deviceListInteractor.filterDeviceBooks(it)
   }
@@ -60,7 +60,7 @@ class ManagerView : View() {
   private val audioPenTypes = SimpleListProperty<AudioPenDevice>()
   private val currentlySelectedAudioPen = SimpleObjectProperty<AudioPenDevice>()
 
-  private var selectedLocalBookInfo: BookInfo? = null
+  private var selectedLocalBookInfo: BookDisplay? = null
 
   init {
     title = messages["view_title"]
@@ -142,9 +142,9 @@ class ManagerView : View() {
   @SuppressWarnings("Detekt.UnnecessaryApply")
   private fun provideList(
     region: Region,
-    deviceBooks: SimpleListProperty<BookInfo>,
+    deviceBooks: SimpleListProperty<BookDisplay>,
     deletable: Boolean,
-    onSelect: (BookInfo) -> Unit = {}
+    onSelect: (BookDisplay) -> Unit = {}
   ) {
     region.apply {
       listview(deviceBooks) {
@@ -156,16 +156,14 @@ class ManagerView : View() {
             vbox {
               setPrefSize(IMAGE_MAX_HEIGHT, IMAGE_MAX_HEIGHT)
               alignment = Pos.CENTER
-              imageview(it.image.toString()) {
+              imageview(it.thumbnail.toString()) {
                 fitHeight = IMAGE_MAX_HEIGHT
                 fitWidth = IMAGE_MAX_HEIGHT
-                it.image?.let {
-                  imageCache.image(it) { file ->
-                    val img = Image(file.inputStream())
-                    val (width, height) = scaleDownAndKeepRatio(img)
-                    setPrefSize(width, height)
-                    runLater { image = img }
-                  }
+                imageCache.image(it.thumbnail) { file ->
+                  val img = Image(file.inputStream())
+                  val (width, height) = scaleDownAndKeepRatio(img)
+                  setPrefSize(width, height)
+                  runLater { image = img }
                 }
               }
             }

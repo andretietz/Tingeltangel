@@ -24,10 +24,3 @@ internal data class Info(
   val isbn: String?
 
 )
-
-@JsonClass(generateAdapter = true)
-internal data class Publisher(
-  @Json(name = "publisherId")
-  val id: Int,
-  val name: String
-)

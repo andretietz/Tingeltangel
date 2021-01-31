@@ -9,7 +9,7 @@ data class BookInfo(
   /**
    * Id of the book.
    */
-  val id: String,
+  override val id: String,
   /**
    * Type of the pen (ting, bookii, etc.)
    */
@@ -17,7 +17,7 @@ data class BookInfo(
   /**
    * Title of the book.
    */
-  val title: String,
+  override val title: String,
 
   val areaCode: String,
 
@@ -38,4 +38,6 @@ data class BookInfo(
   val mediaType: String,
   val volume: Int,
   val isbn: String?
-)
+) : BookDisplay {
+  override val thumbnail = image?.toURI()!!
+}

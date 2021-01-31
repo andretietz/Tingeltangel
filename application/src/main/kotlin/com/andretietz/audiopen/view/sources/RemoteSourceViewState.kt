@@ -1,6 +1,6 @@
 package com.andretietz.audiopen.view.sources
 
-import com.andretietz.audiopen.BookInfo
+import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Type
 
 sealed class RemoteSourceViewState {
@@ -9,6 +9,6 @@ sealed class RemoteSourceViewState {
   ) : RemoteSourceViewState()
 
   data class BookListUpdate(
-    val bookInfos: List<BookInfo>
+    val bookInfos: List<BookDisplay>
   ) : RemoteSourceViewState()
 }

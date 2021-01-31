@@ -1,6 +1,6 @@
 package com.andretietz.audiopen
 
-import java.io.File
+import java.net.URI
 
 interface BookDisplay {
   /**
@@ -11,10 +11,10 @@ interface BookDisplay {
   /**
    * title of the book.
    */
-  val name: String
+  val title: String
 
   /**
    * Thumbnail of the book.
    */
-  val thumbnail: File
+  val thumbnail: URI
 }
