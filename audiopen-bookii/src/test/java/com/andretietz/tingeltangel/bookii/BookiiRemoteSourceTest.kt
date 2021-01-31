@@ -10,7 +10,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
-internal class BookiiBookSourceTest {
+internal class BookiiRemoteSourceTest {
 
   @Test
   fun `Receiving books`() = runBlocking {
@@ -20,7 +20,7 @@ internal class BookiiBookSourceTest {
     server.enqueue(mockFileAsResponse("get-book-info-01.json"))
     server.enqueue(mockFileAsResponse("get-book-info-02.json"))
 
-    val books = BookiiBookSource(api, MOCK_CONFIG_FOLDER).availableBooks()
+    val books = BookiiRemoteSource(api, MOCK_CONFIG_FOLDER).availableBooks()
 
     assertThat(books.size).isEqualTo(28)
     val book = books.firstOrNull { info -> info.id == "9942" }!!

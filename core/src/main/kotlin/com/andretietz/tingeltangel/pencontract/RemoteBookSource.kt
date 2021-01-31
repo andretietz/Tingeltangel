@@ -1,6 +1,6 @@
 package com.andretietz.tingeltangel.pencontract
 
-interface BookSource {
+interface RemoteBookSource {
     /**
      * returns the available books for that source.
      */

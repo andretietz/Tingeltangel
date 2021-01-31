@@ -25,7 +25,7 @@ class ManagerViewModel(
 
   private val channel = Channel<ViewState>(Channel.CONFLATED).apply {
     scope.launch {
-      currentlyLoadedLocalBookInfos = sources.first().source().availableBooks()
+      currentlyLoadedLocalBookInfos = sources.first().remoteBookSource().availableBooks()
       send(ViewState.Init(
         sources.map { it.type }
       ))
@@ -74,7 +74,7 @@ class ManagerViewModel(
         channel.send(ViewState.LocalBookListUpdate(emptyList()))
       } else {
         currentlyLoadedLocalBookInfos = sources.first { it.type == sourceType }
-          .source().availableBooks()
+          .remoteBookSource().availableBooks()
         channel.send(ViewState.LocalBookListUpdate(currentlyLoadedLocalBookInfos))
       }
     }

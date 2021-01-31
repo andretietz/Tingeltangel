@@ -2,16 +2,16 @@ package com.andretietz.tingeltangel.bookii
 
 import com.andretietz.tingeltangel.pencontract.Book
 import com.andretietz.tingeltangel.pencontract.BookInfo
-import com.andretietz.tingeltangel.pencontract.BookSource
+import com.andretietz.tingeltangel.pencontract.RemoteBookSource
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.io.File
 
 @SuppressWarnings("Detekt.UnusedPrivateMember")
-internal class BookiiBookSource(
+internal class BookiiRemoteSource(
   private val api: BookiiApi,
   private val cacheDir: File
-) : BookSource {
+) : RemoteBookSource {
 
   override suspend fun availableBooks() = api.versions().map { it.key }
     .chunked(MAX_BOOKINFO_ITEMS)
