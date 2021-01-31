@@ -5,11 +5,13 @@ import com.andretietz.audiopen.bookii.BookiiDeviceManager
 import com.andretietz.audiopen.bookii.BookiiRemoteSource
 import com.andretietz.audiopen.device.DeviceManager
 import com.andretietz.audiopen.remote.RemoteBookSource
+import com.andretietz.audiopen.view.devices.DeviceListInteractor
+import com.andretietz.audiopen.view.devices.DeviceListViewModel
+import com.andretietz.audiopen.view.sources.RemoteSourceInteractor
+import com.andretietz.audiopen.view.sources.RemoteSourceViewModel
 import com.andretietz.tingeltangel.cache.HttpCacheInterceptor
+import com.andretietz.tingeltangel.cache.ImageCache
 import com.andretietz.tingeltangel.devicedetector.WindowsAudioPenDetector
-import com.andretietz.tingeltangel.manager.ImageCache
-import com.andretietz.tingeltangel.manager.Interactor
-import com.andretietz.tingeltangel.manager.ManagerViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.Cache
@@ -44,6 +46,8 @@ class Application {
   init {
     DIHelper.initKodein(Kodein {
 
+      bind<CoroutineScope>() with singleton { coroutineScope }
+
       bind<OkHttpClient>() with singleton {
         OkHttpClient.Builder()
           .cache(Cache(File(CACHE_DIR, "http_cache"), CACHE_SIZE))
@@ -66,17 +70,18 @@ class Application {
       }
 
       bind<ImageCache>() with singleton {
-        ImageCache(File(CACHE_DIR, "images"), coroutineScope)
+        ImageCache(File(CACHE_DIR, "images"), instance())
       }
 
-      bind<Interactor>() with singleton {
-        ManagerViewModel(coroutineScope, instance(), instance(), instance(), instance())
+      bind<RemoteSourceInteractor>() with singleton {
+        RemoteSourceViewModel(instance(), instance())
+      }
+      bind<DeviceListInteractor>() with singleton {
+        DeviceListViewModel(instance(), instance(), instance())
       }
 
       bind<AudioPenDetector>() with singleton {
-        WindowsAudioPenDetector(
-          instance(), coroutineScope
-        )
+        WindowsAudioPenDetector(instance(), instance())
       }
     })
   }

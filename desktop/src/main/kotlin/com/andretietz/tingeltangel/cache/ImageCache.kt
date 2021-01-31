@@ -1,4 +1,4 @@
-package com.andretietz.tingeltangel.manager
+package com.andretietz.tingeltangel.cache
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

@@ -1,11 +1,14 @@
 package com.andretietz.tingeltangel.ui
 
-import com.andretietz.tingeltangel.component
-import com.andretietz.tingeltangel.manager.Interactor
-import com.andretietz.tingeltangel.manager.ViewState
 import com.andretietz.audiopen.AudioPenDevice
 import com.andretietz.audiopen.BookInfo
 import com.andretietz.audiopen.Type
+import com.andretietz.audiopen.view.devices.DeviceListInteractor
+import com.andretietz.audiopen.view.devices.DeviceListViewState
+import com.andretietz.audiopen.view.sources.RemoteSourceInteractor
+import com.andretietz.audiopen.view.sources.RemoteSourceViewState
+import com.andretietz.tingeltangel.cache.ImageCache
+import com.andretietz.tingeltangel.component
 import javafx.beans.property.SimpleListProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -13,6 +16,7 @@ import javafx.geometry.Pos
 import javafx.scene.image.Image
 import javafx.scene.layout.Region
 import javafx.scene.text.Font
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
@@ -36,15 +40,19 @@ import tornadofx.vbox
 
 class ManagerView : View() {
 
-  private val interactor by component().instance<Interactor>()
+  private val coroutineScope by component().instance<CoroutineScope>()
+  private val remoteInteractor by component().instance<RemoteSourceInteractor>()
+  private val deviceListInteractor by component().instance<DeviceListInteractor>()
+  private val imageCache by component().instance<ImageCache>()
+
 
   private val localBooks = SimpleListProperty<BookInfo>()
   private val localBookFilter = SimpleStringProperty().onChange {
-    interactor.filterLocalBooks(it)
+    remoteInteractor.filterRemoteBooks(it)
   }
   private val deviceBooks = SimpleListProperty<BookInfo>()
   private val deviceBookFilter = SimpleStringProperty().onChange {
-    interactor.filterDeviceBooks(it)
+    deviceListInteractor.filterDeviceBooks(it)
   }
 
   private val bookTypes = SimpleListProperty<Type>()
@@ -57,32 +65,43 @@ class ManagerView : View() {
 
   init {
     title = messages["view_title"]
-    interactor.scope.launch {
-      interactor.state.consumeAsFlow().collect { runLater { update(it) } }
+
+    coroutineScope.launch {
+      remoteInteractor.state.consumeAsFlow()
+        .collect { runLater { updateRemoteSource(it) } }
+    }
+    coroutineScope.launch {
+      deviceListInteractor.state.consumeAsFlow()
+        .collect { runLater { updateDeviceList(it) } }
     }
 
     currentlySelectedAudioPen.onChange {
-      interactor.selectAudioPen(it)
+      deviceListInteractor.selectAudioPen(it)
     }
 
     currentlySelectedBookType.onChange {
-      interactor.selectBookSource(it)
+      remoteInteractor.selectBookSource(it)
     }
   }
 
-  private fun update(state: ViewState) {
+  private fun updateDeviceList(state: DeviceListViewState) {
     when (state) {
-      is ViewState.Init -> {
-        currentlySelectedBookType.value = state.bookTypes.first()
-        bookTypes.value = state.bookTypes.toObservable()
-      }
-      is ViewState.LocalBookListUpdate -> localBooks.value = state.bookInfos.toObservable()
-      is ViewState.DeviceListUpdate -> {
+      is DeviceListViewState.DeviceListUpdate -> {
         audioPenTypes.value = state.devices.toObservable()
         currentlySelectedAudioPen.value
         currentlySelectedAudioPen.value = state.devices.firstOrNull()
       }
-      is ViewState.DeviceBookUpdate -> deviceBooks.value = state.books.toObservable()
+      is DeviceListViewState.DeviceBookUpdate -> deviceBooks.value = state.books.toObservable()
+    }
+  }
+
+  private fun updateRemoteSource(state: RemoteSourceViewState) {
+    when (state) {
+      is RemoteSourceViewState.Init -> {
+        currentlySelectedBookType.value = state.bookTypes.first()
+        bookTypes.value = state.bookTypes.toObservable()
+      }
+      is RemoteSourceViewState.BookListUpdate -> localBooks.value = state.bookInfos.toObservable()
     }
   }
 
@@ -103,7 +122,7 @@ class ManagerView : View() {
         alignment = Pos.CENTER
         button("->") {
           action {
-            interactor.transferBookToDevice(selectedLocalBookInfo, currentlySelectedAudioPen.value)
+            // remoteInteractor.transferBookToDevice(selectedLocalBookInfo, currentlySelectedAudioPen.value)
           }
         }
       }
@@ -142,7 +161,7 @@ class ManagerView : View() {
                 fitHeight = IMAGE_MAX_HEIGHT
                 fitWidth = IMAGE_MAX_HEIGHT
                 it.image?.let {
-                  interactor.loadImage(it) { file ->
+                  imageCache.image(it) { file ->
                     val img = Image(file.inputStream())
                     val (width, height) = scaleDownAndKeepRatio(img)
                     setPrefSize(width, height)
@@ -164,7 +183,9 @@ class ManagerView : View() {
                 alignment = Pos.CENTER
                 prefWidth = IMAGE_MAX_HEIGHT
                 button(messages["button_delete_book"]) {
-                  action { interactor.removeFromDevice(it) }
+                  action {
+                    // interactor.removeFromDevice(it)
+                  }
                 }
               }
             }
