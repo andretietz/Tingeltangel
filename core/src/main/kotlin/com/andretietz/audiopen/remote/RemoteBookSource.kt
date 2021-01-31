@@ -1,7 +1,6 @@
 package com.andretietz.audiopen.remote
 
-import com.andretietz.audiopen.Book
-import com.andretietz.audiopen.BookInfo
+import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Type
 
 /**
@@ -16,10 +15,5 @@ interface RemoteBookSource {
   /**
    * @return All available books for that source.
    */
-  suspend fun availableBooks(): List<BookInfo>
-
-  /**
-   * @return the book including all files.
-   */
-  suspend fun getBook(bookInfo: BookInfo): Book
+  suspend fun availableBooks(): List<BookDisplay>
 }

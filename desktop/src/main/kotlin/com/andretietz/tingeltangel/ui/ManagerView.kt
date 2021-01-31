@@ -2,6 +2,7 @@ package com.andretietz.tingeltangel.ui
 
 import com.andretietz.audiopen.AudioPenDevice
 import com.andretietz.audiopen.BookDisplay
+import com.andretietz.audiopen.Thumbnail
 import com.andretietz.audiopen.Type
 import com.andretietz.audiopen.view.devices.DeviceListInteractor
 import com.andretietz.audiopen.view.devices.DeviceListViewState
@@ -22,7 +23,6 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import org.kodein.di.generic.instance
 import tornadofx.View
-import tornadofx.action
 import tornadofx.button
 import tornadofx.combobox
 import tornadofx.form
@@ -119,11 +119,7 @@ class ManagerView : View() {
       }
       vbox {
         alignment = Pos.CENTER
-        button("->") {
-          action {
-            // remoteInteractor.transferBookToDevice(selectedLocalBookInfo, currentlySelectedAudioPen.value)
-          }
-        }
+        button("->") // remoteInteractor.transferBookToDevice(selectedLocalBookInfo, currentlySelectedAudioPen.value)
       }
       vbox {
         combobox(currentlySelectedAudioPen, audioPenTypes) {
@@ -139,7 +135,7 @@ class ManagerView : View() {
     }
   }
 
-  @SuppressWarnings("Detekt.UnnecessaryApply")
+  @SuppressWarnings("Detekt.UnnecessaryApply", "Detekt.LongMethod")
   private fun provideList(
     region: Region,
     deviceBooks: SimpleListProperty<BookDisplay>,
@@ -156,14 +152,24 @@ class ManagerView : View() {
             vbox {
               setPrefSize(IMAGE_MAX_HEIGHT, IMAGE_MAX_HEIGHT)
               alignment = Pos.CENTER
-              imageview(it.thumbnail.toString()) {
-                fitHeight = IMAGE_MAX_HEIGHT
-                fitWidth = IMAGE_MAX_HEIGHT
-                imageCache.image(it.thumbnail) { file ->
-                  val img = Image(file.inputStream())
-                  val (width, height) = scaleDownAndKeepRatio(img)
-                  setPrefSize(width, height)
-                  runLater { image = img }
+              when (val thumbnail = it.thumbnail) {
+                is Thumbnail.Remote -> imageview(thumbnail.url.toString()) {
+                  fitHeight = IMAGE_MAX_HEIGHT
+                  fitWidth = IMAGE_MAX_HEIGHT
+                  imageCache.image(thumbnail.url) { file ->
+                    val img = Image(file.inputStream())
+                    val (width, height) = scaleDownAndKeepRatio(img)
+                    fitHeight = height
+                    fitWidth = width
+                    runLater { image = img }
+                  }
+                }
+                is Thumbnail.Local -> imageview {
+                  image = Image(thumbnail.file.inputStream()).apply {
+                    val (width, height) = scaleDownAndKeepRatio(this)
+                    fitHeight = height
+                    fitWidth = width
+                  }
                 }
               }
             }
@@ -179,11 +185,7 @@ class ManagerView : View() {
               vbox {
                 alignment = Pos.CENTER
                 prefWidth = IMAGE_MAX_HEIGHT
-                button(messages["button_delete_book"]) {
-                  action {
-                    // interactor.removeFromDevice(it)
-                  }
-                }
+                button(messages["button_delete_book"])
               }
             }
           }

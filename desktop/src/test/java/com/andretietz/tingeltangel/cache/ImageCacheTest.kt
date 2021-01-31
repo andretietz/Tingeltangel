@@ -33,7 +33,7 @@ internal class ImageCacheTest {
     val cache = ImageCache(CACHE_FOLDER, this)
     val callback = mockk<(File) -> Unit>()
     val localFile = File(CACHE_FOLDER, "3a0f93222b13a85348b540ce303654b3.png")
-    val url = SAMPLE_IMAGE.toHttpUrl().toUri()
+    val url = SAMPLE_IMAGE.toHttpUrl().toUrl()
 
     try {
       every { callback(any()) } just Runs

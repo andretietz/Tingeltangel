@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.math.BigInteger
-import java.net.URI
 import java.net.URL
 import java.security.MessageDigest
 
@@ -19,21 +18,17 @@ class ImageCache(
     }
   }
 
-  fun image(url: URI, update: (image: File) -> Unit) {
-    if (url.scheme == URL_FILE_PROTOCOL) {
-      update(File(url))
-    } else {
-      File(cacheDir, "${md5(url.toString())}${extension(url.toURL())}").also { file ->
-        if (file.exists()) {
-          update(file)
-        } else {
-          if (file.createNewFile()) {
-            coroutineScope.launch {
-              url.toURL().openStream().use { input ->
-                file.outputStream().use { output -> input.copyTo(output) }
-              }
-              update(file)
+  fun image(url: URL, update: (image: File) -> Unit) {
+    File(cacheDir, "${md5(url.toString())}${extension(url)}").also { file ->
+      if (file.exists()) {
+        update(file)
+      } else {
+        if (file.createNewFile()) {
+          coroutineScope.launch {
+            url.openStream().use { input ->
+              file.outputStream().use { output -> input.copyTo(output) }
             }
+            update(file)
           }
         }
       }
@@ -59,9 +54,5 @@ class ImageCache(
     } else {
       ".cache"
     }
-  }
-
-  companion object {
-    private const val URL_FILE_PROTOCOL = "file"
   }
 }

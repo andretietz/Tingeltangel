@@ -1,11 +1,11 @@
 package com.andretietz.audiopen.bookii
 
-import com.andretietz.audiopen.Book
-import com.andretietz.audiopen.BookInfo
-import com.andretietz.audiopen.bookii.api.BookiiApi
+import com.andretietz.audiopen.BookDisplay
+import com.andretietz.audiopen.Thumbnail
+import com.andretietz.audiopen.bookii.remote.BookiiApi
+import com.andretietz.audiopen.bookii.remote.RemoteBook
 import com.andretietz.audiopen.remote.RemoteBookSource
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -27,38 +27,20 @@ class BookiiRemoteSource(
       .build().create(BookiiApi::class.java)
   }
 
-  override suspend fun availableBooks() = api.versions().map { it.key }
+  override suspend fun availableBooks(): List<BookDisplay> = api.versions().map { it.key }
     .chunked(MAX_BOOKINFO_ITEMS)
     .map { api.info(it.joinToString(",") { item -> "\"$item\"" }) }
     .flatten()
-    .map { info ->
-      BookInfo(
-        id = info.id.toString(),
-        type = Bookii.AUDIOPEN_TYPE,
-        title = info.title,
-        version = info.version,
-        image = IMAGE_URL.format(info.publisher.id, info.id, info.id, info.areaCode).toHttpUrlOrNull()?.toUrl(),
-        contentUrl = BOOK_URL.format(
-          info.publisher.id,
-          info.id,
-          info.version,
-          info.id.toString().padStart(BOOK_ID_PAD, '0'),
-          info.areaCode
-        ).toHttpUrl().toUrl(),
-        areaCode = info.areaCode,
-        publisherName = info.publisher.name,
-        authorName = info.author,
-        mediaType = info.mediaType,
-        volume = info.volume,
-        isbn = info.isbn
+    .map {
+      RemoteBook(
+        it.mid,
+        it.title,
+        Thumbnail.Remote(
+          IMAGE_URL.format(it.publisher.id, it.mid.toInt(), it.mid.toInt(), it.areaCode)
+            .toHttpUrl().toUrl()
+        )
       )
     }
-
-  override suspend fun getBook(bookInfo: BookInfo): Book {
-    val size = api.fileSize(bookInfo.id, bookInfo.version)
-    println(size)
-    return Book(bookInfo)
-  }
 
   companion object {
     // publisherId, bookid, bookid, areaCode

@@ -1,6 +1,6 @@
 package com.andretietz.audiopen.view.sources
 
-import com.andretietz.audiopen.BookInfo
+import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Type
 import com.andretietz.audiopen.remote.RemoteBookSource
 import com.andretietz.audiopen.view.BaseViewModel
@@ -12,7 +12,7 @@ class RemoteSourceViewModel(
   private val remoteSource: List<RemoteBookSource>
 ) : BaseViewModel<RemoteSourceViewState>(scope), RemoteSourceInteractor {
 
-  private lateinit var currentlyLoadedLocalBookInfos: List<BookInfo>
+  private lateinit var currentlyLoadedLocalBookInfos: List<BookDisplay>
 
   init {
     channel.apply {
@@ -40,7 +40,7 @@ class RemoteSourceViewModel(
     }
   }
 
-  private fun filter(filter: String?, books: List<BookInfo>): List<BookInfo> {
+  private fun filter(filter: String?, books: List<BookDisplay>): List<BookDisplay> {
     return if (filter == null) {
       books
     } else {

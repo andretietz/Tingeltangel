@@ -1,4 +1,4 @@
-package com.andretietz.audiopen.bookii.api
+package com.andretietz.audiopen.bookii.remote
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -7,6 +7,8 @@ import com.squareup.moshi.JsonClass
 internal data class Publisher(
   @Json(name = "publisherId")
   val id: Int,
-  @Json(name = "name")
-  val name: String
+  val name: String,
+  val contact: String,
+  val ratemodel: String,
+  val maxVideoSize: Long
 )

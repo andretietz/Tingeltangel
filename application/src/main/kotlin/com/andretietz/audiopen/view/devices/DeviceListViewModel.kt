@@ -2,7 +2,7 @@ package com.andretietz.audiopen.view.devices
 
 import com.andretietz.audiopen.AudioPenDetector
 import com.andretietz.audiopen.AudioPenDevice
-import com.andretietz.audiopen.BookInfo
+import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.device.DeviceManager
 import com.andretietz.audiopen.view.BaseViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -15,7 +15,7 @@ class DeviceListViewModel(
   private val deviceDetector: AudioPenDetector
 ) : BaseViewModel<DeviceListViewState>(scope), DeviceListInteractor {
 
-  private lateinit var currentlyLoadedDeviceBookInfos: List<BookInfo>
+  private lateinit var currentlyLoadedDeviceBookInfos: List<BookDisplay>
   private val connectedDevices: MutableList<AudioPenDevice> = mutableListOf()
 
   init {
@@ -44,7 +44,6 @@ class DeviceListViewModel(
         currentlyLoadedDeviceBookInfos = deviceManager
           .first { it.type == device.type }
           .booksFromDevice(device)
-          .map { it.info }
         channel.send(DeviceListViewState.DeviceBookUpdate(currentlyLoadedDeviceBookInfos))
       }
     }
@@ -56,7 +55,7 @@ class DeviceListViewModel(
     }
   }
 
-  private fun filter(filter: String?, books: List<BookInfo>): List<BookInfo> {
+  private fun filter(filter: String?, books: List<BookDisplay>): List<BookDisplay> {
     return if (filter == null) {
       books
     } else {

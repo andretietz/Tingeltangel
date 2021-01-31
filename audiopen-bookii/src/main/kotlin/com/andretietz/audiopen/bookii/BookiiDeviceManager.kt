@@ -1,8 +1,8 @@
 package com.andretietz.audiopen.bookii
 
 import com.andretietz.audiopen.AudioPenDevice
-import com.andretietz.audiopen.Book
-import com.andretietz.audiopen.BookInfo
+import com.andretietz.audiopen.BookDisplay
+import com.andretietz.audiopen.bookii.pen.DeviceBook
 import com.andretietz.audiopen.device.DeviceManager
 import java.io.File
 
@@ -21,57 +21,63 @@ class BookiiDeviceManager : DeviceManager {
     return configFile.exists() && tbdFile.exists()
   }
 
-  override suspend fun booksFromDevice(device: AudioPenDevice): List<Book> {
+  override suspend fun booksFromDevice(device: AudioPenDevice): List<BookDisplay> {
     val bookDir = device.rootDirectory.listFiles()?.firstOrNull { it.name == DIR_BOOK } ?: return emptyList()
 
-    val infoFiles = bookDir.listFiles()?.filter { infoFileRegex.matches(it.name) }
+    return bookDir.listFiles()
+      ?.filter { infoFileRegex.matches(it.name) }
       ?.mapNotNull { parseInfoFile(it) } ?: emptyList()
-
-    return infoFiles.map { Book(it) }
   }
 
-  private fun parseInfoFile(file: File): BookInfo? {
-    val (id, _) = infoFileRegex.find(file.name)?.destructured ?: return null
-
+  private fun parseInfoFile(infoFile: File): DeviceBook? {
+    val (id, _) = infoFileRegex.find(infoFile.name)?.destructured ?: return null
     val map = mutableMapOf<String, String>()
+    val thumbnailFile = File(infoFile.parentFile, "${infoFile.nameWithoutExtension}.png")
+    val dataFile = File(infoFile.parentFile, "${infoFile.nameWithoutExtension}.kii")
 
-    file.readLines()
+    if (!infoFile.exists() || !thumbnailFile.exists() || !dataFile.exists()) return null
+
+    infoFile.readLines()
       .forEach {
         val item = it.split(":")
         map.putIfAbsent(item[0].trim(), item[1].trim())
       }
-    return BookInfo(
+
+    return DeviceBook(
       id.toInt().toString(),
-      Bookii.AUDIOPEN_TYPE,
       map[SETTINGS_NAME] ?: return null,
-      map[SETTINGS_BOOK_AREA_CODE] ?: return null,
-      map[SETTINGS_BOOK_VERSION]?.toIntOrNull() ?: return null,
-      File(file.parentFile, "${file.nameWithoutExtension}.png").toURI().toURL(),
-      file.toURI().toURL(),
       map[SETTINGS_BOOK_PUBLISHER] ?: "",
       map[SETTINGS_BOOK_AUTHOR] ?: "",
-      map[SETTINGS_TYPE] ?: "Buch",
+      map[SETTINGS_BOOK_VERSION]?.toIntOrNull() ?: 0,
+      map[SETTINGS_URL] ?: "",
+      map[SETTINGS_THUMB_MD5] ?: "",
+      map[SETTINGS_FILE_MD5] ?: "",
+      map[SETTINGS_BOOK_AREA_CODE] ?: return null,
+      map[SETTINGS_TYPE] ?: "",
+      map[SETTINGS_ISBN] ?: "",
       map[SETTINGS_VOLUME]?.toIntOrNull() ?: 0,
-      map[SETTINGS_ISBN] ?: ""
+      thumbnailFile,
+      infoFile,
+      dataFile
     )
   }
 
-  @SuppressWarnings("Detekt.UnusedPrivateMember")
-  private fun createInfoFile(info: BookInfo): String {
-    return StringBuilder().apply {
-      appendLine("$SETTINGS_NAME: ${info.title}")
-      appendLine("$SETTINGS_BOOK_PUBLISHER: ${info.publisherName}")
-      appendLine("$SETTINGS_BOOK_AUTHOR: ${info.authorName}")
-      appendLine("$SETTINGS_BOOK_VERSION: ${info.version}")
-      appendLine("$SETTINGS_URL: ${info.image?.toString() ?: ""}")
-      appendLine("$SETTINGS_THUMB_MD5:") // TBD: could be generated
-      appendLine("$SETTINGS_FILE_MD5:") // TBD: could be generated
-      appendLine("$SETTINGS_BOOK_AREA_CODE: ${info.areaCode}")
-      appendLine("$SETTINGS_TYPE: ${info.mediaType}")
-      appendLine("$SETTINGS_ISBN: ${info.isbn ?: ""}")
-      appendLine("$SETTINGS_VOLUME: ${info.volume}")
-    }.toString()
-  }
+//  @SuppressWarnings("Detekt.UnusedPrivateMember")
+//  private fun createInfoFile(info: BookInfo): String {
+//    return StringBuilder().apply {
+//      appendLine("$SETTINGS_NAME: ${info.title}")
+//      appendLine("$SETTINGS_BOOK_PUBLISHER: ${info.publisherName}")
+//      appendLine("$SETTINGS_BOOK_AUTHOR: ${info.authorName}")
+//      appendLine("$SETTINGS_BOOK_VERSION: ${info.version}")
+//      appendLine("$SETTINGS_URL: ${info.image?.toString() ?: ""}")
+//      appendLine("$SETTINGS_THUMB_MD5:") // TBD: could be generated
+//      appendLine("$SETTINGS_FILE_MD5:") // TBD: could be generated
+//      appendLine("$SETTINGS_BOOK_AREA_CODE: ${info.areaCode}")
+//      appendLine("$SETTINGS_TYPE: ${info.mediaType}")
+//      appendLine("$SETTINGS_ISBN: ${info.isbn ?: ""}")
+//      appendLine("$SETTINGS_VOLUME: ${info.volume}")
+//    }.toString()
+//  }
 
   companion object {
     private const val DIR_BOOK = "book"

@@ -1,7 +1,5 @@
 package com.andretietz.audiopen
 
-import java.net.URI
-
 interface BookDisplay {
   /**
    * ID of the book.
@@ -16,5 +14,5 @@ interface BookDisplay {
   /**
    * Thumbnail of the book.
    */
-  val thumbnail: URI
+  val thumbnail: Thumbnail
 }

@@ -1,7 +1,7 @@
 package com.andretietz.audiopen.device
 
 import com.andretietz.audiopen.AudioPenDevice
-import com.andretietz.audiopen.Book
+import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Type
 import java.io.File
 
@@ -23,5 +23,5 @@ interface DeviceManager {
   /**
    * @return all books, located on this device.
    */
-  suspend fun booksFromDevice(device: AudioPenDevice): List<Book>
+  suspend fun booksFromDevice(device: AudioPenDevice): List<BookDisplay>
 }
