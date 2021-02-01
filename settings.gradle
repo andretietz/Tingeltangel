@@ -3,6 +3,7 @@ include 'core'
 include 'application'
 include 'audiopen-bookii'
 include 'audiopen-ting'
+include 'splitter-oufkii'
 include 'desktop'
 
 rootProject.name = 'tingeltangel'
