@@ -156,12 +156,14 @@ class ManagerView : View() {
                 is Thumbnail.Remote -> imageview(thumbnail.url.toString()) {
                   fitHeight = IMAGE_MAX_HEIGHT
                   fitWidth = IMAGE_MAX_HEIGHT
-                  imageCache.image(thumbnail.url) { file ->
-                    val img = Image(file.inputStream())
-                    val (width, height) = scaleDownAndKeepRatio(img)
-                    fitHeight = height
-                    fitWidth = width
-                    runLater { image = img }
+                  coroutineScope.launch {
+                    imageCache.image(thumbnail.url) { file ->
+                      val img = Image(file.inputStream())
+                      val (width, height) = scaleDownAndKeepRatio(img)
+                      fitHeight = height
+                      fitWidth = width
+                      runLater { image = img }
+                    }
                   }
                 }
                 is Thumbnail.Local -> imageview {

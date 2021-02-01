@@ -5,6 +5,7 @@ import com.andretietz.audiopen.bookii.BookiiDeviceManager
 import com.andretietz.audiopen.bookii.BookiiRemoteSource
 import com.andretietz.audiopen.device.DeviceManager
 import com.andretietz.audiopen.remote.RemoteBookSource
+import com.andretietz.audiopen.ting.TingRemoteSource
 import com.andretietz.audiopen.view.devices.DeviceListInteractor
 import com.andretietz.audiopen.view.devices.DeviceListViewModel
 import com.andretietz.audiopen.view.sources.RemoteSourceInteractor
@@ -51,16 +52,17 @@ class Application {
       bind<OkHttpClient>() with singleton {
         OkHttpClient.Builder()
           .cache(Cache(File(CACHE_DIR, "http_cache"), CACHE_SIZE))
-          .addInterceptor(HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
-            override fun log(message: String) = println(message)
-          }).apply { level = HttpLoggingInterceptor.Level.BODY })
+//          .addInterceptor(HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
+//            override fun log(message: String) = println(message)
+//          }).apply { level = HttpLoggingInterceptor.Level.BODY })
           .addNetworkInterceptor(HttpCacheInterceptor(CACHE_AGE_TIME, TimeUnit.HOURS))
           .build()
       }
 
       bind<List<RemoteBookSource>>() with singleton {
         listOf(
-          BookiiRemoteSource(File(CACHE_DIR, "bookii"), instance())
+          BookiiRemoteSource(File(CACHE_DIR, "bookii"), instance()),
+          TingRemoteSource(File(CACHE_DIR, "ting"))
         )
       }
       bind<List<DeviceManager>>() with singleton {
@@ -70,7 +72,7 @@ class Application {
       }
 
       bind<ImageCache>() with singleton {
-        ImageCache(File(CACHE_DIR, "images"), instance())
+        ImageCache(File(CACHE_DIR, "images"))
       }
 
       bind<RemoteSourceInteractor>() with singleton {

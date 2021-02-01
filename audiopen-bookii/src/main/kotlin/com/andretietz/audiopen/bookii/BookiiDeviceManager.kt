@@ -31,17 +31,16 @@ class BookiiDeviceManager : DeviceManager {
 
   private fun parseInfoFile(infoFile: File): DeviceBook? {
     val (id, _) = infoFileRegex.find(infoFile.name)?.destructured ?: return null
-    val map = mutableMapOf<String, String>()
     val thumbnailFile = File(infoFile.parentFile, "${infoFile.nameWithoutExtension}.png")
     val dataFile = File(infoFile.parentFile, "${infoFile.nameWithoutExtension}.kii")
 
     if (!infoFile.exists() || !thumbnailFile.exists() || !dataFile.exists()) return null
 
-    infoFile.readLines()
-      .forEach {
+    val map = infoFile.readLines()
+      .map {
         val item = it.split(":")
-        map.putIfAbsent(item[0].trim(), item[1].trim())
-      }
+        item[0].trim() to item[1].trim()
+      }.toMap()
 
     return DeviceBook(
       id.toInt().toString(),

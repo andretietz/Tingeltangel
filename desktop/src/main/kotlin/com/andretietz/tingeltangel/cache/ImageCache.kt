@@ -1,15 +1,12 @@
 package com.andretietz.tingeltangel.cache
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.io.File
 import java.math.BigInteger
 import java.net.URL
 import java.security.MessageDigest
 
 class ImageCache(
-  private val cacheDir: File,
-  private val coroutineScope: CoroutineScope
+  private val cacheDir: File
 ) {
 
   init {
@@ -18,27 +15,23 @@ class ImageCache(
     }
   }
 
-  fun image(url: URL, update: (image: File) -> Unit) {
+  suspend fun image(url: URL, update: (image: File) -> Unit) {
     File(cacheDir, "${md5(url.toString())}${extension(url)}").also { file ->
       if (file.exists()) {
         update(file)
       } else {
         if (file.createNewFile()) {
-          coroutineScope.launch {
-            url.openStream().use { input ->
-              file.outputStream().use { output -> input.copyTo(output) }
-            }
-            update(file)
+          url.openStream().use { input ->
+            file.outputStream().use { output -> input.copyTo(output) }
           }
+          update(file)
         }
       }
     }
   }
 
-  fun clear() {
-    coroutineScope.launch {
-      cacheDir.deleteRecursively()
-    }
+  suspend fun clear() {
+    cacheDir.deleteRecursively()
   }
 
   @SuppressWarnings("Detekt.MagicNumber")
