@@ -12,5 +12,6 @@ sealed class BookDataItem(
 
   data class Script(
     override val code: Int,
+    val script: String
   ) : BookDataItem(code)
 }

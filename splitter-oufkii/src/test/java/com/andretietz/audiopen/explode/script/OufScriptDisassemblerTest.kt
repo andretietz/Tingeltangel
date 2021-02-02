@@ -1,14 +1,14 @@
-package com.andretietz.audiopen.future.script
+package com.andretietz.audiopen.explode.script
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.io.ByteArrayInputStream
 
-internal class DisassemblerTest {
+internal class OufScriptDisassemblerTest {
 
     @Test
     fun `Collecting labels works`() {
-        val decompiler = Disassembler()
+        val decompiler = OufScriptDisassembler()
         val byteArray = intArrayOf(
             0x03, 0x01, 0x00, 0x50, 0x00, 0x0e,     // cmp v80, 14
             0x0a, 0x00, 0x00, 0x18,                 // jne 0x0018
@@ -41,7 +41,7 @@ internal class DisassemblerTest {
 
     @Test
     fun `Disassembling works`() {
-        val decompiler = Disassembler()
+        val decompiler = OufScriptDisassembler()
         val outcome = """set v1, 30
 playoid 15001
 pause v1
@@ -64,7 +64,7 @@ end
 
     @Test(expected = IllegalStateException::class)
     fun `Missing Endbyte will lead to IllegalStateException`() {
-        val decompiler = Disassembler()
+        val decompiler = OufScriptDisassembler()
         val byteArray = intArrayOf(
             0x02, 0x01, 0x00, 0x01, 0x00, 0x1E,     // set v1, 30
             0x16, 0x01, 0x3A, 0x99,                 // playoid 15001
@@ -80,7 +80,7 @@ end
 
     @Test
     fun `Labels are being created`() {
-        val decompiler = Disassembler()
+        val decompiler = OufScriptDisassembler()
         val outcome = """set v1, 30
 playoid 15001
 jmp l1
@@ -107,7 +107,7 @@ end
 
     @Test(expected = IllegalStateException::class)
     fun `Unknown OpCode will lead to IllegalStateException`() {
-        val decompiler = Disassembler()
+        val decompiler = OufScriptDisassembler()
         val byteArray = intArrayOf(
             0x1F, 0x1F, 0x10,
             0, 0

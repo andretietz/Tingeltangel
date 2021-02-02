@@ -1,11 +1,11 @@
-package com.andretietz.audiopen.future.script
+package com.andretietz.audiopen.explode.script
 
 import java.io.ByteArrayInputStream
 
 /**
  * All known commands.
  */
-data class Command(
+internal data class Command(
   val code: Int,
   val method: String, // not sure what to use this for?
   val asm: String,
@@ -88,6 +88,10 @@ data class Command(
     )
 
     fun find(opcode: Int) = ALL.firstOrNull { it.code == opcode }
+
+    fun find(command: String) = ALL.firstOrNull {
+      it.method == command
+    }
   }
 
   /**

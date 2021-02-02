@@ -2,16 +2,17 @@ package com.andretietz.audiopen.explode
 
 import com.andretietz.audiopen.data.BookData
 import com.andretietz.audiopen.data.BookDataItem
-import com.andretietz.audiopen.data.DataFileExploder
+import com.andretietz.audiopen.data.DataFileDisassembler
+import com.andretietz.audiopen.explode.script.OufScriptDisassembler
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.RandomAccessFile
 
-class OufExploder(
+class OufDisassembler(
   private val cacheDir: File
-) : DataFileExploder {
+) : DataFileDisassembler {
 
-  override fun explode(file: File): BookData {
+  override fun disassemble(file: File): BookData {
     if (!file.exists()) throw FileNotFoundException("Couldn't find file: $file")
 
     val accessFile = RandomAccessFile(file, "r")
@@ -57,7 +58,10 @@ class OufExploder(
           })
         2 -> { // script
           // TBD
-          BookDataItem.Script(code)
+          BookDataItem.Script(
+            code,
+            scriptDisassembler.disassemble(buffer.inputStream())
+          )
         }
         else -> {
           // TODO: log error?
@@ -92,6 +96,8 @@ class OufExploder(
       -526, -542, -558, -702, -718, -734, -750, -766, -782, -798, -814
       // @formatter:on
     )
+
+    private val scriptDisassembler = OufScriptDisassembler()
   }
 
   data class IndexTableItem(
