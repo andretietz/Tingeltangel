@@ -1,8 +1,10 @@
 package com.andretietz.audiopen.explode
 
+import com.andretietz.audiopen.LoggerDelegate
 import com.andretietz.audiopen.data.BookData
 import com.andretietz.audiopen.data.BookDataItem
 import com.andretietz.audiopen.data.DataFileDisassembler
+import com.andretietz.audiopen.explode.CodePositionHelper.getPositionFromCode
 import com.andretietz.audiopen.explode.script.OufScriptDisassembler
 import java.io.File
 import java.io.FileNotFoundException
@@ -26,6 +28,8 @@ class OufDisassembler(
     val bookId: Int = accessFile.readInt()
 
     accessFile.seek(indexTable.toLong())
+
+
     return BookData(bookId, extractBookDataItems(bookId, numberOfItems, smallestMediaId, accessFile))
   }
 
@@ -51,20 +55,20 @@ class OufDisassembler(
       val buffer = ByteArray(tableItem.size)
       accessFile.read(buffer)
       when (tableItem.type) {
-        1 -> BookDataItem.MP3(code, File(targetDir, "$code.mp3")
+        BookDataItem.TYPE_AUDIO -> BookDataItem.MP3(code, tableItem.size, File(targetDir, "$code.mp3")
           .also { file ->
             file.createNewFile()
             file.writeBytes(buffer)
           })
-        2 -> { // script
-          // TBD
+        BookDataItem.TYPE_SCRIPT -> {
           BookDataItem.Script(
             code,
+            tableItem.size,
             scriptDisassembler.disassemble(buffer.inputStream())
           )
         }
         else -> {
-          // TODO: log error?
+          logger.debug("Invalid data type in index table: ${tableItem.type}")
           null
         }
       }
@@ -72,31 +76,7 @@ class OufDisassembler(
   }
 
   companion object {
-    fun getPositionFromCode(code: Int, n: Int): Int {
-      if (((code and 0xFF) != 0) || (n < 0)) return -1
-
-      val co = code shr 8 // 0x00F0 -> 0x000F
-      val c = co shr 3 and 1 or
-        (co shr 4 and 1 shl 1) or
-        (co shr 5 and 1 shl 2) or
-        (co shr 7 and 1 shl 3) or
-        (co shr 9 and 1 shl 4)
-      val a = co - (((n - 1) * 26) - LOOKUP_TABLE[c])
-
-      return a shl 8 // 0x000F -> 0x00F0
-    }
-
-    /**
-     * I have no clue how this numbers come together. It just works. Thanks to Martin
-     */
-    private val LOOKUP_TABLE = arrayOf(
-      // @formatter:off
-      578, 562, 546, 530, 514, 498, 482, 466, 322, 306, 290,
-      274, 258, 242, 226, 210, -446, -462, -478, -494, -510,
-      -526, -542, -558, -702, -718, -734, -750, -766, -782, -798, -814
-      // @formatter:on
-    )
-
+    private val logger by LoggerDelegate()
     private val scriptDisassembler = OufScriptDisassembler()
   }
 
