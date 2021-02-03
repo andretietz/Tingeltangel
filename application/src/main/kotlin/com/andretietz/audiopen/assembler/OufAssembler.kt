@@ -1,9 +1,9 @@
-package com.andretietz.audiopen.explode
+package com.andretietz.audiopen.assembler
 
 import com.andretietz.audiopen.LoggerDelegate
 import com.andretietz.audiopen.data.BookData
 import com.andretietz.audiopen.data.BookDataItem
-import com.andretietz.audiopen.explode.script.Command
+import com.andretietz.audiopen.assembler.script.Command
 import java.io.File
 import java.util.Date
 import kotlin.math.max
@@ -81,8 +81,8 @@ class OufAssembler(private val bookData: BookData) {
     }
   }
 
-  private fun nextAddress(r: Int): Int {
-    var x = r + 0x100 - (r and 0xff)
+  private fun nextAddress(address: Int): Int {
+    var x = address + 0x100 - (address and 0xff)
     while (x % 0x200 != 0) {
       x += 0x100
     }
@@ -112,7 +112,7 @@ class OufAssembler(private val bookData: BookData) {
     }
   }
 
-  private fun mergeOnCall(script: String, subCall: Boolean): String {
+  private fun mergeOnCall(script: String, isSubCall: Boolean): String {
     labelCount++
     val returnLabel = "return_$labelCount"
     val labelPrefix = "sub_${labelCount}_"
@@ -140,7 +140,7 @@ class OufAssembler(private val bookData: BookData) {
             sb.append(subCode)
           }
 
-          line == SCRIPT_RETURN -> sb.appendLine(if (subCall) "jmp $returnLabel" else SCRIPT_RETURN)
+          line == SCRIPT_RETURN -> sb.appendLine(if (isSubCall) "jmp $returnLabel" else SCRIPT_RETURN)
 
           else -> sb.appendLine(line)
         }
@@ -150,15 +150,49 @@ class OufAssembler(private val bookData: BookData) {
     return sb.toString()
   }
 
-  private fun replaceTemplatesAndResolveNames(script: String) : String {
-    val usedRegs = bookData.data
-      .filterIsInstance<BookDataItem.Script>()
-      .map { collectRegisters(it.script) }
-      .flatten().toSet()
-    return ""
+  private fun replaceTemplatesAndResolveNames(script: String): String {
+//    val usedRegs = bookData.data
+//      .filterIsInstance<BookDataItem.Script>()
+//      .map { collectRegisters(it.script) }
+//      .flatten().toSet()
+
+    return script.reader().buffered().useLines { sequence ->
+      sequence.map { it.trim().toLowerCase() }
+        .map { line ->
+          val args = line.substringAfter(' ').split(",").map { it.trim() }
+          val row = line.substringBefore(' ').trim()
+
+          val targetArgs = StringBuilder()
+          args.forEach { argument ->
+            if (argument.startsWith('@')) {
+              val item = bookData.data.firstOrNull { it.name == argument.substring(1) }
+                ?: throw SyntaxError("OID Name: '${argument.substring(1)}' nicht gefunden")
+              targetArgs.append(",${item.code}")
+            } else {
+              targetArgs.append(",$argument")
+            }
+          }
+          val arguments = targetArgs.toString().substring(1)
+          val out = StringBuilder()
+          // TODO: template handling: if(row == template) ... else:
+          out.append(row)
+          if (arguments.isNotEmpty()) {
+            out.append(" $arguments")
+          }
+          out.appendLine()
+          out.toString()
+        }.joinToString()
+    }
   }
 
+
   /*
+                  out.append(row);
+                if(!args.isEmpty()) {
+                    out.append(" ").append(args);
+                }
+                out.append("\n");
+
       private String replaceTemplatesAndResolveNames(String code) throws IOException, SyntaxError {
         BufferedReader in = new BufferedReader(new StringReader(code));
         StringBuilder out = new StringBuilder();

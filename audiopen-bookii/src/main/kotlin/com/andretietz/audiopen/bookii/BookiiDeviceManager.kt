@@ -2,6 +2,7 @@ package com.andretietz.audiopen.bookii
 
 import com.andretietz.audiopen.AudioPenDevice
 import com.andretietz.audiopen.BookDisplay
+import com.andretietz.audiopen.Thumbnail
 import com.andretietz.audiopen.bookii.pen.DeviceBook
 import com.andretietz.audiopen.device.DeviceManager
 import java.io.File
@@ -26,7 +27,16 @@ class BookiiDeviceManager : DeviceManager {
 
     return bookDir.listFiles()
       ?.filter { infoFileRegex.matches(it.name) }
-      ?.mapNotNull { parseInfoFile(it) } ?: emptyList()
+      ?.mapNotNull { parseInfoFile(it) }
+      ?.map {
+        BookDisplay(
+          it.id,
+          it.title,
+          Thumbnail.Local(it.thumbnail)
+        )
+      }
+      ?: emptyList()
+
   }
 
   private fun parseInfoFile(infoFile: File): DeviceBook? {
@@ -55,9 +65,7 @@ class BookiiDeviceManager : DeviceManager {
       map[SETTINGS_TYPE] ?: "",
       map[SETTINGS_ISBN] ?: "",
       map[SETTINGS_VOLUME]?.toIntOrNull() ?: 0,
-      thumbnailFile,
-      infoFile,
-      dataFile
+      thumbnailFile
     )
   }
 

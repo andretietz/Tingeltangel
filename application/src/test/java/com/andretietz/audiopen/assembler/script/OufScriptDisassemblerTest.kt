@@ -1,4 +1,4 @@
-package com.andretietz.audiopen.explode.script
+package com.andretietz.audiopen.assembler.script
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -58,7 +58,7 @@ end
             0x00                                    // EOF
 
         ).map { it.toByte() }.toByteArray()
-        val result = decompiler.disassemble(ByteArrayInputStream(byteArray))
+        val result = decompiler.disassembleScript(ByteArrayInputStream(byteArray))
         assertThat(result).isEqualTo(outcome)
     }
 
@@ -75,7 +75,7 @@ end
 
         ).map { it.toByte() }.toByteArray()
 
-        decompiler.disassemble(ByteArrayInputStream(byteArray))
+        decompiler.disassembleScript(ByteArrayInputStream(byteArray))
     }
 
     @Test
@@ -100,7 +100,7 @@ end
             0x00                                    // EOF
 
         ).map { it.toByte() }.toByteArray()
-        val result = decompiler.disassemble(ByteArrayInputStream(byteArray))
+        val result = decompiler.disassembleScript(ByteArrayInputStream(byteArray))
 
         assertThat(result).isEqualTo(outcome)
     }
@@ -113,6 +113,6 @@ end
             0, 0
         ).map { it.toByte() }.toByteArray()
 
-        decompiler.disassemble(ByteArrayInputStream(byteArray))
+        decompiler.disassembleScript(ByteArrayInputStream(byteArray))
     }
 }

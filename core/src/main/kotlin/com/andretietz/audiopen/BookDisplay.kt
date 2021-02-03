@@ -1,18 +1,18 @@
 package com.andretietz.audiopen
 
-interface BookDisplay {
+data class BookDisplay(
   /**
    * ID of the book.
    */
-  val id: String
+  val id: String,
 
   /**
    * title of the book.
    */
-  val title: String
+  val title: String,
 
   /**
    * Thumbnail of the book.
    */
   val thumbnail: Thumbnail
-}
+)

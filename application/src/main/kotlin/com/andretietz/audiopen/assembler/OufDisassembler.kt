@@ -1,11 +1,11 @@
-package com.andretietz.audiopen.explode
+package com.andretietz.audiopen.assembler
 
 import com.andretietz.audiopen.LoggerDelegate
 import com.andretietz.audiopen.data.BookData
 import com.andretietz.audiopen.data.BookDataItem
 import com.andretietz.audiopen.data.DataFileDisassembler
-import com.andretietz.audiopen.explode.CodePositionHelper.getPositionFromCode
-import com.andretietz.audiopen.explode.script.OufScriptDisassembler
+import com.andretietz.audiopen.assembler.CodePositionHelper.getPositionFromCode
+import com.andretietz.audiopen.assembler.script.OufScriptDisassembler
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.RandomAccessFile
@@ -55,7 +55,7 @@ class OufDisassembler(
       val buffer = ByteArray(tableItem.size)
       accessFile.read(buffer)
       when (tableItem.type) {
-        BookDataItem.TYPE_AUDIO -> BookDataItem.MP3(code, tableItem.size, File(targetDir, "$code.mp3")
+        BookDataItem.TYPE_AUDIO -> BookDataItem.MP3(code, tableItem.size, "name", File(targetDir, "$code.mp3")
           .also { file ->
             file.createNewFile()
             file.writeBytes(buffer)
@@ -64,7 +64,8 @@ class OufDisassembler(
           BookDataItem.Script(
             code,
             tableItem.size,
-            scriptDisassembler.disassemble(buffer.inputStream())
+            "name",
+            scriptDisassembler.disassembleScript(buffer.inputStream())
           )
         }
         else -> {

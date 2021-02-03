@@ -1,4 +1,4 @@
-package com.andretietz.audiopen.explode
+package com.andretietz.audiopen.assembler
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test

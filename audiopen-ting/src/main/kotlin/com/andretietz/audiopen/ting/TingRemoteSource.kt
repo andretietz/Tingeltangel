@@ -1,6 +1,7 @@
 package com.andretietz.audiopen.ting
 
 import com.andretietz.audiopen.BookDisplay
+import com.andretietz.audiopen.Thumbnail
 import com.andretietz.audiopen.remote.RemoteBookSource
 import com.andretietz.audiopen.ting.pen.DeviceBook
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -27,14 +28,24 @@ class TingRemoteSource(
           return@mapNotNull null
         }
         createDeviceBook(id, extractInfo(file))
+      }.map {
+        BookDisplay(
+          it.id,
+          it.title,
+          Thumbnail.Remote(
+            THUMBNAIL_FILE.format(
+              it.id.toInt(),
+              it.areaCode,
+              it.id.padStart(5, '0'),
+              it.areaCode
+            ).toHttpUrl().toUrl()
+          )
+        )
       }
   }
 
   private fun createDeviceBook(id: Int, map: Map<String, String>): DeviceBook? {
     val areaCode = map[SETTINGS_BOOK_AREA_CODE] ?: return null
-    val thumbUrl = THUMBNAIL_FILE.format(id, areaCode, id.toString().padStart(5, '0'), areaCode)
-      .toHttpUrl().toUrl()
-//      .also { println(it) }
     return DeviceBook(
       id.toString(),
       map[SETTINGS_NAME] ?: return null,
@@ -44,8 +55,7 @@ class TingRemoteSource(
       map[SETTINGS_URL] ?: "",
       map[SETTINGS_THUMB_MD5] ?: return null, // TBD: is this required?
       map[SETTINGS_FILE_MD5] ?: return null, // TBD: is this required?
-      map[SETTINGS_BOOK_AREA_CODE] ?: "",
-      thumbUrl
+      map[SETTINGS_BOOK_AREA_CODE] ?: ""
     )
   }
 

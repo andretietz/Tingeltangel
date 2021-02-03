@@ -4,5 +4,5 @@ data class BookData(
   val id: Int,
   val data: List<BookDataItem>
 ) {
-  fun getItem(id: Int) = data.firstOrNull { it.code == id }
+  fun getItemByCode(id: Int) = data.firstOrNull { it.code == id }
 }

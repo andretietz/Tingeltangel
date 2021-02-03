@@ -3,7 +3,6 @@ package com.andretietz.audiopen.bookii
 import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Thumbnail
 import com.andretietz.audiopen.bookii.remote.BookiiApi
-import com.andretietz.audiopen.bookii.remote.RemoteBook
 import com.andretietz.audiopen.remote.RemoteBookSource
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
@@ -32,7 +31,7 @@ class BookiiRemoteSource(
     .map { api.info(it.joinToString(",") { item -> "\"$item\"" }) }
     .flatten()
     .map {
-      RemoteBook(
+      BookDisplay(
         it.mid,
         it.title,
         Thumbnail.Remote(

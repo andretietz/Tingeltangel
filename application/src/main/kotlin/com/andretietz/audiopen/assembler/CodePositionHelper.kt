@@ -1,4 +1,4 @@
-package com.andretietz.audiopen.explode
+package com.andretietz.audiopen.assembler
 
 object CodePositionHelper {
 

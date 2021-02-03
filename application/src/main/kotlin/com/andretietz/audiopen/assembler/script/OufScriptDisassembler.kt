@@ -1,4 +1,4 @@
-package com.andretietz.audiopen.explode.script
+package com.andretietz.audiopen.assembler.script
 
 import java.io.ByteArrayInputStream
 
@@ -6,11 +6,11 @@ class OufScriptDisassembler {
   /**
    * decodes a file into a script.
    */
-  fun disassemble(input: ByteArrayInputStream): String {
+  fun disassembleScript(input: ByteArrayInputStream): String {
     input.use { stream -> return createScript(stream, collectLabels(stream)) }
   }
 
-  internal fun collectLabels(stream: ByteArrayInputStream): Map<Int, Int> {
+  private fun collectLabels(stream: ByteArrayInputStream): Map<Int, Int> {
     val labels = mutableMapOf<Int, Int>()
     var currentLabel = 0
     do {
@@ -36,7 +36,7 @@ class OufScriptDisassembler {
     val sb = StringBuilder()
     while (stream.available() > 1) {
       labels[length - stream.available()]?.let {
-        sb.append("\n:l${it}\n")
+        sb.appendLine("\n:l${it}")
       }
       val command = Command.find(stream.readPair())!! // has been checked in collectJumpTargets already
       sb.append(command.asm)
