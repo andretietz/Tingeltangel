@@ -1,7 +1,11 @@
 package com.andretietz.audiopen.assembler
 
+import com.andretietz.audiopen.data.BookData
+import com.andretietz.audiopen.data.BookDataItem
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import java.io.File
+import java.util.Date
 
 
 class OufAssemblerTest {
@@ -17,5 +21,25 @@ class OufAssemblerTest {
   @Test
   fun `String#removeCommentsAndTrim keeps strings without comments as they are and trim`() {
     assertThat(" foo bar   ".removeCommentsAndTrim()).isEqualTo("foo bar")
+  }
+
+  @Test
+  fun `write ouf header`() {
+    val book = BookData(
+      12345,
+      setOf(
+        BookDataItem.MP3(15001, File("src/test/resources/assembly", "15001.mp3"))
+      )
+    )
+    val file = File("src/test/resources/assembly", "12345_en.ouf")
+    val assembler = OufAssembler(book)
+
+    file.parentFile.mkdirs()
+    file.createNewFile()
+    file.outputStream().use {
+      assembler.writeHeader(it, 1, Date().time.toInt())
+    }
+
+
   }
 }

@@ -1,10 +1,11 @@
 package com.andretietz.audiopen.assembler
 
 import com.andretietz.audiopen.LoggerDelegate
+import com.andretietz.audiopen.assembler.script.Command
 import com.andretietz.audiopen.data.BookData
 import com.andretietz.audiopen.data.BookDataItem
-import com.andretietz.audiopen.assembler.script.Command
 import java.io.File
+import java.io.OutputStream
 import java.util.Date
 import kotlin.math.max
 
@@ -12,73 +13,92 @@ class OufAssembler(private val bookData: BookData) {
 
   private var labelCount = 0
 
-  fun assemble(target: File) {
-    if (target.exists())
-      throw IllegalArgumentException("File: $target exists already!")
-    if (!target.parentFile.exists() || !target.parentFile.isDirectory)
-      throw IllegalArgumentException("Directory: ${target.parentFile} doesn't exist")
-    if (!target.createNewFile()) throw IllegalArgumentException("Cannot create file: $target")
+//  fun assemble(target: File) {
+//    if (target.exists())
+//      throw IllegalArgumentException("File: $target exists already!")
+//    if (!target.parentFile.exists() || !target.parentFile.isDirectory)
+//      throw IllegalArgumentException("Directory: ${target.parentFile} doesn't exist")
+//    if (!target.createNewFile()) throw IllegalArgumentException("Cannot create file: $target")
+//
+//    labelCount = 0
+//    target.outputStream().use { out ->
+////      val size = lastID - 15000
+//      val size = bookData.data.size
+//      writeHeader(out, size, Date().time.toInt()) // TODO: date
+//
+//      val scripts = mutableMapOf<Int, ByteArray>()
+//      // write index table
+//      var pos: Int = INDEX_TABLE_START + 12 * size
+//      bookData.data
+////        .sortedBy { it.code }
+//        .forEachIndexed { index, entry ->
+////        if(entry == null) // TODO: figure out how this can happen? Book.java@698
+////        out.write(ByteArray(6) { 0x00 }) // TODO: wtf???
+//
+//          pos = nextAddress(pos)
+//          val code = CodePositionHelper.getCodeFromPosition(pos, index)
+//          out.write(code)
+//
+////          logger.debug(
+////            "${(index + INDEX_TABLE_START)} " +
+////              "@0x${Integer.toHexString(pos)} " +
+////              "code=0x${Integer.toHexString(code)} " +
+////              "size=${entry.size}"
+////          )
+//          val dataSize = when (entry) {
+//            is BookDataItem.MP3 -> {
+//              out.write(entry.file.length().toInt())
+//              out.write(BookDataItem.TYPE_AUDIO)
+//              entry.file.length().toInt()
+//            }
+//            is BookDataItem.Script -> {
+//              scripts.putIfAbsent(code, compileScript(entry.script))
+//              out.write(scripts[code]!!.size)
+//              out.write(BookDataItem.TYPE_SCRIPT)
+//              scripts[code]!!.size
+//            }
+//          }
+//          pos += max(dataSize, 0)
+//        }
+//
+//      pos = INDEX_TABLE_START + 12 * size
+//
+//      bookData.data // TBD: check if it's always in order
+//        .forEach { entry ->
+//          val pad = nextAddress(pos)
+//          pos += pad
+//          out.write(ByteArray(pad) { 0x00 })
+//          pos += when (entry) {
+//            is BookDataItem.MP3 -> {
+//              entry.file.inputStream().use { input -> input.copyTo(out) }
+//              entry.file.length().toInt()
+//
+//            }
+//            is BookDataItem.Script -> {
+//              out.write(compileScript(entry.script))
+//              scripts[entry.code]!!.size
+//            }
+//          }
+//        }
+//    }
+//  }
 
-    labelCount = 0
-    target.outputStream().use { out ->
-      val lastID: Int = bookData.data.maxByOrNull { it.code }?.code ?: throw IllegalArgumentException()
-//      val size = lastID - 15000
-      val size = bookData.data.size
+  internal fun writeHeader(output: OutputStream, size: Int, date: Int) {
+    val lastID: Int = bookData.data.maxByOrNull { it.code }?.code ?: throw IllegalArgumentException()
+    // write header
+    output.write(INDEX_TABLE_START)
+    output.write(MAGIC_VALUE1_START)
+    output.write(OID_COUNT_START)
+    output.write(lastID)
+    output.write(size)
+    output.write(bookData.id)
+    output.write(MAGIC_VALUE2_START)
+    output.write(date)
+    output.write(HEADER_ENDING_ONE)
+    output.write(HEADER_ENDING_TWO)
 
-      // write header
-      out.write(INDEX_TABLE_START)
-      out.write(MAGIC_VALUE1_START)
-      out.write(OID_COUNT_START)
-      out.write(lastID)
-      out.write(size)
-      out.write(bookData.id)
-      out.write(MAGIC_VALUE2_START)
-      out.write(Date().time.toInt()) // TODO
-      out.write(HEADER_ENDING_ONE)
-      out.write(HEADER_ENDING_TWO)
-
-      // pad with zeros
-      out.write(ByteArray(64) { 0x00 })
-
-      // write index table
-      var pos: Int = INDEX_TABLE_START + 12 * size
-      bookData.data
-//        .sortedBy { it.code }
-        .forEachIndexed { index, entry ->
-//        if(entry == null) // TODO: figure out how this can happen? Book.java@698
-//        out.write(ByteArray(6) { 0x00 }) // TODO: wtf???
-
-          pos = nextAddress(pos)
-          val code = CodePositionHelper.getCodeFromPosition(pos, index)
-          out.write(code)
-          out.write(max(entry.size, 0))
-          logger.debug(
-            "${(index + INDEX_TABLE_START)} " +
-              "@0x${Integer.toHexString(pos)} " +
-              "code=0x${Integer.toHexString(code)} " +
-              "size=${entry.size}"
-          )
-          when (entry) {
-            is BookDataItem.MP3 -> out.write(BookDataItem.TYPE_AUDIO)
-            is BookDataItem.Script -> out.write(BookDataItem.TYPE_SCRIPT)
-          }
-          pos += max(entry.size, 0)
-        }
-
-      pos = INDEX_TABLE_START + 12 * size
-
-      bookData.data // TBD: check if it's always in order
-        .forEach { entry ->
-          val pad = nextAddress(pos)
-          pos += pad
-          out.write(ByteArray(pad) { 0x00 })
-          when (entry) {
-            is BookDataItem.MP3 -> entry.file.inputStream().use { input -> input.copyTo(out) }
-            is BookDataItem.Script -> out.write(compileScript(entry.script))
-          }
-          pos += entry.size
-        }
-    }
+    // pad with zeros
+    output.write(ByteArray(64) { 0x00 })
   }
 
   private fun nextAddress(address: Int): Int {
@@ -89,10 +109,10 @@ class OufAssembler(private val bookData: BookData) {
     return x
   }
 
-  private fun compileScript(code: String): ByteArray {
-    val finalCode = replaceTemplatesAndResolveNames(mergeOnCall(code, false))
-    return ByteArray(1)// TODO
-  }
+//  private fun compileScript(code: String): ByteArray {
+//    val finalCode = replaceTemplatesAndResolveNames(mergeOnCall(code, false))
+//    return ByteArray(1)// TODO
+//  }
 
   private fun collectRegisters(script: String): Set<Int> {
     script.reader().useLines { sequence ->
@@ -112,43 +132,43 @@ class OufAssembler(private val bookData: BookData) {
     }
   }
 
-  private fun mergeOnCall(script: String, isSubCall: Boolean): String {
-    labelCount++
-    val returnLabel = "return_$labelCount"
-    val labelPrefix = "sub_${labelCount}_"
-    val sb = StringBuilder()
-    script.reader().useLines { sequence ->
-      sequence.forEach { raw ->
-        logger.info("processing line: $raw")
-        val line = raw.removeCommentsAndTrim() ?: return@forEach
-        // check if command is a jump
-        val cmd = line.substringBefore(' ', "")
-        val jump = Command.find(cmd)?.isJump ?: false
-        when {
-
-          line.startsWith(':') -> sb.appendLine(":$labelPrefix${line.substring(1)}")
-
-          jump -> sb.appendLine("$cmd $labelPrefix${line.substringAfter(" ")}")
-
-          line.startsWith("$SCRIPT_CALL ") -> {
-            val oid: Int = line.substring(SCRIPT_CALL.length).trim().toInt()
-            val subItem = bookData.data
-              .filterIsInstance<BookDataItem.Script>()
-              .firstOrNull { it.code == oid }
-              ?: throw IllegalStateException()
-            val subCode = mergeOnCall(subItem.script, true)
-            sb.append(subCode)
-          }
-
-          line == SCRIPT_RETURN -> sb.appendLine(if (isSubCall) "jmp $returnLabel" else SCRIPT_RETURN)
-
-          else -> sb.appendLine(line)
-        }
-      }
-    }
-    sb.appendLine(":$returnLabel")
-    return sb.toString()
-  }
+//  internal fun mergeOnCall(script: String, isSubCall: Boolean): String {
+//    labelCount++
+//    val returnLabel = "return_$labelCount"
+//    val labelPrefix = "sub_${labelCount}_"
+//    val sb = StringBuilder()
+//    script.reader().useLines { sequence ->
+//      sequence.forEach { raw ->
+//        logger.info("processing line: $raw")
+//        val line = raw.removeCommentsAndTrim() ?: return@forEach
+//        // check if command is a jump
+//        val cmd = line.substringBefore(' ', "")
+//        val jump = Command.find(cmd)?.isJump ?: false
+//        when {
+//
+//          line.startsWith(':') -> sb.appendLine(":$labelPrefix${line.substring(1)}")
+//
+//          jump -> sb.appendLine("$cmd $labelPrefix${line.substringAfter(" ")}")
+//
+//          line.startsWith("$SCRIPT_CALL ") -> {
+//            val oid: Int = line.substring(SCRIPT_CALL.length).trim().toInt()
+//            val subItem = bookData.data
+//              .filterIsInstance<BookDataItem.Script>()
+//              .firstOrNull { it.code == oid }
+//              ?: throw IllegalStateException()
+//            val subCode = mergeOnCall(subItem.script, true)
+//            sb.append(subCode)
+//          }
+//
+//          line == SCRIPT_RETURN -> sb.appendLine(if (isSubCall) "jmp $returnLabel" else SCRIPT_RETURN)
+//
+//          else -> sb.appendLine(line)
+//        }
+//      }
+//    }
+//    sb.appendLine(":$returnLabel")
+//    return sb.toString()
+//  }
 
   private fun replaceTemplatesAndResolveNames(script: String): String {
 //    val usedRegs = bookData.data
@@ -165,7 +185,10 @@ class OufAssembler(private val bookData: BookData) {
           val targetArgs = StringBuilder()
           args.forEach { argument ->
             if (argument.startsWith('@')) {
-              val item = bookData.data.firstOrNull { it.name == argument.substring(1) }
+              val item = bookData.data.firstOrNull {
+                // it.name == argument.substring(1)
+                false// TODO get item by name
+              }
                 ?: throw SyntaxError("OID Name: '${argument.substring(1)}' nicht gefunden")
               targetArgs.append(",${item.code}")
             } else {
@@ -281,9 +304,10 @@ class OufAssembler(private val bookData: BookData) {
 }
 
 /**
- * * Removes inline comments e.g.: "foo, bar // this is a comment."
+ * * Removes comments e.g.: "foo, bar // this is a comment." or "// foo"
  * * trims the string.
  * * lowercases the string.
+ * @return the cleared string or `null` if the string was a comment only
  */
 internal fun String.removeCommentsAndTrim(): String? {
   return substringBefore(OufAssembler.SCRIPT_COMMENT).trim().toLowerCase().takeIf { it.isNotEmpty() }

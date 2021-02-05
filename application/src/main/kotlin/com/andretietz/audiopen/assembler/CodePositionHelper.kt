@@ -7,7 +7,10 @@ object CodePositionHelper {
    * @return File position from code.
    */
   internal fun getPositionFromCode(code: Int, n: Int): Int {
-    if (((code and 0xFF) != 0) || (n < 0)) throw IllegalArgumentException()
+    if (((code and 0xFF) != 0) || (n < 0))
+      throw IllegalArgumentException(
+        "Invalid arguments: code: $code n: $n"
+      )
 
     val co = code shr 8 // 0x00F0 -> 0x000F
     val c = co shr 3 and 1 or
