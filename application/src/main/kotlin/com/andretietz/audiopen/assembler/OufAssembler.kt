@@ -1,13 +1,8 @@
 package com.andretietz.audiopen.assembler
 
 import com.andretietz.audiopen.LoggerDelegate
-import com.andretietz.audiopen.assembler.script.Command
 import com.andretietz.audiopen.data.BookData
-import com.andretietz.audiopen.data.BookDataItem
-import java.io.File
 import java.io.OutputStream
-import java.util.Date
-import kotlin.math.max
 
 class OufAssembler(private val bookData: BookData) {
 

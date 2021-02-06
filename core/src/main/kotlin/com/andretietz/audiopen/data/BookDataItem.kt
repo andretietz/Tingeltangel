@@ -3,18 +3,18 @@ package com.andretietz.audiopen.data
 import java.io.File
 
 sealed class BookDataItem(
-  open val code: Int,
-  open val file: File
+  open val code: Int
 ) {
   data class MP3(
     override val code: Int,
-    override val file: File
-  ) : BookDataItem(code, file)
+    val file: File
+  ) : BookDataItem(code)
 
   data class Script(
     override val code: Int,
-    override val file: File
-  ) : BookDataItem(code, file)
+    val script: String,
+    val isSubRoutine: Boolean
+  ) : BookDataItem(code)
 
   companion object {
     const val TYPE_AUDIO = 0x0001

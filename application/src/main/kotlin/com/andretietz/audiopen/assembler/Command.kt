@@ -1,4 +1,4 @@
-package com.andretietz.audiopen.assembler.script
+package com.andretietz.audiopen.assembler
 
 import java.io.ByteArrayInputStream
 
