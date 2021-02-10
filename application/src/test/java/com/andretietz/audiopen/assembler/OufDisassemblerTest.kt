@@ -7,16 +7,17 @@ import java.io.File
 
 class OufDisassemblerTest {
 
-  private val disassembler = OufDisassembler(File("src/test/resources/target").also { it.mkdirs() })
+  private val cacheDir = File("src/test/resources/target").also { it.mkdirs() }
+  private val disassembler = OufDisassembler(cacheDir)
 
 
   @Test
   fun `Importing an ouf file works`() {
-    val file = File("src/test/resources/testinput", "08091_en.kii")
+    val file = File("src/test/resources/testinput", "09989_en.kii")
 
     val book = disassembler.disassemble(file)
 
-    assertThat(book.id).isEqualTo(8091)
+    assertThat(book.id).isEqualTo(9989)
     assertThat(book.data.size).isEqualTo(8)
   }
 

@@ -1,7 +1,7 @@
 package com.andretietz.audiopen.assembler
 
-import com.andretietz.audiopen.data.BookData
-import com.andretietz.audiopen.data.BookDataItem
+import com.andretietz.audiopen.data.Book
+import com.andretietz.audiopen.data.BookItem
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.io.File
@@ -25,10 +25,10 @@ class OufAssemblerTest {
 
   @Test
   fun `write ouf header`() {
-    val book = BookData(
+    val book = Book(
       12345,
       setOf(
-        BookDataItem.MP3(15001, File("src/test/resources/assembly", "15001.mp3"))
+        BookItem.MP3(15001, File("src/test/resources/assembly", "15001.mp3"))
       )
     )
     val file = File("src/test/resources/assembly", "12345_en.ouf")

@@ -1,8 +1,8 @@
 package com.andretietz.audiopen.assembler
 
 import com.andretietz.audiopen.LoggerDelegate
-import com.andretietz.audiopen.data.BookData
-import com.andretietz.audiopen.data.BookDataItem
+import com.andretietz.audiopen.data.Book
+import com.andretietz.audiopen.data.BookItem
 import com.andretietz.audiopen.data.DataFileDisassembler
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
@@ -14,12 +14,12 @@ class OufDisassembler(
   private val cacheDir: File
 ) : DataFileDisassembler {
 
-  override fun disassemble(file: File): BookData {
+  override fun disassemble(file: File): Book {
     DataInputStream(FileInputStream(file)).use { inputStream ->
       val header = readHeader(inputStream)
       val indexTable = readIndexTable(inputStream, header)
       val data = readItems(inputStream, file, header, indexTable)
-      return BookData(header.id, data)
+      return Book(header.id, data)
     }
   }
 
@@ -94,14 +94,14 @@ class OufDisassembler(
    * Reads the items of an ouf-file. Since there are no official docs, it searches for the right position
    * of the items within the file.
    *
-   * @return a Set of [BookDataItem]s of the file.
+   * @return a Set of [BookItem]s of the file.
    */
   private fun readItems(
     inputStream: DataInputStream,
     file: File,
     header: Header,
     indexTable: Set<IndexTableItem>
-  ): Set<BookDataItem> {
+  ): Set<BookItem> {
     // indexTable position + (3*int_size) * (header.mediaIdEnd - header.mediaIdStart + 1)
     val endOfIndex = header.indexTable + (12 * header.count)
     val spacing = (0x100 - (endOfIndex % 0x100)) % 0x100
@@ -118,24 +118,24 @@ class OufDisassembler(
     val itemOffset = searchForDataStart(inputStream, potentialDataStart, startItem)
 
     logger.debug("Main-Stream: available bytes: ${inputStream.available()}")
-
+    val bookDirectory = File(cacheDir, "${header.id}").also { it.mkdirs() }
     return indexTable.map { tableItem ->
       val itemPosition = CodePositionHelper.getPositionFromCode(tableItem.position, tableItem.id - 15001) + itemOffset
       DataInputStream(FileInputStream(file)).use { itemFileInputStream ->
         itemFileInputStream.skipNBytes(itemPosition.toLong())
-        bookDataItem(itemFileInputStream, tableItem)
+        bookDataItem(itemFileInputStream, tableItem, bookDirectory)
       }
     }.toSet()
   }
 
-  private fun bookDataItem(inputStream: DataInputStream, tableItem: IndexTableItem): BookDataItem {
+  private fun bookDataItem(inputStream: DataInputStream, tableItem: IndexTableItem, targetDir: File): BookItem {
     val fileName = tableItem.id.toString().padStart(5, '0')
     return when (tableItem.type) {
-      BookDataItem.TYPE_AUDIO -> {
-        val audioDirectory = File(cacheDir, SUBDIR_AUDIO).also { if (!it.exists()) it.mkdirs() }
-        val item = BookDataItem.MP3(tableItem.id, File(audioDirectory, "$fileName.mp3"))
+      BookItem.TYPE_AUDIO -> {
+        val audioDirectory = File(targetDir, SUBDIR_AUDIO).also { if (!it.exists()) it.mkdirs() }
+        val file = File(audioDirectory, "$fileName.mp3")
         var bytesToRead = tableItem.size
-        item.file.outputStream().use { output ->
+        file.outputStream().use { output ->
           val buffer = ByteArray(4096)
           var n: Int
           while (inputStream.read(buffer, 0, min(buffer.size, bytesToRead)).also { n = it } > 0) {
@@ -143,10 +143,10 @@ class OufDisassembler(
             bytesToRead -= n
           }
         }
-        item
+        BookItem.MP3(tableItem.id, file, file.inputStream().use { !isMp3Data(it.readNBytes(4)) })
       }
-      BookDataItem.TYPE_SCRIPT -> {
-        val scriptDirectory = File(cacheDir, SUBDIR_SCRIPT).also { if (!it.exists()) it.mkdirs() }
+      BookItem.TYPE_SCRIPT -> {
+        val scriptDirectory = File(targetDir, SUBDIR_SCRIPT).also { if (!it.exists()) it.mkdirs() }
         val binFile = File(scriptDirectory, "$fileName.bin")
         val srcFile = File(scriptDirectory, "$fileName.txt")
         val scriptContent = inputStream.readNBytes(tableItem.size)
@@ -154,7 +154,7 @@ class OufDisassembler(
         val disassembled = disassembleScript(ByteArrayInputStream(scriptContent))
         srcFile.writeText(disassembled)
         val isSubRoutine = disassembled.reader().buffered().useLines { it.first() } == SCRIPT_RETURN
-        BookDataItem.Script(tableItem.id, disassembleScript(ByteArrayInputStream(scriptContent)), isSubRoutine)
+        BookItem.Script(tableItem.id, disassembleScript(ByteArrayInputStream(scriptContent)), isSubRoutine)
       }
       else -> throw IllegalStateException("Cannot recognize type: ${tableItem.type}")
     }
@@ -170,7 +170,7 @@ class OufDisassembler(
     val buffer = inputStream.readNBytes(startItem.size.coerceAtMost(50))
 
     // searching in binary for the actual start...
-    if (startItem.type == BookDataItem.TYPE_SCRIPT) {
+    if (startItem.type == BookItem.TYPE_SCRIPT) {
       logger.info("searching for script...")
       while (!isScriptData(buffer)) { // search until
         dataStart += 0x100
