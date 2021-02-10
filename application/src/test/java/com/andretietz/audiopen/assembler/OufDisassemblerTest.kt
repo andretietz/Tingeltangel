@@ -13,11 +13,11 @@ class OufDisassemblerTest {
 
   @Test
   fun `Importing an ouf file works`() {
-    val file = File("src/test/resources/testinput", "09989_en.kii")
+    val file = File("src/test/resources/testinput", "08091_en.ouf")
 
     val book = disassembler.disassemble(file)
 
-    assertThat(book.id).isEqualTo(9989)
+    assertThat(book.id).isEqualTo(8091)
     assertThat(book.data.size).isEqualTo(8)
   }
 

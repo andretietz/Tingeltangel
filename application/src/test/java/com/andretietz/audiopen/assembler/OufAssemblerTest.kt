@@ -28,7 +28,7 @@ class OufAssemblerTest {
     val book = Book(
       12345,
       setOf(
-        BookItem.MP3(15001, File("src/test/resources/assembly", "15001.mp3"))
+        BookItem.MP3(15001, File("src/test/resources/testinput", "15001.mp3"))
       )
     )
     val file = File("src/test/resources/assembly", "12345_en.ouf")
