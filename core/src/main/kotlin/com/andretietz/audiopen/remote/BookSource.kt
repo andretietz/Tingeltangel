@@ -6,7 +6,7 @@ import com.andretietz.audiopen.Type
 /**
  * Every audiobook producer has it's own source of online books. This interface abstracts the differences.
  */
-interface RemoteBookSource {
+interface BookSource {
   /**
    * Type of the book source.
    */

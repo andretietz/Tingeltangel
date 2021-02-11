@@ -2,14 +2,14 @@ package com.andretietz.audiopen.view.sources
 
 import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Type
-import com.andretietz.audiopen.remote.RemoteBookSource
+import com.andretietz.audiopen.remote.BookSource
 import com.andretietz.audiopen.view.BaseViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 class RemoteSourceViewModel(
   override val scope: CoroutineScope,
-  private val remoteSource: List<RemoteBookSource>
+  private val source: List<BookSource>
 ) : BaseViewModel<RemoteSourceViewState>(scope), RemoteSourceInteractor {
 
   private lateinit var currentlyLoadedLocalBookInfos: List<BookDisplay>
@@ -17,8 +17,8 @@ class RemoteSourceViewModel(
   init {
     channel.apply {
       scope.launch {
-        currentlyLoadedLocalBookInfos = remoteSource.first().availableBooks()
-        send(RemoteSourceViewState.Init(remoteSource.map { it.type }))
+        currentlyLoadedLocalBookInfos = source.first().availableBooks()
+        send(RemoteSourceViewState.Init(source.map { it.type }))
       }
     }
   }
@@ -28,7 +28,7 @@ class RemoteSourceViewModel(
       if (sourceType == null) {
         channel.send(RemoteSourceViewState.BookListUpdate(emptyList()))
       } else {
-        currentlyLoadedLocalBookInfos = remoteSource.first { it.type == sourceType }.availableBooks()
+        currentlyLoadedLocalBookInfos = source.first { it.type == sourceType }.availableBooks()
         channel.send(RemoteSourceViewState.BookListUpdate(currentlyLoadedLocalBookInfos))
       }
     }

@@ -3,5 +3,5 @@ package com.andretietz.audiopen.data
 import java.io.File
 
 interface DataFileDisassembler {
-  fun disassemble(file: File): Book
+  fun disassemble(file: File): BookData
 }

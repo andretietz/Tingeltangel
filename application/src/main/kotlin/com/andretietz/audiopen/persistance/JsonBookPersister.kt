@@ -20,6 +20,7 @@ class JsonBookPersister(
   private val moshi by lazy {
     Moshi.Builder()
       .add(
+
         PolymorphicJsonAdapterFactory.of(JsonBookDataItem::class.java, "type")
           .withSubtype(JsonBookDataItem.JsonMP3::class.java, "audio")
           .withSubtype(JsonBookDataItem.JsonScript::class.java, "script")
@@ -51,7 +52,6 @@ class JsonBookPersister(
       .also { if (!it.exists()) it.mkdirs() }
     val jsonFileName = File(bookDirectory, "$name.json")
     val content = moshi.adapter(JsonBookData::class.java).toJson(JsonBookData.from(book))
-    logger.debug("Content: $content")
     jsonFileName.writeText(content)
   }
 

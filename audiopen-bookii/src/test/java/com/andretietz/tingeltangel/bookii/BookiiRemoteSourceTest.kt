@@ -1,7 +1,7 @@
 package com.andretietz.tingeltangel.bookii
 
 import com.andretietz.audiopen.Thumbnail
-import com.andretietz.audiopen.bookii.BookiiRemoteSource
+import com.andretietz.audiopen.bookii.BookiiSource
 import com.andretietz.tingeltangel.bookii.Helper.MOCK_CONFIG_FOLDER
 import com.andretietz.tingeltangel.bookii.Helper.mockFileAsResponse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,7 +20,7 @@ internal class BookiiRemoteSourceTest {
     server.enqueue(mockFileAsResponse("get-book-info-01.json"))
     server.enqueue(mockFileAsResponse("get-book-info-02.json"))
 
-    val books = BookiiRemoteSource(
+    val books = BookiiSource(
       cacheDir = MOCK_CONFIG_FOLDER,
       baseUrl = server.url("/").toString()
     ).availableBooks()

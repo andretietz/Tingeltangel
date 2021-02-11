@@ -2,10 +2,13 @@ package com.andretietz.tingeltangel
 
 import com.andretietz.audiopen.AudioPenDetector
 import com.andretietz.audiopen.bookii.BookiiDeviceManager
-import com.andretietz.audiopen.bookii.BookiiRemoteSource
+import com.andretietz.audiopen.bookii.BookiiSource
+import com.andretietz.audiopen.data.BookPersister
 import com.andretietz.audiopen.device.DeviceManager
-import com.andretietz.audiopen.remote.RemoteBookSource
-import com.andretietz.audiopen.ting.TingRemoteSource
+import com.andretietz.audiopen.localbooks.LocalBookSource
+import com.andretietz.audiopen.persistance.JsonBookPersister
+import com.andretietz.audiopen.remote.BookSource
+import com.andretietz.audiopen.ting.TingSource
 import com.andretietz.audiopen.view.devices.DeviceListInteractor
 import com.andretietz.audiopen.view.devices.DeviceListViewModel
 import com.andretietz.audiopen.view.sources.RemoteSourceInteractor
@@ -58,11 +61,15 @@ class Application {
           .build()
       }
 
-      bind<List<RemoteBookSource>>() with singleton {
+      bind<List<BookSource>>() with singleton {
         listOf(
-          BookiiRemoteSource(File(CACHE_DIR, "bookii"), instance()),
-          TingRemoteSource(File(CACHE_DIR, "ting"))
+          BookiiSource(File(CACHE_DIR, "bookii"), instance()),
+          TingSource(File(CACHE_DIR, "ting")),
+          LocalBookSource(instance())
         )
+      }
+      bind<BookPersister>() with singleton {
+        JsonBookPersister(File(CACHE_DIR, "local"))
       }
       bind<List<DeviceManager>>() with singleton {
         listOf(

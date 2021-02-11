@@ -2,14 +2,14 @@ package com.andretietz.audiopen.ting
 
 import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Thumbnail
-import com.andretietz.audiopen.remote.RemoteBookSource
+import com.andretietz.audiopen.remote.BookSource
 import com.andretietz.audiopen.ting.pen.DeviceBook
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.io.File
 
-class TingRemoteSource(
+class TingSource(
   private val cacheDir: File
-) : RemoteBookSource {
+) : BookSource {
 
   override val type = Ting.AUDIOPEN_TYPE
 

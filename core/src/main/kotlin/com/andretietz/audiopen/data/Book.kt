@@ -1,8 +1,11 @@
 package com.andretietz.audiopen.data
 
+import com.andretietz.audiopen.Thumbnail
+
 data class Book(
-  val id: Int,
-  val data: Set<BookItem>
+  val title: String,
+  val thumbnail: Thumbnail,
+  val data: BookData
 ) {
-  fun getItemByCode(id: Int) = data.firstOrNull { it.code == id }
+  val id = data.id
 }

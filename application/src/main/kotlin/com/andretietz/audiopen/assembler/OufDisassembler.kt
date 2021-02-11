@@ -1,7 +1,7 @@
 package com.andretietz.audiopen.assembler
 
 import com.andretietz.audiopen.LoggerDelegate
-import com.andretietz.audiopen.data.Book
+import com.andretietz.audiopen.data.BookData
 import com.andretietz.audiopen.data.BookItem
 import com.andretietz.audiopen.data.DataFileDisassembler
 import java.io.ByteArrayInputStream
@@ -14,12 +14,12 @@ class OufDisassembler(
   private val cacheDir: File
 ) : DataFileDisassembler {
 
-  override fun disassemble(file: File): Book {
+  override fun disassemble(file: File): BookData {
     DataInputStream(FileInputStream(file)).use { inputStream ->
       val header = readHeader(inputStream)
       val indexTable = readIndexTable(inputStream, header)
       val data = readItems(inputStream, file, header, indexTable)
-      return Book(header.id, data)
+      return BookData(header.id, data)
     }
   }
 

@@ -1,6 +1,6 @@
 package com.andretietz.audiopen.persistance
 
-import com.andretietz.audiopen.data.Book
+import com.andretietz.audiopen.data.BookData
 import com.andretietz.audiopen.data.BookItem
 import com.andretietz.audiopen.data.BookPersister
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -13,7 +13,7 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 
 @ExperimentalCoroutinesApi
-class JsonBookPersisterTest {
+class JsonBookDataPersisterTest {
 
   @get:Rule
   val cacheDir = TemporaryFolder()
@@ -22,7 +22,7 @@ class JsonBookPersisterTest {
   fun `persist a book`() = runBlockingTest {
     val folder = cacheDir.newFolder("cache")
     val persister: BookPersister = JsonBookPersister(folder)
-    val bookToStore = Book(
+    val bookToStore = BookData(
       1234,
       setOf(
         BookItem.MP3(

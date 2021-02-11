@@ -1,10 +1,10 @@
 package com.andretietz.audiopen.assembler
 
 import com.andretietz.audiopen.LoggerDelegate
-import com.andretietz.audiopen.data.Book
+import com.andretietz.audiopen.data.BookData
 import java.io.OutputStream
 
-class OufAssembler(private val book: Book) {
+class OufAssembler(private val bookData: BookData) {
 
   private var labelCount = 0
 
@@ -79,14 +79,14 @@ class OufAssembler(private val book: Book) {
 //  }
 
   internal fun writeHeader(output: OutputStream, size: Int, date: Int) {
-    val lastID: Int = book.data.maxByOrNull { it.code }?.code ?: throw IllegalArgumentException()
+    val lastID: Int = bookData.data.maxByOrNull { it.code }?.code ?: throw IllegalArgumentException()
     // write header
     output.write(INDEX_TABLE_START)
     output.write(MAGIC_VALUE1_START)
     output.write(OID_COUNT_START)
     output.write(lastID)
     output.write(size)
-    output.write(book.id)
+    output.write(bookData.id)
     output.write(MAGIC_VALUE2_START)
     output.write(date)
     output.write(HEADER_ENDING_ONE)
@@ -180,7 +180,7 @@ class OufAssembler(private val book: Book) {
           val targetArgs = StringBuilder()
           args.forEach { argument ->
             if (argument.startsWith('@')) {
-              val item = book.data.firstOrNull {
+              val item = bookData.data.firstOrNull {
                 // it.name == argument.substring(1)
                 false// TODO get item by name
               }

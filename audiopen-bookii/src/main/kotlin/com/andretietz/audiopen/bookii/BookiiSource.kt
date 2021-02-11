@@ -3,7 +3,7 @@ package com.andretietz.audiopen.bookii
 import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Thumbnail
 import com.andretietz.audiopen.bookii.remote.BookiiApi
-import com.andretietz.audiopen.remote.RemoteBookSource
+import com.andretietz.audiopen.remote.BookSource
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -11,11 +11,11 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
 
 @SuppressWarnings("Detekt.UnusedPrivateMember")
-class BookiiRemoteSource(
+class BookiiSource(
   private val cacheDir: File,
   httpClient: OkHttpClient = OkHttpClient(),
   baseUrl: String = Bookii.API_BASE_URL
-) : RemoteBookSource {
+) : BookSource {
   override val type = Bookii.AUDIOPEN_TYPE
 
   private val api by lazy {
