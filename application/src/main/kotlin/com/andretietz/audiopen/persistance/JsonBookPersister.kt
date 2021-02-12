@@ -4,7 +4,6 @@ import com.andretietz.audiopen.LoggerDelegate
 import com.andretietz.audiopen.data.Book
 import com.andretietz.audiopen.data.BookPersister
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -18,14 +17,7 @@ class JsonBookPersister(
 
 
   private val moshi by lazy {
-    Moshi.Builder()
-      .add(
-
-        PolymorphicJsonAdapterFactory.of(JsonBookDataItem::class.java, "type")
-          .withSubtype(JsonBookDataItem.JsonMP3::class.java, "audio")
-          .withSubtype(JsonBookDataItem.JsonScript::class.java, "script")
-      )
-      .build()
+    Moshi.Builder().build()
   }
 
 
@@ -52,6 +44,7 @@ class JsonBookPersister(
       .also { if (!it.exists()) it.mkdirs() }
     val jsonFileName = File(bookDirectory, "$name.json")
     val content = moshi.adapter(JsonBookData::class.java).toJson(JsonBookData.from(book))
+    logger.debug(content)
     jsonFileName.writeText(content)
   }
 

@@ -1,5 +1,7 @@
 package com.andretietz.audiopen.persistance
 
+import com.andretietz.audiopen.Thumbnail
+import com.andretietz.audiopen.data.Book
 import com.andretietz.audiopen.data.BookData
 import com.andretietz.audiopen.data.BookItem
 import com.andretietz.audiopen.data.BookPersister
@@ -31,7 +33,11 @@ class JsonBookDataPersisterTest {
         )
       )
     )
-    persister.persist(bookToStore)
+    persister.persist(Book(
+      "test",
+      Thumbnail.Local(File("test")),
+      bookToStore
+    ))
 
     val files = folder.listFiles()
     assertThat(files).isNotNull
@@ -57,18 +63,18 @@ class JsonBookDataPersisterTest {
 
     assertThat(book).isNotNull
     assertThat(book!!.id).isEqualTo(1234)
-    assertThat(book.data.size).isEqualTo(1)
-    assertThat(book.data.firstOrNull()).isNotNull
-    assertThat(book.data.first()).isInstanceOf(BookItem.MP3::class.java)
-    assertThat(book.data.first()).isInstanceOf(BookItem.MP3::class.java)
-    assertThat(book.data.first().code).isEqualTo(15001)
-    assertThat((book.data.first() as BookItem.MP3).file.invariantSeparatorsPath).isEqualTo("testinput/15001.mp3")
+    assertThat(book.data.data.size).isEqualTo(1)
+    assertThat(book.data.data.firstOrNull()).isNotNull
+    assertThat(book.data.data.first()).isInstanceOf(BookItem.MP3::class.java)
+    assertThat(book.data.data.first()).isInstanceOf(BookItem.MP3::class.java)
+    assertThat(book.data.data.first().code).isEqualTo(15001)
+    assertThat((book.data.data.first() as BookItem.MP3).file.invariantSeparatorsPath).isEqualTo("src/test/resources/testinput/15001.mp3 ")
 
     cacheDir.delete()
   }
 
   companion object {
     const val DEMO_BOOK =
-      "{\"id\":1234,\"items\":[{\"type\":\"audio\",\"code\":15001,\"file\":\"testinput/15001.mp3\",\"corrupted\":false}]}"
+      """{"id":1234,"title":"test","thumbnail":{"type":"local","path":"test"},"items":[{"type":"audio","code":15001,"file":"src/test/resources/testinput/15001.mp3","corrupted":false}]}"""
   }
 }

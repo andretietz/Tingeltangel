@@ -5,9 +5,9 @@ import com.andretietz.audiopen.data.Book
 import com.andretietz.audiopen.data.BookData
 import com.andretietz.audiopen.data.BookItem
 import com.squareup.moshi.JsonClass
+import dev.zacsweers.moshix.sealed.annotations.TypeLabel
 import java.io.File
 import java.net.URL
-
 
 @JsonClass(generateAdapter = true)
 internal data class JsonBookData(
@@ -35,25 +35,20 @@ internal data class JsonBookData(
     thumbnail.to(),
     BookData(
       id,
-      items.map {
-        when (it) {
-          is JsonBookDataItem.JsonMP3 -> it.toMP3()
-          is JsonBookDataItem.JsonScript -> it.toScript()
-          else -> throw IllegalArgumentException("Cannot parse book item of type: ${it::class.java}")
-        }
-      }.toSet()
+      items.map { it.to() }.toSet()
     )
   )
-
 }
 
-@JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = true, generator = "sealed:type")
 internal sealed class JsonThumbnail {
+  @TypeLabel("local")
   @JsonClass(generateAdapter = true)
   internal data class Local(val path: String) : JsonThumbnail() {
     override fun to() = Thumbnail.Local(File(path))
   }
 
+  @TypeLabel("remote")
   @JsonClass(generateAdapter = true)
   internal data class Remote(val url: String) : JsonThumbnail() {
     override fun to() = Thumbnail.Remote(URL(url))
@@ -64,7 +59,7 @@ internal sealed class JsonThumbnail {
   companion object {
     fun from(thumbnail: Thumbnail): JsonThumbnail {
       return when (thumbnail) {
-        is Thumbnail.Local -> Local(thumbnail.file.canonicalPath)
+        is Thumbnail.Local -> Local(thumbnail.file.path)
         is Thumbnail.Remote -> Remote(thumbnail.url.toString())
         else -> throw IllegalArgumentException("Cannot parse book item of type: ${thumbnail::class.java}")
       }
@@ -72,33 +67,36 @@ internal sealed class JsonThumbnail {
   }
 }
 
-@JsonClass(generateAdapter = true)
-internal open class JsonBookDataItem( // TBD: why is sealed not working?
+@JsonClass(generateAdapter = true, generator = "sealed:type")
+internal sealed class JsonBookDataItem( // TBD: why is sealed not working?
   open val code: Int
 ) {
+  @TypeLabel("audio")
   @JsonClass(generateAdapter = true)
   internal data class JsonMP3(
     override val code: Int,
     val file: String,
     val corrupted: Boolean = false
   ) : JsonBookDataItem(code) {
-    fun toMP3() = BookItem.MP3(code, File(file), corrupted)
+    override fun to() = BookItem.MP3(code, File(file), corrupted)
 
     companion object {
-      fun from(item: BookItem.MP3) = JsonMP3(item.code, item.file.canonicalPath, item.corrupted)
+      fun from(item: BookItem.MP3) = JsonMP3(item.code, item.file.path, item.corrupted)
     }
   }
 
+  @TypeLabel("script")
   @JsonClass(generateAdapter = true)
   internal data class JsonScript(
     override val code: Int,
     val script: String,
     val isSubRoutine: Boolean
   ) : JsonBookDataItem(code) {
-    fun toScript() = BookItem.Script(code, script, isSubRoutine)
+    override fun to() = BookItem.Script(code, script, isSubRoutine)
 
     companion object {
       fun from(item: BookItem.Script) = JsonScript(item.code, item.script, item.isSubRoutine)
     }
   }
+  abstract fun to(): BookItem
 }
