@@ -1,9 +1,0 @@
-//include 'z_historic'
-include 'core'
-include 'application'
-include 'audiopen-bookii'
-include 'audiopen-ting'
-include 'desktop'
-
-rootProject.name = 'tingeltangel'
-

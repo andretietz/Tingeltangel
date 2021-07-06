@@ -2,7 +2,6 @@ package com.andretietz.audiopen.persistance
 
 import com.andretietz.audiopen.Thumbnail
 import com.andretietz.audiopen.data.Book
-import com.andretietz.audiopen.data.BookData
 import com.andretietz.audiopen.data.BookItem
 import com.andretietz.audiopen.data.BookPersister
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,20 +23,20 @@ class JsonBookDataPersisterTest {
   fun `persist a book`() = runBlockingTest {
     val folder = cacheDir.newFolder("cache")
     val persister: BookPersister = JsonBookPersister(folder)
-    val bookToStore = BookData(
+    val bookToStore = Book(
       1234,
-      setOf(
+      "Some test book",
+      Thumbnail.Local(File("test")),
+      listOf(
         BookItem.MP3(
           15001,
           File("src/test/resources/testinput/15001.mp3")
         )
       )
     )
-    persister.persist(Book(
-      "test",
-      Thumbnail.Local(File("test")),
+    persister.persist(
       bookToStore
-    ))
+    )
 
     val files = folder.listFiles()
     assertThat(files).isNotNull
@@ -63,12 +62,12 @@ class JsonBookDataPersisterTest {
 
     assertThat(book).isNotNull
     assertThat(book!!.id).isEqualTo(1234)
-    assertThat(book.data.data.size).isEqualTo(1)
-    assertThat(book.data.data.firstOrNull()).isNotNull
-    assertThat(book.data.data.first()).isInstanceOf(BookItem.MP3::class.java)
-    assertThat(book.data.data.first()).isInstanceOf(BookItem.MP3::class.java)
-    assertThat(book.data.data.first().code).isEqualTo(15001)
-    assertThat((book.data.data.first() as BookItem.MP3).file.invariantSeparatorsPath).isEqualTo("src/test/resources/testinput/15001.mp3 ")
+    assertThat(book.data.size).isEqualTo(1)
+    assertThat(book.data.firstOrNull()).isNotNull
+    assertThat(book.data.first()).isInstanceOf(BookItem.MP3::class.java)
+    assertThat(book.data.first()).isInstanceOf(BookItem.MP3::class.java)
+    assertThat(book.data.first().code).isEqualTo(15001)
+    assertThat((book.data.first() as BookItem.MP3).file.invariantSeparatorsPath).isEqualTo("src/test/resources/testinput/15001.mp3")
 
     cacheDir.delete()
   }

@@ -2,7 +2,6 @@ package com.andretietz.audiopen.persistance
 
 import com.andretietz.audiopen.Thumbnail
 import com.andretietz.audiopen.data.Book
-import com.andretietz.audiopen.data.BookData
 import com.andretietz.audiopen.data.BookItem
 import com.squareup.moshi.JsonClass
 import dev.zacsweers.moshix.sealed.annotations.TypeLabel
@@ -14,29 +13,22 @@ internal data class JsonBookData(
   val id: Int,
   val title: String,
   val thumbnail: JsonThumbnail,
-  val items: Set<JsonBookDataItem>
+  val items: List<JsonBookItem>
 ) {
   companion object {
     fun from(book: Book) = JsonBookData(
       book.id,
       book.title,
       JsonThumbnail.from(book.thumbnail),
-      book.data.data.map {
-        when (it) {
-          is BookItem.MP3 -> JsonBookDataItem.JsonMP3.from(it)
-          is BookItem.Script -> JsonBookDataItem.JsonScript.from(it)
-        }
-      }.toSet()
+      book.data.map { JsonBookItem.from(it) }
     )
   }
 
   fun toBook() = Book(
+    id,
     title,
     thumbnail.to(),
-    BookData(
-      id,
-      items.map { it.to() }.toSet()
-    )
+    items.map { it.to() }
   )
 }
 
@@ -68,7 +60,7 @@ internal sealed class JsonThumbnail {
 }
 
 @JsonClass(generateAdapter = true, generator = "sealed:type")
-internal sealed class JsonBookDataItem( // TBD: why is sealed not working?
+internal sealed class JsonBookItem( // TBD: why is sealed not working?
   open val code: Int
 ) {
   @TypeLabel("audio")
@@ -77,13 +69,10 @@ internal sealed class JsonBookDataItem( // TBD: why is sealed not working?
     override val code: Int,
     val file: String,
     val corrupted: Boolean = false
-  ) : JsonBookDataItem(code) {
+  ) : JsonBookItem(code) {
     override fun to() = BookItem.MP3(code, File(file), corrupted)
-
-    companion object {
-      fun from(item: BookItem.MP3) = JsonMP3(item.code, item.file.path, item.corrupted)
-    }
   }
+
 
   @TypeLabel("script")
   @JsonClass(generateAdapter = true)
@@ -91,12 +80,16 @@ internal sealed class JsonBookDataItem( // TBD: why is sealed not working?
     override val code: Int,
     val script: String,
     val isSubRoutine: Boolean
-  ) : JsonBookDataItem(code) {
+  ) : JsonBookItem(code) {
     override fun to() = BookItem.Script(code, script, isSubRoutine)
+  }
 
-    companion object {
-      fun from(item: BookItem.Script) = JsonScript(item.code, item.script, item.isSubRoutine)
+  abstract fun to(): BookItem
+
+  companion object {
+    fun from(item: BookItem): JsonBookItem = when (item) {
+      is BookItem.MP3 -> JsonMP3(item.code, item.file.path, item.corrupted)
+      is BookItem.Script -> JsonScript(item.code, item.script, item.isSubRoutine)
     }
   }
-  abstract fun to(): BookItem
 }

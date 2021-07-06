@@ -17,8 +17,7 @@ class OufDisassemblerTest {
 
     val book = disassembler.disassemble(file)
 
-    assertThat(book.id).isEqualTo(8091)
-    assertThat(book.data.size).isEqualTo(8)
+    assertThat(book.size).isEqualTo(8)
   }
 
   @Test

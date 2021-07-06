@@ -1,7 +1,6 @@
 package com.andretietz.audiopen.assembler
 
 import com.andretietz.audiopen.LoggerDelegate
-import com.andretietz.audiopen.data.BookData
 import com.andretietz.audiopen.data.BookItem
 import com.andretietz.audiopen.data.DataFileDisassembler
 import java.io.ByteArrayInputStream
@@ -14,12 +13,11 @@ class OufDisassembler(
   private val cacheDir: File
 ) : DataFileDisassembler {
 
-  override fun disassemble(file: File): BookData {
+  override fun disassemble(file: File): List<BookItem> {
     DataInputStream(FileInputStream(file)).use { inputStream ->
       val header = readHeader(inputStream)
       val indexTable = readIndexTable(inputStream, header)
-      val data = readItems(inputStream, file, header, indexTable)
-      return BookData(header.id, data)
+      return readItems(inputStream, file, header, indexTable)
     }
   }
 
@@ -101,7 +99,7 @@ class OufDisassembler(
     file: File,
     header: Header,
     indexTable: Set<IndexTableItem>
-  ): Set<BookItem> {
+  ): List<BookItem> {
     // indexTable position + (3*int_size) * (header.mediaIdEnd - header.mediaIdStart + 1)
     val endOfIndex = header.indexTable + (12 * header.count)
     val spacing = (0x100 - (endOfIndex % 0x100)) % 0x100
@@ -125,7 +123,7 @@ class OufDisassembler(
         itemFileInputStream.skipNBytes(itemPosition.toLong())
         bookDataItem(itemFileInputStream, tableItem, bookDirectory)
       }
-    }.toSet()
+    }
   }
 
   private fun bookDataItem(inputStream: DataInputStream, tableItem: IndexTableItem, targetDir: File): BookItem {

@@ -1,10 +1,10 @@
 package com.andretietz.audiopen.assembler
 
 import com.andretietz.audiopen.LoggerDelegate
-import com.andretietz.audiopen.data.BookData
+import com.andretietz.audiopen.data.Book
 import java.io.OutputStream
 
-class OufAssembler(private val bookData: BookData) {
+class OufAssembler(private val bookData: Book) {
 
   private var labelCount = 0
 
@@ -118,7 +118,7 @@ class OufAssembler(private val bookData: BookData) {
           if (p != -1) {
             val args = pureLine.substring(p).trim()
             return@mapNotNull args.split(',').toTypedArray()
-              .map { it.trim().toLowerCase() }
+              .map { it.trim().lowercase() }
               .filter { it.startsWith('v') }
               .map { arg -> arg.substring(1).toInt() }
           }
@@ -172,7 +172,7 @@ class OufAssembler(private val bookData: BookData) {
 //      .flatten().toSet()
 
     return script.reader().buffered().useLines { sequence ->
-      sequence.map { it.trim().toLowerCase() }
+      sequence.map { it.trim().lowercase() }
         .map { line ->
           val args = line.substringAfter(' ').split(",").map { it.trim() }
           val row = line.substringBefore(' ').trim()
@@ -305,5 +305,5 @@ class OufAssembler(private val bookData: BookData) {
  * @return the cleared string or `null` if the string was a comment only
  */
 internal fun String.removeCommentsAndTrim(): String? {
-  return substringBefore(OufAssembler.SCRIPT_COMMENT).trim().toLowerCase().takeIf { it.isNotEmpty() }
+  return substringBefore(OufAssembler.SCRIPT_COMMENT).trim().lowercase().takeIf { it.isNotEmpty() }
 }

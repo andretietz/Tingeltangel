@@ -45,7 +45,7 @@ class TingSource(
   }
 
   private fun createDeviceBook(id: Int, map: Map<String, String>): DeviceBook? {
-    val areaCode = map[SETTINGS_BOOK_AREA_CODE] ?: return null
+    map[SETTINGS_BOOK_AREA_CODE] ?: return null
     return DeviceBook(
       id.toString(),
       map[SETTINGS_NAME] ?: return null,
@@ -55,7 +55,7 @@ class TingSource(
       map[SETTINGS_URL] ?: "",
       map[SETTINGS_THUMB_MD5] ?: return null, // TBD: is this required?
       map[SETTINGS_FILE_MD5] ?: return null, // TBD: is this required?
-      map[SETTINGS_BOOK_AREA_CODE] ?: ""
+      map[SETTINGS_BOOK_AREA_CODE]!!
     )
   }
 

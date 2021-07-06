@@ -79,10 +79,10 @@ class Application {
         ImageCache(File(CACHE_DIR, "images"))
       }
 
-      bind<RemoteSourceInteractor>() with singleton {
+      bind<RemoteSourceViewModel>() with singleton {
         RemoteSourceViewModel(instance(), instance())
       }
-      bind<DeviceListInteractor>() with singleton {
+      bind<DeviceListViewModel>() with singleton {
         DeviceListViewModel(instance(), instance(), instance())
       }
 
