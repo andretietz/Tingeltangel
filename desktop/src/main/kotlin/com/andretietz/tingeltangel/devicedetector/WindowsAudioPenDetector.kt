@@ -29,10 +29,10 @@ class WindowsAudioPenDetector(
             event.storageDevice.rootDirectory
           )
           if (event.eventType == DeviceEventType.REMOVED) {
-            offer(AudioPenDetector.DetectorEvent.Disconnected(device))
+            trySend(AudioPenDetector.DetectorEvent.Disconnected(device))
           } else if (event.eventType == DeviceEventType.CONNECTED) {
             if (contract.verifyDevice(event.storageDevice.rootDirectory)) {
-              offer(AudioPenDetector.DetectorEvent.Connected(device))
+              trySend(AudioPenDetector.DetectorEvent.Connected(device))
             }
           }
         }

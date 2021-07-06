@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-
-  api(Dependencies.kotlin.coroutines) // "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+  api(Dependencies.kotlin.coroutines)
+  api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}")
   api(kotlin("reflect"))
   api(Dependencies.logging.slf4j.api)
 
@@ -14,9 +14,6 @@ dependencies {
 
   testImplementation(Dependencies.test.junit)
   testImplementation(Dependencies.test.assertj)
-
-
-
 }
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
   kotlinOptions.jvmTarget = "16"

@@ -5,6 +5,7 @@ object Versions {
   const val retrofit = "2.9.0"
   const val okhttp = "4.9.1"
   const val moshi = "1.12.0"
+  const val mockk = "1.10.5"
 
   object inject {
     const val dagger = "2.37"
@@ -73,6 +74,7 @@ object Dependencies {
       "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.test.mockitoKotlin}"
     const val assertj = "org.assertj:assertj-core:${Versions.test.assertj}"
     const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutines}"
+    const val mockk = "io.mockk:mockk:${Versions.mockk}"
   }
 
   object logging {
