@@ -21,21 +21,7 @@ allprojects {
         maven { url { "https://maven.onehippo.com/maven2/" }}
         maven { url { "https://oss.sonatype.org/content/repositories/snapshots" }}
         mavenCentral()
-        jcenter()
+//        jcenter()
         mavenLocal()
     }
-}
-
-apply plugin: "com.vanniktech.code.quality.tools"
-codeQualityTools {
-
-    ignoreProjects = ["z_historic"]
-
-    detekt.config = rootProject.file("quality/detekt.yml").path
-    detekt.toolVersion = '1.5.0'
-    ktlint.toolVersion = '0.28.0'
-    lint.lintConfig rootProject.file("quality/lint.xml")
-    checkstyle.configFile rootProject.file("quality/checkstyle.xml").path
-    kotlin.allWarningsAsErrors false
-//    pmd.enabled false
 }

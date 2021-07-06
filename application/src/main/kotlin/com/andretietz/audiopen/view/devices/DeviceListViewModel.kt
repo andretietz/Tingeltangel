@@ -4,16 +4,24 @@ import com.andretietz.audiopen.AudioPenDetector
 import com.andretietz.audiopen.AudioPenDevice
 import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.device.DeviceManager
-import com.andretietz.audiopen.view.BaseViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class DeviceListViewModel(
-  override val scope: CoroutineScope,
+  private val scope: CoroutineScope,
   private val deviceManager: List<DeviceManager>,
   private val deviceDetector: AudioPenDetector
-) : BaseViewModel<DeviceListViewState>(scope), DeviceListInteractor {
+) {
+
+  private val _state = MutableStateFlow<DeviceListViewState>(DeviceListViewState.Loading)
+
+  /**
+   * channel for listenings to the viewstate.
+   */
+  val state: StateFlow<DeviceListViewState> = _state
 
   private lateinit var currentlyLoadedDeviceBookInfos: List<BookDisplay>
   private val connectedDevices: MutableList<AudioPenDevice> = mutableListOf()
@@ -25,34 +33,32 @@ class DeviceListViewModel(
           when (event) {
             is AudioPenDetector.DetectorEvent.Connected -> {
               connectedDevices.add(event.device)
-              channel.send(DeviceListViewState.DeviceListUpdate(connectedDevices))
+              _state.value = DeviceListViewState.DeviceListUpdate(connectedDevices)
             }
             is AudioPenDetector.DetectorEvent.Disconnected -> {
               connectedDevices.remove(event.device)
-              channel.send(DeviceListViewState.DeviceListUpdate(connectedDevices))
+              _state.value = DeviceListViewState.DeviceListUpdate(connectedDevices)
             }
           }
         }
     }
   }
 
-  override fun selectAudioPen(device: AudioPenDevice?) {
+  fun selectAudioPen(device: AudioPenDevice?) {
     scope.launch {
       if (device == null) {
-        channel.send(DeviceListViewState.DeviceBookUpdate(emptyList()))
+        _state.value = DeviceListViewState.DeviceBookUpdate(emptyList())
       } else {
         currentlyLoadedDeviceBookInfos = deviceManager
           .first { it.type == device.type }
           .booksFromDevice(device)
-        channel.send(DeviceListViewState.DeviceBookUpdate(currentlyLoadedDeviceBookInfos))
+        _state.value = DeviceListViewState.DeviceBookUpdate(currentlyLoadedDeviceBookInfos)
       }
     }
   }
 
-  override fun filterDeviceBooks(filter: String?) {
-    scope.launch {
-      channel.send(DeviceListViewState.DeviceBookUpdate(filter(filter, currentlyLoadedDeviceBookInfos)))
-    }
+  fun filterDeviceBooks(filter: String?) {
+    _state.value = DeviceListViewState.DeviceBookUpdate(filter(filter, currentlyLoadedDeviceBookInfos))
   }
 
   private fun filter(filter: String?, books: List<BookDisplay>): List<BookDisplay> {

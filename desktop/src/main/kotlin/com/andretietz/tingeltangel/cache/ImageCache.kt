@@ -1,6 +1,9 @@
 package com.andretietz.tingeltangel.cache
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.lang.IllegalStateException
 import java.math.BigInteger
 import java.net.URL
 import java.security.MessageDigest
@@ -15,22 +18,24 @@ class ImageCache(
     }
   }
 
-  suspend fun image(url: URL, update: (image: File) -> Unit) {
+  @Suppress("BlockingMethodInNonBlockingContext")
+  suspend fun image(url: URL): File = withContext(Dispatchers.IO) {
     File(cacheDir, "${md5(url.toString())}${extension(url)}").also { file ->
       if (file.exists()) {
-        update(file)
+        return@withContext file
       } else {
         if (file.createNewFile()) {
           url.openStream().use { input ->
             file.outputStream().use { output -> input.copyTo(output) }
           }
-          update(file)
+          return@withContext file
         }
       }
     }
+    throw IllegalStateException()
   }
 
-  suspend fun clear() {
+  suspend fun clear() = withContext(Dispatchers.Default) {
     cacheDir.deleteRecursively()
   }
 

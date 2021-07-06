@@ -9,9 +9,7 @@ import com.andretietz.audiopen.localbooks.LocalBookSource
 import com.andretietz.audiopen.persistance.JsonBookPersister
 import com.andretietz.audiopen.remote.BookSource
 import com.andretietz.audiopen.ting.TingSource
-import com.andretietz.audiopen.view.devices.DeviceListInteractor
 import com.andretietz.audiopen.view.devices.DeviceListViewModel
-import com.andretietz.audiopen.view.sources.RemoteSourceInteractor
 import com.andretietz.audiopen.view.sources.RemoteSourceViewModel
 import com.andretietz.tingeltangel.cache.HttpCacheInterceptor
 import com.andretietz.tingeltangel.cache.ImageCache

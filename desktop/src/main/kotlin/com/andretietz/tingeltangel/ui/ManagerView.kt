@@ -4,9 +4,9 @@ import com.andretietz.audiopen.AudioPenDevice
 import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Thumbnail
 import com.andretietz.audiopen.Type
-import com.andretietz.audiopen.view.devices.DeviceListInteractor
+import com.andretietz.audiopen.view.devices.DeviceListViewModel
 import com.andretietz.audiopen.view.devices.DeviceListViewState
-import com.andretietz.audiopen.view.sources.RemoteSourceInteractor
+import com.andretietz.audiopen.view.sources.RemoteSourceViewModel
 import com.andretietz.audiopen.view.sources.RemoteSourceViewState
 import com.andretietz.tingeltangel.cache.ImageCache
 import com.andretietz.tingeltangel.component
@@ -19,7 +19,6 @@ import javafx.scene.layout.Region
 import javafx.scene.text.Font
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import org.kodein.di.generic.instance
 import tornadofx.View
@@ -41,8 +40,8 @@ import tornadofx.vbox
 class ManagerView : View() {
 
   private val coroutineScope by component().instance<CoroutineScope>()
-  private val remoteInteractor by component().instance<RemoteSourceInteractor>()
-  private val deviceListInteractor by component().instance<DeviceListInteractor>()
+  private val remoteInteractor by component().instance<RemoteSourceViewModel>()
+  private val deviceListInteractor by component().instance<DeviceListViewModel>()
   private val imageCache by component().instance<ImageCache>()
 
   private val localBooks = SimpleListProperty<BookDisplay>()
@@ -65,12 +64,13 @@ class ManagerView : View() {
   init {
     title = messages["view_title"]
 
+
     coroutineScope.launch {
-      remoteInteractor.state.consumeAsFlow()
+      remoteInteractor.state
         .collect { runLater { updateRemoteSource(it) } }
     }
     coroutineScope.launch {
-      deviceListInteractor.state.consumeAsFlow()
+      deviceListInteractor.state
         .collect { runLater { updateDeviceList(it) } }
     }
 
@@ -157,13 +157,12 @@ class ManagerView : View() {
                   fitHeight = IMAGE_MAX_HEIGHT
                   fitWidth = IMAGE_MAX_HEIGHT
                   coroutineScope.launch {
-                    imageCache.image(thumbnail.url) { file ->
-                      val img = Image(file.inputStream())
-                      val (width, height) = scaleDownAndKeepRatio(img)
-                      fitHeight = height
-                      fitWidth = width
-                      runLater { image = img }
-                    }
+                    val file = imageCache.image(thumbnail.url)
+                    val img = Image(file.inputStream())
+                    val (width, height) = scaleDownAndKeepRatio(img)
+                    fitHeight = height
+                    fitWidth = width
+                    runLater { image = img }
                   }
                 }
                 is Thumbnail.Local -> imageview {

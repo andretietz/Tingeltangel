@@ -3,41 +3,38 @@ package com.andretietz.audiopen.view.sources
 import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Type
 import com.andretietz.audiopen.remote.BookSource
-import com.andretietz.audiopen.view.BaseViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RemoteSourceViewModel(
-  override val scope: CoroutineScope,
+  private val scope: CoroutineScope,
   private val source: List<BookSource>
-) : BaseViewModel<RemoteSourceViewState>(scope), RemoteSourceInteractor {
+) {
 
-  private lateinit var currentlyLoadedLocalBookInfos: List<BookDisplay>
+  private val _state = MutableStateFlow<RemoteSourceViewState>(RemoteSourceViewState.Init(source.map { it.type }))
+  val state: StateFlow<RemoteSourceViewState> = _state
 
-  init {
-    channel.apply {
-      scope.launch {
-        currentlyLoadedLocalBookInfos = source.first().availableBooks()
-        send(RemoteSourceViewState.Init(source.map { it.type }))
-      }
-    }
-  }
+  private var currentlyLoadedLocalBookInfos: List<BookDisplay> = emptyList()
 
-  override fun selectBookSource(sourceType: Type?) {
+  fun selectBookSource(sourceType: Type?) {
     scope.launch {
       if (sourceType == null) {
-        channel.send(RemoteSourceViewState.BookListUpdate(emptyList()))
+        _state.value = RemoteSourceViewState.BookListUpdate(emptyList())
       } else {
-        currentlyLoadedLocalBookInfos = source.first { it.type == sourceType }.availableBooks()
-        channel.send(RemoteSourceViewState.BookListUpdate(currentlyLoadedLocalBookInfos))
+        withContext(Dispatchers.IO) {
+          currentlyLoadedLocalBookInfos = source.first { it.type == sourceType }.availableBooks()
+        }
+        _state.value = RemoteSourceViewState.BookListUpdate(currentlyLoadedLocalBookInfos)
       }
     }
   }
 
-  override fun filterRemoteBooks(filter: String?) {
-    scope.launch {
-      channel.send(RemoteSourceViewState.BookListUpdate(filter(filter, currentlyLoadedLocalBookInfos)))
-    }
+  fun filterRemoteBooks(filter: String?) {
+    _state.value = RemoteSourceViewState.BookListUpdate(filter(filter, currentlyLoadedLocalBookInfos))
   }
 
   private fun filter(filter: String?, books: List<BookDisplay>): List<BookDisplay> {
