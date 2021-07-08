@@ -1,6 +1,6 @@
 .idea
 /tingeltangel.iml
-
+local.properties
 nbactions.xml
 tt.log
 tt.properties

@@ -9,6 +9,7 @@ dependencies {
   api(kotlin("reflect"))
 
   implementation(Dependencies.retrofit.retrofit)
+  implementation("com.andretietz.retrofit:cache-extension:1.0.0")
   implementation(Dependencies.retrofit.moshiConverter)
   implementation(Dependencies.moshi.moshi)
   kapt(Dependencies.moshi.moshiCodegen)

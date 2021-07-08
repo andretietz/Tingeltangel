@@ -2,7 +2,7 @@ rootProject.name = "tingeltangel"
 
 include(
   "core",
-  "assembler",
+//  "assembler",
   "application",
   "audiopen-bookii",
   "audiopen-ting",

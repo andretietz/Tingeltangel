@@ -4,6 +4,8 @@ import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Thumbnail
 import com.andretietz.audiopen.bookii.remote.BookiiApi
 import com.andretietz.audiopen.remote.BookSource
+import com.andretietz.retrofit.responseCache
+import okhttp3.Cache
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -23,7 +25,9 @@ class BookiiSource(
       .baseUrl(baseUrl)
       .addConverterFactory(MoshiConverterFactory.create())
       .client(httpClient)
-      .build().create(BookiiApi::class.java)
+      .build()
+      .responseCache(Cache(cacheDir, 10 * 1024 * 1024))
+      .create(BookiiApi::class.java)
   }
 
   override suspend fun availableBooks(): List<BookDisplay> = api.versions().map { it.key }

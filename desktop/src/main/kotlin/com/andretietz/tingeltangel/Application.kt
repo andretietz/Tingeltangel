@@ -5,7 +5,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.andretietz.audiopen.bookii.BookiiDeviceManager
+import com.andretietz.audiopen.bookii.BookiiSource
+import com.andretietz.audiopen.ting.TingSource
+import com.andretietz.tingeltangel.devicedetector.DummyAudioPenDetector
+import com.andretietz.tingeltangel.devicedetector.DummyDeviceManager
+import com.andretietz.tingeltangel.devicedetector.USBDriveDetectorAudioPenDetector
 import com.andretietz.tingeltangel.ui.TingeltangelTheme
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.io.File
@@ -21,7 +28,7 @@ class Application {
     /**
      * Application global coroutine scope.
      */
-    val coroutineScope = CoroutineScope(Dispatchers.IO)
+    val coroutineScope = CoroutineScope(Dispatchers.Default + CoroutineName("TingeltangelMain"))
     private val HOME = System.getProperty("user.home")
     private val CACHE_DIR = File("$HOME/.tingeltangel/cache/")
 
@@ -41,7 +48,17 @@ class Application {
         initialAlignment = Alignment.Center,
         resizable = false
       ) {
-        ManagerView()
+        val deviceManager = listOf(BookiiDeviceManager(), DummyDeviceManager())
+        ManagerView(
+          coroutineScope,
+          listOf(
+            TingSource(CACHE_DIR),
+            BookiiSource(CACHE_DIR),
+          ),
+          deviceManager,
+          DummyAudioPenDetector(File(CACHE_DIR, "dummydevice"))
+//          USBDriveDetectorAudioPenDetector(deviceManager, coroutineScope)
+        )
       }
     }
   }

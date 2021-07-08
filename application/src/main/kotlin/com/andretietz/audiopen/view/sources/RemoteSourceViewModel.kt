@@ -12,36 +12,68 @@ import kotlinx.coroutines.withContext
 
 class RemoteSourceViewModel(
   private val scope: CoroutineScope,
-  private val source: List<BookSource>
+  private val source: List<BookSource>,
+  private val copyBook: (book: BookDisplay) -> Unit
 ) {
 
-  private val _state = MutableStateFlow<RemoteSourceViewState>(RemoteSourceViewState.Init(source.map { it.type }))
+  private val _state = MutableStateFlow<RemoteSourceViewState>(
+    RemoteSourceViewState.Loading(
+      false,
+      source.map { it.type },
+      source.map { it.type }.first()
+    ))
   val state: StateFlow<RemoteSourceViewState> = _state
 
   private var currentlyLoadedLocalBookInfos: List<BookDisplay> = emptyList()
 
-  fun selectBookSource(sourceType: Type?) {
+  init {
+    selectBookSource(_state.value.selectedType)
+  }
+
+  fun selectBookSource(sourceType: Type) {
     scope.launch {
-      if (sourceType == null) {
-        _state.value = RemoteSourceViewState.BookListUpdate(emptyList())
-      } else {
-        withContext(Dispatchers.IO) {
-          currentlyLoadedLocalBookInfos = source.first { it.type == sourceType }.availableBooks()
-        }
-        _state.value = RemoteSourceViewState.BookListUpdate(currentlyLoadedLocalBookInfos)
+      _state.value = RemoteSourceViewState.Loading(
+        _state.value.hasDeviceConnected,
+        source.map { it.type },
+        sourceType
+      )
+      withContext(Dispatchers.IO) {
+        currentlyLoadedLocalBookInfos = source.first { it.type == sourceType }.availableBooks()
       }
+      _state.value = RemoteSourceViewState.BookListUpdate(
+        _state.value.hasDeviceConnected,
+        _state.value.bookTypes,
+        sourceType,
+        currentlyLoadedLocalBookInfos)
     }
   }
 
   fun filterRemoteBooks(filter: String?) {
-    _state.value = RemoteSourceViewState.BookListUpdate(filter(filter, currentlyLoadedLocalBookInfos))
+    _state.value = RemoteSourceViewState.BookListUpdate(
+      _state.value.hasDeviceConnected,
+      _state.value.bookTypes,
+      _state.value.selectedType,
+      filter(filter, currentlyLoadedLocalBookInfos))
   }
 
   private fun filter(filter: String?, books: List<BookDisplay>): List<BookDisplay> {
     return if (filter == null) {
       books
     } else {
-      books.filter { it.title.contains(filter) || it.id.contains(filter) }
+      books.filter { it.title.lowercase().contains(filter.lowercase()) || it.id.contains(filter) }
+    }
+  }
+
+  fun transferBook(bookDisplay: BookDisplay) = copyBook(bookDisplay)
+
+  fun deviceConnected(connected: Boolean) {
+    when (val state = _state.value) {
+      is RemoteSourceViewState.Loading -> {
+        _state.value = RemoteSourceViewState.Loading(connected, state.bookTypes, state.selectedType)
+      }
+      is RemoteSourceViewState.BookListUpdate -> {
+        _state.value = RemoteSourceViewState.BookListUpdate(connected, state.bookTypes, state.selectedType, state.bookInfos)
+      }
     }
   }
 }

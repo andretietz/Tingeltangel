@@ -1,3 +1,5 @@
+In order to build this project you need to use jdk >=16
+
 # aupen
 A tool for audio-pens, such as:
 * [Ting](http://www.ting.eu/en/)

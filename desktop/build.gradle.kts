@@ -8,7 +8,7 @@ plugins {
   id("org.jetbrains.compose")
 }
 
-val applicationVersion by extra("0.1.0")
+val applicationVersion by extra("1.0.0")
 
 group = "com.andretietz.tingeltangel"
 version = applicationVersion
@@ -46,8 +46,8 @@ compose.desktop {
     mainClass = "com.andretietz.tingeltangel.Application"
 
     nativeDistributions {
-      targetFormats(TargetFormat.Msi)
-      packageName = project.name
+      targetFormats(TargetFormat.Msi, TargetFormat.Dmg)
+      packageName = "tingeltangel"
       packageVersion = project.version as String
       description =
         "an application that downloads several sources of audiopen books and can transfer them to several targets"
@@ -59,6 +59,14 @@ compose.desktop {
         // see https://wixtoolset.org/documentation/manual/v3/howtos/general/generate_guids.html
         // see https://www.guidgen.com/
         upgradeUuid = "1859e70d-619d-4f34-98ee-5d2f3fce2de1"
+      }
+
+      macOS {
+        iconFile.value { project.file("src/main/resources/images/icon.icns") }
+      }
+
+      linux {
+        iconFile.value { project.file("src/main/resources/images/icon.png") }
       }
     }
   }

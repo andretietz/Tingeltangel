@@ -12,15 +12,18 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import net.samuelcampos.usbdrivedetector.USBDeviceDetectorManager
 import net.samuelcampos.usbdrivedetector.events.DeviceEventType
+import net.samuelcampos.usbdrivedetector.events.IUSBDriveListener
 
-class WindowsAudioPenDetector(
+class USBDriveDetectorAudioPenDetector(
   private val contracts: List<DeviceManager>,
   private val scope: CoroutineScope
 ) : AudioPenDetector {
 
+  private val driveDetector = USBDeviceDetectorManager()
+
   @ExperimentalCoroutinesApi
   override fun detect(): Flow<AudioPenDetector.DetectorEvent> = callbackFlow {
-    USBDeviceDetectorManager().addDriveListener { event ->
+    val listener = IUSBDriveListener { event ->
       contracts.map { contract ->
         scope.launch {
           val device = AudioPenDevice(
@@ -38,6 +41,10 @@ class WindowsAudioPenDetector(
         }
       }
     }
-    awaitClose { cancel() }
+    driveDetector.addDriveListener(listener)
+    awaitClose {
+      driveDetector.removeDriveListener(listener)
+      cancel()
+    }
   }
 }
