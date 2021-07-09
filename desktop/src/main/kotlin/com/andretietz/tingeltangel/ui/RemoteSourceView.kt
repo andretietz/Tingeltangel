@@ -1,17 +1,15 @@
 package com.andretietz.tingeltangel.ui
 
+import BookItemView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -29,13 +27,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.view.sources.RemoteSourceViewModel
 import com.andretietz.audiopen.view.sources.RemoteSourceViewState
+import com.andretietz.tingeltangel.cache.ImageCache
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 @Composable
 fun RemoteSourceView(
-  remoteSourceViewModel: RemoteSourceViewModel
+  remoteSourceViewModel: RemoteSourceViewModel,
+  imageCache: ImageCache,
+  scope: CoroutineScope = CoroutineScope(Dispatchers.Default + CoroutineName("ImageCreation"))
 ) {
   val state = remoteSourceViewModel.state.collectAsState().value
 
@@ -68,8 +71,34 @@ fun RemoteSourceView(
 //          state = listState
         ) {
           items(state.bookInfos, key = { item -> "${state.selectedType.type}+${item.id}" }) { item ->
-            BookDisplayItemView(item, state.hasDeviceConnected) {
-              remoteSourceViewModel.transferBook(it)
+            BookItemView(item, imageCache, scope) {
+              var menuShown by remember { mutableStateOf(false) }
+              IconButton(
+                onClick = { menuShown = true },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                enabled = state.hasDeviceConnected
+              ) {
+                Image(
+                  imageVector = Icons.Outlined.FileCopy,
+                  "DropdownArrow",
+                )
+                DropdownMenu(
+                  expanded = menuShown,
+                  onDismissRequest = { menuShown = false }
+                ) {
+                  DropdownMenuItem(
+                    onClick = {
+                      menuShown = false
+                      remoteSourceViewModel.transferBook(item)
+                    }
+                  ) {
+                    Box(Modifier
+                      .fillMaxWidth()
+                      .align(Alignment.CenterVertically)
+                    ) { Text("Copy to Device") }
+                  }
+                }
+              }
             }
           }
         }
@@ -78,48 +107,4 @@ fun RemoteSourceView(
   }
 }
 
-@Composable
-private fun BookDisplayItemView(
-  item: BookDisplay,
-  deviceConnected: Boolean,
-  copyBook: (item: BookDisplay) -> Unit
-) {
-  var menuShown by remember { mutableStateOf(false) }
-  Card(modifier = Modifier
-    .fillMaxWidth()
-    .padding(4.dp)
-  ) {
-    Row(modifier = Modifier.fillMaxWidth().height(100.dp)) {
-      Text("${item.title} (${item.id})", modifier = Modifier
-        .weight(1f)
-        .align(Alignment.CenterVertically))
-      IconButton(
-        onClick = { menuShown = true },
-        modifier = Modifier.align(Alignment.CenterVertically),
-        enabled = deviceConnected
-      ) {
-        Image(
-          imageVector = Icons.Outlined.FileCopy,
-          "DropdownArrow",
-        )
-        DropdownMenu(
-          expanded = menuShown,
-          onDismissRequest = { menuShown = false }
-        ) {
-          DropdownMenuItem(
-            onClick = {
-              menuShown = false
-              copyBook(item)
-            }
-          ) {
-            Box(Modifier
-              .fillMaxWidth()
-              .align(Alignment.CenterVertically)
-            ) { Text("Copy to Device") }
-          }
-        }
-      }
-    }
 
-  }
-}

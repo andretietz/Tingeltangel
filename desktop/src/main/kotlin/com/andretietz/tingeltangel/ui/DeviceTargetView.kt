@@ -1,5 +1,6 @@
 package com.andretietz.tingeltangel.ui
 
+import BookItemView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,10 +28,14 @@ import com.andretietz.audiopen.AudioPenDevice
 import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.view.devices.DeviceListViewModel
 import com.andretietz.audiopen.view.devices.DeviceListViewState
+import com.andretietz.tingeltangel.cache.ImageCache
+import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun DeviceTargetView(
-  deviceListViewModel: DeviceListViewModel
+  deviceListViewModel: DeviceListViewModel,
+  scope: CoroutineScope,
+  imageCache: ImageCache
 ) {
   val state = deviceListViewModel.state.collectAsState().value
 
@@ -70,10 +75,9 @@ fun DeviceTargetView(
         )
         LazyColumn(
           contentPadding = PaddingValues(4.dp),
-//          state = listState
         ) {
           items(state.books, key = { item -> "${state.selectedDevice.type}+${item.id}" }) { item ->
-            BookDisplayItemView(item)
+            BookItemView(item, imageCache, scope) {}
           }
         }
       }

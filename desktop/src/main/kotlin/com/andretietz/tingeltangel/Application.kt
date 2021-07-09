@@ -8,9 +8,9 @@ import androidx.compose.ui.window.rememberWindowState
 import com.andretietz.audiopen.bookii.BookiiDeviceManager
 import com.andretietz.audiopen.bookii.BookiiSource
 import com.andretietz.audiopen.ting.TingSource
+import com.andretietz.tingeltangel.cache.ImageCache
 import com.andretietz.tingeltangel.devicedetector.DummyAudioPenDetector
 import com.andretietz.tingeltangel.devicedetector.DummyDeviceManager
-import com.andretietz.tingeltangel.devicedetector.USBDriveDetectorAudioPenDetector
 import com.andretietz.tingeltangel.ui.TingeltangelTheme
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +32,7 @@ class Application {
     private val HOME = System.getProperty("user.home")
     private val CACHE_DIR = File("$HOME/.tingeltangel/cache/")
 
+    private val imageCache = ImageCache(File(CACHE_DIR, "images"))
     private const val CACHE_SIZE = 50L * 1024L * 1024L // 50MB
     private const val CACHE_AGE_TIME = 24
   }
@@ -56,8 +57,9 @@ class Application {
             BookiiSource(CACHE_DIR),
           ),
           deviceManager,
-          DummyAudioPenDetector(File(CACHE_DIR, "dummydevice"))
-//          USBDriveDetectorAudioPenDetector(deviceManager, coroutineScope)
+          DummyAudioPenDetector(File(CACHE_DIR, "dummydevice")),
+//          USBDriveDetectorAudioPenDetector(deviceManager, coroutineScope),
+          imageCache
         )
       }
     }

@@ -14,6 +14,7 @@ class LocalBookSource(
     return bookPersister.load().map { book ->
       BookDisplay(
         book.id.toString(),
+        TYPE,
         book.title,
         book.thumbnail
       )

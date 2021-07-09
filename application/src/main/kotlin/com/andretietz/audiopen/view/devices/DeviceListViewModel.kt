@@ -16,7 +16,7 @@ class DeviceListViewModel(
   private val scope: CoroutineScope,
   private val deviceManager: List<DeviceManager>,
   private val deviceDetector: AudioPenDetector,
-  private val onDeviceListChange: (devices: List<AudioPenDevice>) -> Unit
+  private val onDeviceListChange: (devices: List<AudioPenDevice>, selected: AudioPenDevice?) -> Unit
 ) {
 
   private val _state = MutableStateFlow<DeviceListViewState>(DeviceListViewState.NoDeviceConnected)
@@ -44,7 +44,7 @@ class DeviceListViewModel(
                   _state.value = DeviceListViewState.DeviceListUpdate(connectedDevices, connectedDevices.first())
                   selectAudioPen(event.device)
                 }
-                onDeviceListChange(connectedDevices)
+                onDeviceListChange(connectedDevices, event.device)
               }
               is AudioPenDetector.DetectorEvent.Disconnected -> {
                 connectedDevices.remove(event.device)
@@ -53,7 +53,7 @@ class DeviceListViewModel(
                 } else {
                   _state.value = DeviceListViewState.NoDeviceConnected
                 }
-                onDeviceListChange(connectedDevices)
+                onDeviceListChange(connectedDevices, null)
               }
             }
           }

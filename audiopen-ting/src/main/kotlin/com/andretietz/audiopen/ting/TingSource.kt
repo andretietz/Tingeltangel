@@ -31,6 +31,7 @@ class TingSource(
       }.map {
         BookDisplay(
           it.id,
+          type,
           it.title,
           Thumbnail.Remote(
             THUMBNAIL_FILE.format(

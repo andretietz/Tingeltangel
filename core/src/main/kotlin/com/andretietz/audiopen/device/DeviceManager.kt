@@ -24,4 +24,9 @@ interface DeviceManager {
    * @return all books, located on this device.
    */
   suspend fun booksFromDevice(device: AudioPenDevice): List<BookDisplay>
+
+  /**
+   *
+   */
+  suspend fun transfer(book: BookDisplay, device: AudioPenDevice)
 }

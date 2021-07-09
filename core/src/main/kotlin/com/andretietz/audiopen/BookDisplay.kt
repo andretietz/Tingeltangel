@@ -7,6 +7,11 @@ data class BookDisplay(
   val id: String,
 
   /**
+   * [AudioPenDevice]type
+   */
+  val type: Type,
+
+  /**
    * title of the book.
    */
   val title: String,

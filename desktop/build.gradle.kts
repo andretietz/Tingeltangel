@@ -26,8 +26,6 @@ dependencies {
   implementation(Dependencies.inject.dagger2.dagger)
   kapt(Dependencies.inject.dagger2.compiler)
 
-  implementation("org.kodein.di:kodein-di-generic-jvm:6.5.1")
-
   // logging
   implementation("org.apache.logging.log4j:log4j:2.13.0")
   implementation("org.slf4j:slf4j-log4j12:1.7.30")

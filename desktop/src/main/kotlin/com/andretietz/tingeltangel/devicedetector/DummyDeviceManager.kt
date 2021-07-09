@@ -14,4 +14,7 @@ class DummyDeviceManager : DeviceManager {
   override fun verifyDevice(rootDir: File) = true
 
   override suspend fun booksFromDevice(device: AudioPenDevice): List<BookDisplay> = deviceBookList
+  override suspend fun transfer(book: BookDisplay, device: AudioPenDevice) {
+    TODO("Not yet implemented")
+  }
 }
