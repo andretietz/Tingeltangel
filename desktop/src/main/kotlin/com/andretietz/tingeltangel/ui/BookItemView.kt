@@ -20,55 +20,78 @@ import androidx.compose.ui.unit.dp
 import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Thumbnail
 import com.andretietz.tingeltangel.cache.ImageCache
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 @Composable
 fun BookItemView(
   item: BookDisplay,
   imageCache: ImageCache,
-  scope: CoroutineScope,
-  iconView: @Composable (scope: RowScope) -> Unit
+  iconView: @Composable (scope: RowScope) -> Unit = {}
 ) {
-  var imageState by remember { mutableStateOf<ImageBitmap?>(null) }
-  Card(modifier = Modifier
-    .fillMaxWidth()
-    .padding(4.dp)
+  Card(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(4.dp)
   ) {
     Row(modifier = Modifier.fillMaxWidth().height(100.dp)) {
-      val modifier = Modifier
-        .padding(8.dp)
-        .width(80.dp)
-        .height(80.dp)
-      when (val thumbnail = item.thumbnail) {
-        is Thumbnail.Remote -> {
-          val image = imageState
-          image?.let { Image(it, item.title, modifier) }
-          scope.launch {
-            val file = imageCache.image(thumbnail.url)
-            val bitmap = withContext(Dispatchers.Default) {
-              org.jetbrains.skija.Image.makeFromEncoded(file.readBytes()).asImageBitmap()
-            }
-            withContext(Dispatchers.Main) { imageState = bitmap }
-          }
-        }
-        is Thumbnail.Local -> {
-          val image = imageState
-          image?.let { Image(it, item.title, modifier) }
-          scope.launch {
-            val bitmap = withContext(Dispatchers.Default) {
-              org.jetbrains.skija.Image.makeFromEncoded(thumbnail.file.readBytes()).asImageBitmap()
-            }
-            withContext(Dispatchers.Main) { imageState = bitmap }
-          }
-        }
-      }
-      Text("${item.title} (${item.id})", modifier = Modifier
-        .weight(1f)
-        .align(Alignment.CenterVertically))
+      ImageView(item.thumbnail, item.title, imageCache)
+      Text(
+        "${item.title} (${item.id})", modifier = Modifier
+          .weight(1f)
+          .align(Alignment.CenterVertically)
+      )
       iconView(this)
     }
+  }
+}
+
+@Composable
+fun ImageView(
+  thumbnail: Thumbnail,
+  contentDescription: String,
+  imageCache: ImageCache,
+  scope: CoroutineScope = CoroutineScope(CoroutineName("ImageScope"))
+) {
+  val modifier = Modifier
+    .padding(8.dp)
+    .width(80.dp)
+    .height(80.dp)
+  var imageState by remember { mutableStateOf<ImageBitmap?>(null) }
+  when (thumbnail) {
+    is Thumbnail.Remote -> {
+      val image = imageState
+      image?.let { Image(it, contentDescription, modifier) }
+      scope.launch {
+        val file = imageCache.image(thumbnail.url)
+        val bitmap: ImageBitmap? = fileToImageBitmap(file)
+        if (bitmap != null) {
+          withContext(Dispatchers.Main) { imageState = bitmap }
+        }
+      }
+    }
+    is Thumbnail.Local -> {
+      val image = imageState
+      image?.let { Image(it, contentDescription, modifier) }
+      scope.launch {
+        val bitmap: ImageBitmap? = fileToImageBitmap(thumbnail.file)
+        if (bitmap != null) {
+          withContext(Dispatchers.Main) { imageState = bitmap }
+        }
+      }
+    }
+  }
+}
+
+
+suspend fun fileToImageBitmap(file: File): ImageBitmap? = withContext(Dispatchers.Default) {
+  try {
+    org.jetbrains.skija.Image.makeFromEncoded(file.readBytes()).asImageBitmap()
+  } catch (_: Throwable) {
+    null
   }
 }

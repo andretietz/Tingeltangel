@@ -30,15 +30,11 @@ import androidx.compose.ui.unit.dp
 import com.andretietz.audiopen.view.sources.RemoteSourceViewModel
 import com.andretietz.audiopen.view.sources.RemoteSourceViewState
 import com.andretietz.tingeltangel.cache.ImageCache
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
 @Composable
 fun RemoteSourceView(
   remoteSourceViewModel: RemoteSourceViewModel,
-  imageCache: ImageCache,
-  scope: CoroutineScope = CoroutineScope(Dispatchers.Default + CoroutineName("ImageCreation"))
+  imageCache: ImageCache
 ) {
   val state = remoteSourceViewModel.state.collectAsState().value
 
@@ -71,7 +67,7 @@ fun RemoteSourceView(
 //          state = listState
         ) {
           items(state.bookInfos, key = { item -> "${state.selectedType.type}+${item.id}" }) { item ->
-            BookItemView(item, imageCache, scope) {
+            BookItemView(item, imageCache) {
               var menuShown by remember { mutableStateOf(false) }
               IconButton(
                 onClick = { menuShown = true },
@@ -92,9 +88,10 @@ fun RemoteSourceView(
                       remoteSourceViewModel.transferBook(item)
                     }
                   ) {
-                    Box(Modifier
-                      .fillMaxWidth()
-                      .align(Alignment.CenterVertically)
+                    Box(
+                      Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterVertically)
                     ) { Text("Copy to Device") }
                   }
                 }

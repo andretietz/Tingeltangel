@@ -43,8 +43,7 @@ class BookiiDeviceManager : DeviceManager {
   }
 
   override suspend fun transfer(book: BookDisplay, device: AudioPenDevice) = withContext(Dispatchers.Default) {
-    // TODO
-    println("Transfer Book($book) to bookii device ($device)")
+
   }
 
   private fun parseInfoFile(infoFile: File): DeviceBook? {
@@ -54,11 +53,10 @@ class BookiiDeviceManager : DeviceManager {
 
     if (!infoFile.exists() || !thumbnailFile.exists() || !dataFile.exists()) return null
 
-    val map = infoFile.readLines()
-      .map {
-        val item = it.split(":")
-        item[0].trim() to item[1].trim()
-      }.toMap()
+    val map = infoFile.readLines().associate {
+      val item = it.split(":")
+      item[0].trim() to item[1].trim()
+    }
 
     return DeviceBook(
       id.toInt().toString(),

@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.andretietz.audiopen.AudioPenDevice
 import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.view.devices.DeviceListViewModel
 import com.andretietz.audiopen.view.devices.DeviceListViewState
@@ -77,7 +76,7 @@ fun DeviceTargetView(
           contentPadding = PaddingValues(4.dp),
         ) {
           items(state.books, key = { item -> "${state.selectedDevice.type}+${item.id}" }) { item ->
-            BookItemView(item, imageCache, scope) {}
+            BookItemView(item, imageCache)
           }
         }
       }
