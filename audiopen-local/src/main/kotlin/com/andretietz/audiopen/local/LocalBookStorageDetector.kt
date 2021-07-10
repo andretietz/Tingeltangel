@@ -20,8 +20,14 @@ class LocalBookStorageDetector(
   }
 
   override fun detect(): Flow<AudioPenDetector.DetectorEvent> = flow {
-    emit(AudioPenDetector.DetectorEvent.Connected(
-      AudioPenDevice("dummy", Type("dummy", "dummy"), localBookStore)
-    ))
+    emit(
+      AudioPenDetector.DetectorEvent.Connected(
+        AudioPenDevice(
+          "00000000-0000-0000-0000-000000000000",
+          Type("Local Book Storage", "local"),
+          localBookStore
+        )
+      )
+    )
   }
 }

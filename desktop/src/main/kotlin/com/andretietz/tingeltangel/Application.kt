@@ -1,6 +1,6 @@
 package com.andretietz.tingeltangel
 
-import ManagerView
+import BookTransferView
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -8,10 +8,11 @@ import androidx.compose.ui.window.rememberWindowState
 import com.andretietz.audiopen.bookii.BookiiDeviceManager
 import com.andretietz.audiopen.bookii.BookiiSource
 import com.andretietz.audiopen.local.LocalBookStorageDetector
+import com.andretietz.audiopen.local.LocalStorageManager
 import com.andretietz.audiopen.ting.TingSource
+import com.andretietz.audiopen.view.transfer.BookTransferViewModel
 import com.andretietz.tingeltangel.cache.ImageCache
 import com.andretietz.tingeltangel.devicedetector.CompositeAudioPenDetector
-import com.andretietz.tingeltangel.devicedetector.DummyDeviceManager
 import com.andretietz.tingeltangel.devicedetector.USBDriveDetectorAudioPenDetector
 import com.andretietz.tingeltangel.ui.TingeltangelTheme
 import kotlinx.coroutines.CoroutineName
@@ -35,6 +36,7 @@ class Application {
     private val CACHE_DIR = File("$HOME/.tingeltangel/cache/")
 
     private val imageCache = ImageCache(File(CACHE_DIR, "images"))
+    private val localStore = File(CACHE_DIR, "local_book_storage")
     private const val CACHE_SIZE = 50L * 1024L * 1024L // 50MB
     private const val CACHE_AGE_TIME = 24
   }
@@ -51,8 +53,8 @@ class Application {
         initialAlignment = Alignment.Center,
         resizable = false
       ) {
-        val deviceManager = listOf(BookiiDeviceManager(), DummyDeviceManager())
-        ManagerView(
+        val deviceManager = listOf(BookiiDeviceManager(), LocalStorageManager(localStore))
+        BookTransferView(
           coroutineScope,
           listOf(
             TingSource(CACHE_DIR),
@@ -61,10 +63,12 @@ class Application {
           deviceManager,
           CompositeAudioPenDetector(
             listOf(
-              LocalBookStorageDetector(File(CACHE_DIR, "local_book_storage")),
-              USBDriveDetectorAudioPenDetector(deviceManager, coroutineScope))
+              LocalBookStorageDetector(localStore),
+              USBDriveDetectorAudioPenDetector(deviceManager, coroutineScope)
+            )
           ),
-          imageCache
+          imageCache,
+          BookTransferViewModel()
         )
       }
     }

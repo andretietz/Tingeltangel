@@ -64,9 +64,9 @@ class DeviceListViewModel(
   fun selectAudioPen(device: AudioPenDevice) {
     scope.launch(Dispatchers.Default) {
       currentlyLoadedDeviceBookInfos = deviceManager
-        .firstOrNull { it.type == device.type }
+        .firstOrNull { it.type.type == device.type.type }
         ?.booksFromDevice(device)
-        ?: throw IllegalStateException("Couldn't find a DeviceManager that can handle device type: ${device.type.type}")
+        ?: throw IllegalStateException("Couldn't find a DeviceManager that can handle device type: ${device.type.type} (${deviceManager.map { it.type.type }.joinToString(",")})")
       _state.value = DeviceListViewState.DeviceBookUpdate(
         devices = connectedDevices,
         device,

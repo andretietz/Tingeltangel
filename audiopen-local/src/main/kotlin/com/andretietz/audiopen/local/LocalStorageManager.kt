@@ -11,11 +11,11 @@ class LocalStorageManager(
   override val type = LocalStore.AUDIOPEN_TYPE
 
   override fun verifyDevice(rootDir: File): Boolean {
-    TODO("Not yet implemented")
+    return true
   }
 
   override suspend fun booksFromDevice(device: AudioPenDevice): List<BookDisplay> {
-    TODO("Not yet implemented")
+    return emptyList()
   }
 
   override suspend fun transfer(book: BookDisplay, device: AudioPenDevice) {
