@@ -20,6 +20,7 @@ dependencies {
   implementation(project(":application"))
   implementation(project(":audiopen-bookii"))
   implementation(project(":audiopen-ting"))
+  implementation(project(":audiopen-local"))
 
   implementation("net.samuelcampos:usbdrivedetector:2.1.1")
 
@@ -73,9 +74,9 @@ compose.desktop {
 tasks.withType<KotlinCompile> {
   kotlinOptions.jvmTarget = "16"
   kotlinOptions.freeCompilerArgs += "-Xuse-experimental=androidx.compose.ui.ExperimentalComposeUiApi"
+  kotlinOptions.freeCompilerArgs += "-Xuse-experimental=androidx.compose.animation.ExperimentalCoroutinesApi"
 //  kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlinx.coroutines.FlowPreview"
 //  kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi"
 //  kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi"
 //  kotlinOptions.freeCompilerArgs += "-Xuse-experimental=androidx.compose.animation.ExperimentalAnimationApi"
-//  kotlinOptions.freeCompilerArgs += "-Xuse-experimental=androidx.compose.animation.ExperimentalCoroutinesApi"
 }

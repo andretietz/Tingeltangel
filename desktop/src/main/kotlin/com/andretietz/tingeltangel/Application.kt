@@ -7,10 +7,12 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.andretietz.audiopen.bookii.BookiiDeviceManager
 import com.andretietz.audiopen.bookii.BookiiSource
+import com.andretietz.audiopen.local.LocalBookStorageDetector
 import com.andretietz.audiopen.ting.TingSource
 import com.andretietz.tingeltangel.cache.ImageCache
-import com.andretietz.tingeltangel.devicedetector.DummyAudioPenDetector
+import com.andretietz.tingeltangel.devicedetector.CompositeAudioPenDetector
 import com.andretietz.tingeltangel.devicedetector.DummyDeviceManager
+import com.andretietz.tingeltangel.devicedetector.USBDriveDetectorAudioPenDetector
 import com.andretietz.tingeltangel.ui.TingeltangelTheme
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -57,8 +59,11 @@ class Application {
             BookiiSource(CACHE_DIR),
           ),
           deviceManager,
-          DummyAudioPenDetector(File(CACHE_DIR, "dummydevice")),
-//          USBDriveDetectorAudioPenDetector(deviceManager, coroutineScope),
+          CompositeAudioPenDetector(
+            listOf(
+              LocalBookStorageDetector(File(CACHE_DIR, "local_book_storage")),
+              USBDriveDetectorAudioPenDetector(deviceManager, coroutineScope))
+          ),
           imageCache
         )
       }

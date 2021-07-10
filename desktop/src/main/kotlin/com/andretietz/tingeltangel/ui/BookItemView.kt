@@ -1,5 +1,4 @@
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,12 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Card
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.imageFromResource
 import androidx.compose.ui.unit.dp
 import com.andretietz.audiopen.BookDisplay
 import com.andretietz.audiopen.Thumbnail
@@ -31,8 +24,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
-//import com.google.accompanist.coil.rememberCoilPainter
 
 @Composable
 fun BookItemView(
@@ -54,23 +45,24 @@ fun BookItemView(
       when (val thumbnail = item.thumbnail) {
         is Thumbnail.Remote -> {
           val image = imageState
-          if (image != null) {
-
-            Image(image, item.title, modifier)
-          }
+          image?.let { Image(it, item.title, modifier) }
           scope.launch {
             val file = imageCache.image(thumbnail.url)
             val bitmap = withContext(Dispatchers.Default) {
               org.jetbrains.skija.Image.makeFromEncoded(file.readBytes()).asImageBitmap()
             }
-            withContext(Dispatchers.Main) {
-              imageState = bitmap
-            }
+            withContext(Dispatchers.Main) { imageState = bitmap }
           }
         }
         is Thumbnail.Local -> {
-          Image(imageFromResource(thumbnail.file.absolutePath), "",
-            modifier = modifier)
+          val image = imageState
+          image?.let { Image(it, item.title, modifier) }
+          scope.launch {
+            val bitmap = withContext(Dispatchers.Default) {
+              org.jetbrains.skija.Image.makeFromEncoded(thumbnail.file.readBytes()).asImageBitmap()
+            }
+            withContext(Dispatchers.Main) { imageState = bitmap }
+          }
         }
       }
       Text("${item.title} (${item.id})", modifier = Modifier
